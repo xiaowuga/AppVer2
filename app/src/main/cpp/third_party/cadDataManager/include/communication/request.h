@@ -1,0 +1,1 @@
+#pragma once #include<string> #include "util/fileUtil.h" namespace cadDataManager { 	class Request { 	public: 		Request() {}; 		~Request() {}; 	public: 		// GET 		bool get(const std::string& url, std::string& response); 	}; }

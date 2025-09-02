@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:glEsVersion="0x00030002"
+        android:required="true" />
+
+    <!-- Tell the system this app works in either 3dof or 6dof mode -->
+    <uses-feature
+        android:name="android.hardware.vr.headtracking"
+        android:required="false"
+        android:version="1" />
+
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>  <!-- 申请文件管理器权限，以便读取设备中的非媒体文件，可能需要手动在设备中授予App该权限 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- If building externally with the OpenXR loader AAR, this would be merged in automatically. -->
+    <uses-permission android:name="org.khronos.openxr.permission.OPENXR" />
+    <uses-permission android:name="org.khronos.openxr.permission.OPENXR_SYSTEM" />
+
+    <!-- (必须) 查询Runtime -->
+    <queries>
+        <package android:name="com.rokid.openxr.runtime" />
+    </queries>
+
+
+    <application
+        android:allowBackup="true"
+        android:requestLegacyExternalStorage="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode|density"
+            android:excludeFromRecents="false"
+            android:launchMode="singleTask"
+            android:resizeableActivity="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:exported="true"
+            tools:ignore="NonResizeableActivity">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="openxr_demo" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="org.khronos.openxr.intent.category.IMMERSIVE_HMD" />
+            </intent-filter>
+        </activity>
+
+        <!-- (必须) 适用于station2设备 -->
+        <uses-library android:name="com.rokid.sdk.st2.gesture"
+            android:required="false" />
+
+        <!-- (必须) 以下meta-data确保编译出来的应用可以在Launcher的"AR实验室"中显示 -->
+        <meta-data android:name="com.rokid.sdk" android:value="uxr"/>
+        <meta-data android:name="com.rokid.uxr.application.mode" android:value="3d" />
+        <meta-data android:name="android.allow_multiple_resumed_activities" android:value="true"/>
+    </application>
+
+</manifest>

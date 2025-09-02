@@ -1,0 +1,16 @@
+{
+  "cameraConfig": "Camera_rsD415.json",
+  "dataPath": "/home/lab/workspace/cxx/ARTest/data/",
+  "relativeShaderPath": "/ObjectTracking/asset/RBOT/src/",
+  "modelName": "squirrel",
+  "modelObjName": "squirrel_demo_low.obj",
+  "modelObjName2": "squirrel_demo_low.obj",
+  "initPose": [
+    [-0.85165083, 0.39713106, -0.34202012, 15],
+    [0.011513352, -0.63824022, -0.76975113, -35],
+    [-0.52398312, -0.65949702, 0.53898555, 515],
+    [0, 0, 0, 1]
+  ],
+  "imageSuffix": "frame.png",
+  "loopMode": true
+}
