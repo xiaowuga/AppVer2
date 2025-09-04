@@ -1,5 +1,5 @@
 #include "GestureUnderstanding.h"
-
+#include <chrono>
 
 GestureUnderstanding::GestureUnderstanding() {
     _moduleName = "GestureUnderstanding";
@@ -71,6 +71,29 @@ int GestureUnderstanding::Update(AppData &appData, SceneData &sceneData, FrameDa
                 i++;
             }
         }
+
+        // calculate the velocity of finger tip, we will use it during judging the effects of hand gesture
+        std::array<cv::Vec3f, HandPose::jointNum> joints = frameData->handPoses[1].getjoints();
+        auto index_mcp = joints[(int)HandJoint::INDEX_FINGER_MCP];
+        auto middle_mcp = joints[(int)HandJoint::MIDDLE_FINGER_MCP];
+        auto ring_mcp = joints[(int)HandJoint::RING_FINGER_MCP];
+        auto pinky_mcp = joints[(int)HandJoint::PINKY_MCP];
+
+        auto cur_time = std::chrono::steady_clock::now();
+        cv::Vec3f cur_finger_tip_position = (index_mcp + middle_mcp + ring_mcp + pinky_mcp) / 4.0f;
+        if (!frameData->getData("last_time").has_value()) {
+            // initialize
+            frameData->setData("last_time", cur_time);
+            frameData->setData("last_finger_mcp_position", cur_finger_tip_position);
+        }
+        std::chrono::steady_clock::time_point last_time = std::any_cast<std::chrono::steady_clock::time_point>(frameData->getData("last_time"));
+        cv::Vec3f last_finger_mcp_position = std::any_cast<cv::Vec3f>(frameData->getData("last_finger_mcp_positon"));
+        auto delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(cur_time - last_time).count(); // ms
+        auto delta_pos = cur_finger_tip_position - last_finger_mcp_position;
+
+        frameData->setData("tip_velocity", delta_pos / (float)delta_time * 1000.0f); // the velocity of the index finger tip, cv::Vec3f
+        frameData->setData("last_time", cur_time);
+        frameData->setData("last_finger_mcp_position", cur_finger_tip_position);
     }
     return STATE_OK;
 };
