@@ -160,6 +160,10 @@ class SceneObject
 {
 public:
     SceneObject() = default;
+    SceneObject(std::string name, Pose transform) :
+        name(name), transform(transform) {}
+    SceneObject(const std::string& name, const std::string& filepath, const Pose& transform)
+        : name(name), filePath(filepath), transform(transform) {}
 
 
     std::string  name;
