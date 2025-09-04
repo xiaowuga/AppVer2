@@ -25,6 +25,7 @@ public:
     std::vector<CollisionDetectionPair::Ptr> GetCollisionPairs(AppData& appData);
 	CollisionData::Ptr GetCollisionData(const std::string& fileName, const std::string& filePath, SceneObjectPtr sceneObjectPtr, CollisionBox collisionBox, cv::Vec3f dir);
 
+    std::unordered_map<std::string, CollisionData::Ptr> collisionDatas;
 private:
     static inline std::map<std::string, CollisionHandler::Ptr (*)()>* _collisionHandlerMapPtr = new std::map<std::string, CollisionHandler::Ptr(*)()>;
     static inline std::map<std::string, enum CollisionBox>* _collisionBoxMapPtr = new std::map<std::string, enum CollisionBox>;

@@ -52,8 +52,17 @@ CollisionDetectionPair::Ptr InteractionConfigLoader::GetCollisionPairAt(const in
 	int fileSplit = obj1Ptr->filePath.find_last_of("/");
 	std::string obj1FileName = obj1Ptr->filePath.substr(fileSplit + 1);
 	std::string obj1Path = obj1Ptr->filePath.substr(0, fileSplit);
-	CollisionData::Ptr obj1DataPtr = GetCollisionData(obj1FileName,
-        obj1Path, obj1Ptr, obj1Box, obj1Dir);
+
+    auto it = collisionDatas.find(obj1Name);
+    CollisionData::Ptr obj1DataPtr;
+    if (it == collisionDatas.end()) {
+        obj1DataPtr = GetCollisionData(obj1FileName, obj1Path, obj1Ptr, obj1Box, obj1Dir);
+        collisionDatas.insert({obj1Name, obj1DataPtr});
+    }
+    else {
+        obj1DataPtr = it->second;
+    }
+
 	std::string obj2Name = pairJson.at("Obj2").get<std::string>();
 	SceneObjectPtr obj2Ptr = _sceneData.getObject(obj2Name);
     if (obj2Ptr == nullptr) {
@@ -65,12 +74,22 @@ CollisionDetectionPair::Ptr InteractionConfigLoader::GetCollisionPairAt(const in
 	int fileSplit2 = obj2Ptr->filePath.find_last_of("/");
 	std::string obj2FileName = obj2Ptr->filePath.substr(fileSplit2 + 1);
 	std::string obj2Path = obj2Ptr->filePath.substr(0, fileSplit2);
-	CollisionData::Ptr obj2DataPtr = GetCollisionData(obj2FileName,
-        obj2Path, obj2Ptr, obj2Box, obj2Dir);
+
+    auto it2 = collisionDatas.find(obj1Name);
+    CollisionData::Ptr obj2DataPtr;
+    if (it2 == collisionDatas.end()) {
+        obj2DataPtr = GetCollisionData(obj2FileName, obj2Path, obj2Ptr, obj2Box, obj2Dir);
+        collisionDatas.insert({obj2Name, obj2DataPtr});
+    }
+    else {
+        obj2DataPtr = it2->second;
+    }
+
 	CollisionType collisionType = _collisionTypeMapPtr->at(pairJson.at("CollisionType").get<std::string>());
 	Gesture lGesture = _gestureMapPtr->at(pairJson.at("LGesture").get<std::string>());
 	Gesture rGesture = _gestureMapPtr->at(pairJson.at("RGesture").get<std::string>());
 	CollisionHandler::Ptr handler = _collisionHandlerMapPtr->at(pairJson.at("Handler").get<std::string>())();
+
     return CollisionDetectionPair::create(obj1DataPtr, obj2DataPtr, collisionType, handler, appData, lGesture, rGesture);;
 }
 CollisionData::Ptr InteractionConfigLoader::GetCollisionData(const std::string& fileName, const std::string& filePath, SceneObjectPtr sceneObjectPtr, CollisionBox collisionBox, cv::Vec3f dir) {

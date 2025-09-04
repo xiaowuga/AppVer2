@@ -597,6 +597,8 @@ public:
     static Ptr create() {
         return std::make_shared<CollisionData>();
     }
+
+    bool isActive = true;
 private:
     float _curLength = 0.5f;
     float _curExtentsRatio = 0.5f;
@@ -619,8 +621,10 @@ enum CollisionType {
  */
 class CollisionHandler {
 public:
+    std::string class_name;
     using Ptr = std::shared_ptr<CollisionHandler>;
-    virtual void OnCollision(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, FrameDataPtr _frameDataPtr, AppData* appDataPtr) = 0;
+    CollisionHandler(const std::string& class_name) : class_name(class_name) {}
+    virtual void OnCollision(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, FrameDataPtr _frameDataPtr, AppData* appDataPtr, SceneData& sceneData) = 0;
 };
 class CollisionDetectionPair{
 private:
@@ -639,11 +643,12 @@ public:
         return std::make_shared<CollisionDetectionPair>(obj1, obj2, type, handler, appData, lGesture,rGesture);
     }
     CollisionDetectionPair(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, CollisionType type, std::shared_ptr<CollisionHandler> handler, AppData& appData, Gesture lGesture,Gesture rGesture);
-    void SetColliding(bool isColliding);
+    void SetColliding(bool isColliding, SceneData& sceneData);
     void SetFrameData(FrameDataPtr frameDataPtr);
     CollisionType GetType();
     std::shared_ptr<CollisionData> GetObj1();
     std::shared_ptr<CollisionData> GetObj2();
+    std::shared_ptr<CollisionHandler> GetHandler();
 };
 
 

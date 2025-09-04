@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <BasicData.h>
-#include "Basic/include/json.hpp"
+#include "json.hpp"
 namespace Animator {	
 	struct AttributeData
 	{

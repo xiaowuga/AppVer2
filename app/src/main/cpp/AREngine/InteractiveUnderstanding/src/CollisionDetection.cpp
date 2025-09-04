@@ -17,6 +17,7 @@ int CollisionDetection::Init(AppData& appData, SceneData& sceneData, FrameDataPt
     // 添加碰撞检测对到frameData的collisionPairs中
     std::vector<CollisionDetectionPair::Ptr> collisionPairs =  interactionConfigPtr->GetCollisionPairs(appData);
     sceneData.collisionPairs = collisionPairs;
+    _collisionDatas = interactionConfigPtr->collisionDatas;
     return STATE_OK;
 }
 int CollisionDetection::Update(AppData &appData, SceneData& sceneData, FrameDataPtr frameData){
@@ -28,9 +29,9 @@ int CollisionDetection::Update(AppData &appData, SceneData& sceneData, FrameData
     for (std::shared_ptr<CollisionDetectionPair> pairPtr: sceneData.collisionPairs){
         pairPtr->SetFrameData(frameData);
         if(_isColliding(pairPtr->GetObj1(), pairPtr->GetObj2(), pairPtr->GetType())){
-            pairPtr->SetColliding(true);
+            pairPtr->SetColliding(true, sceneData);
         } else{
-            pairPtr->SetColliding(false);
+            pairPtr->SetColliding(false, sceneData);
         }
 		//TODO: Only for test
         //pairPtr->SetColliding(true);
