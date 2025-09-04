@@ -217,3 +217,78 @@ bool FrameData::hasUploaded(const std::string& key) const
 	return serilizedFramePtr && serilizedFramePtr->has(key);
 }
 
+// CollisionData 类成员函数定义
+CollisionData::CollisionData() {
+    axes = std::vector<cv::Vec3f>(3);
+}
+void CollisionData::SetBox() {
+    switch (boxType) {
+        case CollisionBox::AABB:
+            _SetAABB();
+            break;
+        case CollisionBox::Ray:
+            _SetRay();
+            break;
+        case CollisionBox::Sphere:
+            _SetSphere();
+            break;
+    }
+}
+void CollisionData::_SetAABB() {
+    cv::Matx44f matrix = this->obj->transform.GetMatrix();
+    cv::Vec4f tmp = matrix * cv::Vec4f(center[0], center[1], center[2], 1);
+    this->center = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+    tmp = matrix * cv::Vec4f(max[0], max[1], max[2], 1);
+    this->max = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+    tmp = matrix * cv::Vec4f(min[0], min[1], min[2], 1);
+    this->min = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+}
+void CollisionData::_SetRay() {
+    cv::Matx44f matrix = this->obj->transform.GetMatrix();
+    cv::Vec4f tmp = matrix * cv::Vec4f(center[0], center[1], center[2], 1);
+    this->center = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+    this->radius = _curExtentsRatio * 10;
+    tmp = matrix * cv::Vec4f(direction[0], direction[1], direction[2], 0);
+    this->direction = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+}
+void CollisionData::_SetSphere() {
+    cv::Matx44f matrix = this->obj->transform.GetMatrix();
+    cv::Vec4f tmp = matrix * cv::Vec4f(center[0], center[1], center[2], 1);
+    this->center = cv::Vec3f(tmp[0], tmp[1], tmp[2]);
+    this->radius = _curExtentsRatio;
+}
+
+CollisionDetectionPair::CollisionDetectionPair(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, CollisionType type, std::shared_ptr<CollisionHandler> handler, AppData& appData, SceneDataPtr sceneDataPtr, Gesture lGesture,Gesture rGesture){
+    _obj1 = obj1;
+    _obj2 = obj2;
+    _type = type;
+    _handler = handler;
+    _isColliding = false;
+    _lGesture = lGesture;
+    _rGesture = rGesture;
+    _appDataPtr = &appData;
+    _sceneDataPtr = sceneDataPtr;
+}
+
+void CollisionDetectionPair::SetColliding(bool isColliding, SceneData& sceneData){
+    _isColliding = isColliding;
+    if(_isColliding && _frameDataPtr->gestureDataPtr->curLGesture == _lGesture && _frameDataPtr->gestureDataPtr->curRGesture == _rGesture){
+        _handler->OnCollision(_obj1, _obj2, _frameDataPtr, _appDataPtr, sceneData);
+    }
+}
+void CollisionDetectionPair::SetFrameData(FrameDataPtr frameDataPtr) {
+    _frameDataPtr = frameDataPtr;
+}
+CollisionType CollisionDetectionPair::GetType(){
+    return _type;
+}
+std::shared_ptr<CollisionData> CollisionDetectionPair::GetObj1(){
+    return _obj1;
+}
+std::shared_ptr<CollisionData> CollisionDetectionPair::GetObj2(){
+    return _obj2;
+}
+
+std::shared_ptr<CollisionHandler> CollisionDetectionPair::GetHandler() {
+    return _handler;
+}
