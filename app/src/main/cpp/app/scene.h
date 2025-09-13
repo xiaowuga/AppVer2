@@ -9,11 +9,12 @@ public:
     IApplication *m_app=nullptr;
 public:
     virtual ~IScene() = default;
-    virtual bool initialize(const XrInstance instance, const XrSession session) =0;
-    virtual void inputEvent(int leftright, const ApplicationEvent& event) {}
-    virtual void renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye) {}
-    virtual void processFrame() {}
-    virtual void close() {}
+    virtual bool initialize(const XrInstance instance,const XrSession session)=0;
+    virtual void inputEvent(int leftright, const ApplicationEvent& event){}
+    virtual void keypadEvent(const std::string &key_name){} //@key_name 表示哪个按键被按下了，其名称在openxr_program.cpp的KeypadCheckList中有定义。只要按键被按下就会一直不停的触发这个函数
+    virtual void renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye){}
+    virtual void processFrame(){}
+    virtual void close(){}
 };
 
 

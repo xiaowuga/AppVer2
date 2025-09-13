@@ -271,13 +271,15 @@ void Gui::active() {
 void Gui::begin() {
     active();
     ImGui::NewFrame();
-    ImGui::Begin(mName.c_str());
-    ImGui::SetWindowSize(ImVec2(mWidth, mHeight));
+    ImGui::Begin(mName.c_str(),nullptr,mGuiFlags);
+    ImGui::SetWindowSize(ImVec2((float)mWidth, (float)mHeight));
     ImGui::SetWindowPos(ImVec2(0, 0));
     ImGui::SetWindowFocus();
 }
-
 void Gui::end() {
     ImGui::End();
     ImGui::Render();
+}
+void Gui::setGuiFlags(ImGuiWindowFlags flags){
+    mGuiFlags=flags;
 }

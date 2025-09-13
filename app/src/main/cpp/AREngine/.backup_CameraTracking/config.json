@@ -1,9 +1,0 @@
-{
-  "configName": "sims.yaml",
-  "configPath": "CameraTracking/",
-  "fps": 30,
-  "reloc_configName": "reloc.yaml",
-  "vocaFile": "voca.bin",
-  "mapFile": "map.bin",
-  "alignTransformLastFile" : "alignTransformLastFile.txt"
-}

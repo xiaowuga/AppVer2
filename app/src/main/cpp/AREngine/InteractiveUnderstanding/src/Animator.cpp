@@ -84,7 +84,7 @@ void Animator::Animator::PlayNextFrame()
 			int prevAnimationSequenceIndex = animationSequenceIndex > 0 ? animationSequenceIndex - 1 : animationSequence.size() - 1;
 			Pose prevPose = animationSequence[prevAnimationSequenceIndex];
 			Pose pose = animationSequence[animationSequenceIndex];
-			//TODO: ͳһ����ϵ
+
 			//Update the sceneObject pose
 			cv::Matx44f ori_pose = sceneObject->transform.GetPosition();
 			cv::Matx44f ori_rotation = sceneObject->transform.GetRotation();

@@ -3,27 +3,11 @@ set(SRC_PATH src)
 set(LIB_PATH lib)
 set(ASSET_PATH asset)
 
-# set(SOURCES
-#     ${SRC_PATH}/BasicData.cpp
-#     ${SRC_PATH}/ConfigLoader.cpp
-#     # ${SRC_PATH}/realsense.cpp
-#     ${SRC_PATH}/RPC.cpp
-#     ${SRC_PATH}/RPCServer.cpp
-#     )
-# set(INCLUDE
-#     ${INC_PATH}/BasicData.h
-#     ${INC_PATH}/ARModule.h
-#     ${INC_PATH}/ConfigLoader.h
-#     # ${INC_PATH}/realsense.h
-#     )
-
 file(GLOB_RECURSE SOURCES ${SRC_PATH}/*.cpp)
 file(GLOB_RECURSE INCLUDE ${INC_PATH}/*.h)
  
 
 set(SHARED_LIB ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-
-
 
 if(NOT USE_PREBUILT_LIBS)
     # create Shared library
@@ -49,8 +33,6 @@ target_include_directories(Basic ${LIB_TYPE}
                     ${INC_PATH} 
                     ${ASSET_PATH}/cvf
                     ${ASSET_PATH}/socketpp/include
-                    # ${EIGEN3_INCLUDE_DIR})
-                    # /usr/local/include/eigen3\
                     )
 
 # target_link_libraries(Basic ${LIB_TYPE} GlobalLibs CVF SOCKET)

@@ -3,12 +3,8 @@
 
 
 std::shared_ptr<IScene> createScene(const std::string &name, IApplication *app){
-    std::shared_ptr<IScene> _createScene_empty();
-    std::shared_ptr<IScene> _createScene_marker_test();
-    std::shared_ptr<IScene> _createScene_engine_test_rpc();
-    std::shared_ptr<IScene> _createScene_engine_test_aruco();
-    std::shared_ptr<IScene> _createScene_marker_test_rpc();
-    std::shared_ptr<IScene> _createScene_3dtracking_test();
+
+    std::shared_ptr<IScene> _createScene_AppVer2();
 
     struct DFunc{
         std::string name;
@@ -17,13 +13,7 @@ std::shared_ptr<IScene> createScene(const std::string &name, IApplication *app){
     };
 
     DFunc funcs[]= {
-            {"empty", _createScene_empty},
-            {"marker_test", _createScene_marker_test},
-            {"engine_test_rpc", _createScene_engine_test_rpc},
-            {"engine_test_aruco", _createScene_engine_test_aruco},
-            {"marker_test_rpc", _createScene_marker_test_rpc},
-            {"3dtracking_test",_createScene_3dtracking_test},
-            //list other scenes
+            {"AppVer2",_createScene_AppVer2}
     };
 
     std::shared_ptr<IScene> ptr=nullptr;

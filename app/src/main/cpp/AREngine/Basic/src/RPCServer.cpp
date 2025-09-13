@@ -1,16 +1,11 @@
 
-//#include "Basic/asset/cvf/BFC/stdf.h"
-//#include "Basic/include/RPCServer.h"
-//#include "Basic/asset/cvf/BFC/portable.h"
-//#include "Basic/asset/cvf/BFC/thread.h"
-#include "BFC/stdf.h"
+#include "stdf.h"
 #include "RPCServer.h"
-#include "BFC/portable.h"
-#include "BFC/thread.h"
+#include "portable.h"
 #include <thread>
 #include <mutex>
 #include <atomic>
-
+#include "thread.h"
 #include<iostream>
 
 class _RPCServerConnectionImpl 

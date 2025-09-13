@@ -16,6 +16,7 @@ public:
     void begin();
     void end();
     void triggerEvent(bool down);
+    void setGuiFlags(ImGuiWindowFlags flags);
 
 private:
     bool initShader();
@@ -35,4 +36,6 @@ private:
 
     glm::mat4 mModel;
     glm::vec3 mIntersectionPoint;
+
+    ImGuiWindowFlags mGuiFlags=0; // Add on 2025-08-13
 };

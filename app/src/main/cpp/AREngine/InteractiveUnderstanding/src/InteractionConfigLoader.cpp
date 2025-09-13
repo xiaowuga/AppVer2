@@ -1,5 +1,8 @@
 #include "InteractionConfigLoader.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
+
 InteractionConfigLoader::InteractionConfigLoader(SceneData& sceneData, const std::string& filePath):_sceneData(sceneData) {
     std::ifstream file(filePath);
     if (!file) {

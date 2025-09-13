@@ -1,8 +1,6 @@
 #ifndef ARENGING_HEADUNDER_H
 #define ARENGING_HEADUNDER_H
 
-//#include "Basic/include/ARModule.h"
-//#include "Basic/include/BasicData.h"
 #include "ARModule.h"
 #include "BasicData.h"
 /**

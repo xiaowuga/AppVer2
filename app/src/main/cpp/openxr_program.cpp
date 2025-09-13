@@ -12,17 +12,17 @@
 #include <common/xr_linear.h>
 #include <array>
 #include <cmath>
-#include <math.h>
 #include "app/application.h"
 #include "stb_image.h"
-#include "app/arengine.h"
-#include "demos/utils.h"
+#include "ARInput.h"
+
 #include "app/utilsmym.hpp"
+#include "app/recorder.hpp"
 
 namespace {
 
 // 控制显示手部射线还是控制器射线
-#define USE_HAND_AIM
+// #define USE_HAND_AIM  //使用控制器射线(2025-08-12)
 
 #if !defined(XR_USE_PLATFORM_WIN32)
 #define strcpy_s(dest, source) strncpy((dest), (source), sizeof(dest))
@@ -408,9 +408,34 @@ struct OpenXrProgram : IOpenXrProgram {
 
         // 假设数据是 RGB888 格式
         cv::Mat image=cv::Mat((int)height,(int)width, CV_8UC1,(void*)data).clone();
+
+
+        if(false){ // Record Image
+            static bool isfirst=true;
+            static Recorder RR;
+            static std::ofstream file;
+            if(isfirst){
+                std::string s="Download/"+CurrentDateTime("%Y-%m-%d_%H-%M-%S");
+                RR.set_recorder_save_dir(s);
+                file.open(MakeSdcardPath(s+"/position.txt"));
+                RR.start_recording();
+                isfirst=false;
+            }
+            RR.record_image(image);
+            std::ostringstream oss;
+            for (int i = 0; i < 4; ++i)
+                for (int j = 0; j < 4; ++j) oss << m(i, j) << ",";
+            std::string mat_str = oss.str();
+            if (!mat_str.empty()) mat_str.pop_back();
+            file<<mat_str<<std::endl;
+        }
+        _RokidOriginalCameraImage=image; //** 调试用，需要删除！！！***
+
         ARInputSources::FrameData frame_data;
         frame_data.img=image; frame_data.timestamp=timestamp; frame_data.cameraMat=m;
         ARInputSources::instance()->set(frame_data,ARInputSources::DATAF_CAMERAMAT|ARInputSources::DATAF_IMAGE|ARInputSources::DATAF_TIMESTAMP);
+        //执行自行添加的回调函数
+        for(const auto &[key,func]:CameraUpdateCallbackList) func(image,m,timestamp);
     }
 
 
@@ -521,7 +546,7 @@ struct OpenXrProgram : IOpenXrProgram {
             }
         };
         // 处理新增的 Marker
-        // Log::Write(Log::Level::Info, Fmt("====== Processing added markers. Count: %d", added.size));
+        Log::Write(Log::Level::Info, Fmt("====== Processing added markers. Count: %d", added.size));
         getMarkerData(added, markerData.added);
         getMarkerData(updated, markerData.updated);
 //        getMarkerData(removed, markerData.removed);
@@ -1231,57 +1256,85 @@ struct OpenXrProgram : IOpenXrProgram {
                 }
             }
 
-            m_application->inputEvent(hand, applicationEvent);
+            m_application->inputEvent(hand,applicationEvent);
         }
-
-        // 控制器中间确认键
-        XrActionStateGetInfo getSelectInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.selectAction, XR_NULL_PATH};
-        XrActionStateBoolean selectValue{XR_TYPE_ACTION_STATE_BOOLEAN};
-        CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getSelectInfo, &selectValue));
-        if ((selectValue.changedSinceLastSync == XR_TRUE) || (selectValue.currentState == XR_TRUE)) {
-            Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: The gamepad select key is pressed !!!!!!!!!!!!!!!!!!!!!"));
-        }
-
-        // 控制器侧边MENU键
-        XrActionStateGetInfo getMenuInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.menuAction, XR_NULL_PATH};
-        XrActionStateBoolean menuValue{XR_TYPE_ACTION_STATE_BOOLEAN};
-        CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getMenuInfo, &menuValue));
-        if ((menuValue.changedSinceLastSync == XR_TRUE) || (menuValue.currentState == XR_TRUE)) {
-            Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: The gamepad menuValue key is pressed !!!!!!!!!!!!!!!!!!!!!"));
-        }
-
-        // 控制器O键--重置3Dof射线
-        XrActionStateGetInfo getOInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.oAction, XR_NULL_PATH};
-        XrActionStateBoolean oValue{XR_TYPE_ACTION_STATE_BOOLEAN};
-        CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getOInfo, &oValue));
-        if ((oValue.changedSinceLastSync == XR_TRUE) || (oValue.currentState == XR_TRUE)) {
-            if (pfnXrRecenterPhonePose != nullptr) {
-                Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: pfnXrRecenterPhonePose................"));
-                CHECK_XRCMD(pfnXrRecenterPhonePose());
+        //=====================================检查按键状态，推送给application========================================
+        static std::vector<std::pair<XrAction,std::string_view>> KeypadCheckList{{m_input.selectAction,"select"},
+                                                                                 {m_input.menuAction,  "menu"},
+                                                                                 {m_input.oAction,     "o"},
+                                                                                 {m_input.xAction,     "x"},
+                                                                                 {m_input.upAction,    "up"},
+                                                                                 {m_input.downAction,  "down"},
+                                                                                 {m_input.leftAction,  "left"},
+                                                                                 {m_input.rightAction, "right"}
+        };
+        for(const auto &i:KeypadCheckList){
+            XrActionStateGetInfo getSelectInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, i.first, XR_NULL_PATH};
+            XrActionStateBoolean selectValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getSelectInfo, &selectValue));
+            if ((selectValue.changedSinceLastSync == XR_TRUE) || (selectValue.currentState == XR_TRUE)){
+                m_application->keypadEvent(std::string(i.second));
+//                infof(("========== Pressed: "+std::string(i.second)).c_str());
             }
         }
+        //========================================================================================================
 
-        // 控制器X键 -- 退出应用
-        XrActionStateGetInfo getXInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.xAction, XR_NULL_PATH};
-        XrActionStateBoolean xValue{XR_TYPE_ACTION_STATE_BOOLEAN};
-        CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getXInfo, &xValue));
-        if ((xValue.isActive == XR_TRUE) && (xValue.changedSinceLastSync == XR_FALSE) && (xValue.currentState == XR_TRUE)) {
-            if (pfnXrOpenCameraPreview != nullptr) {
-                Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: Byebye................"));
-                ExitAppByKey = true;
+        if(false){ //Rokid 自带的按键响应事件
+            // 控制器中间确认键
+            XrActionStateGetInfo getSelectInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.selectAction, XR_NULL_PATH};
+            XrActionStateBoolean selectValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getSelectInfo, &selectValue));
+            if ((selectValue.changedSinceLastSync == XR_TRUE) || (selectValue.currentState == XR_TRUE)) {
+                Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: The gamepad select key is pressed !!!!!!!!!!!!!!!!!!!!!"));
+            }
+            // 控制器侧边MENU键
+            XrActionStateGetInfo getMenuInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.menuAction, XR_NULL_PATH};
+            XrActionStateBoolean menuValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getMenuInfo, &menuValue));
+            if ((menuValue.changedSinceLastSync == XR_TRUE) || (menuValue.currentState == XR_TRUE)) {
+                Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: The gamepad menuValue key is pressed !!!!!!!!!!!!!!!!!!!!!"));
+            }
+            // 控制器O键--重置3Dof射线
+            XrActionStateGetInfo getOInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.oAction, XR_NULL_PATH};
+            XrActionStateBoolean oValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getOInfo, &oValue));
+            if ((oValue.changedSinceLastSync == XR_TRUE) || (oValue.currentState == XR_TRUE)) {
+                if (pfnXrRecenterPhonePose != nullptr) {
+                    Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: pfnXrRecenterPhonePose................"));
+                    CHECK_XRCMD(pfnXrRecenterPhonePose());
+                }
+            }
+            // 控制器X键 -- 退出应用
+            XrActionStateGetInfo getXInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.xAction, XR_NULL_PATH};
+            XrActionStateBoolean xValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getXInfo, &xValue));
+            if ((xValue.isActive == XR_TRUE) && (xValue.changedSinceLastSync == XR_FALSE) && (xValue.currentState == XR_TRUE)) {
+                if (pfnXrOpenCameraPreview != nullptr) {
+                    if(m_application->needExit()){
+                        m_application->exit();
+                        Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: Byebye................"));
+                        ExitAppByKey = true;
 //                CHECK_XRCMD(pfnXrOpenCameraPreview(reinterpret_cast<PFN_xrCameraUpdateCallback*>(OnCameraUpdate)));
+                    }
+                }
+            }
+            // 控制器上键
+            XrActionStateGetInfo getUpInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.upAction, XR_NULL_PATH};
+            XrActionStateBoolean upValue{XR_TYPE_ACTION_STATE_BOOLEAN};
+            CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getUpInfo, &upValue));
+            if ((upValue.isActive == XR_TRUE) && (upValue.changedSinceLastSync == XR_FALSE) && (upValue.currentState == XR_TRUE)) {
+                if (pfnXrRecenterHeadTracker != nullptr) {
+                    Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: pfnXrRecenterHeadTracker................"));
+                    CHECK_XRCMD(pfnXrRecenterHeadTracker());
+                }
             }
         }
-
-        // 控制器上键
-        XrActionStateGetInfo getUpInfo{XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_input.upAction, XR_NULL_PATH};
-        XrActionStateBoolean upValue{XR_TYPE_ACTION_STATE_BOOLEAN};
-        CHECK_XRCMD(xrGetActionStateBoolean(m_session, &getUpInfo, &upValue));
-        if ((upValue.isActive == XR_TRUE) && (upValue.changedSinceLastSync == XR_FALSE) && (upValue.currentState == XR_TRUE)) {
-            if (pfnXrRecenterHeadTracker != nullptr) {
-                Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: pfnXrRecenterHeadTracker................"));
-                CHECK_XRCMD(pfnXrRecenterHeadTracker());
-            }
+        // 我们自己手动判断需不需要退出
+        if(m_application&&m_application->needExit()){
+            m_application->exit();
+            Log::Write(Log::Level::Info, Fmt("RK-Openxr-hand-App: Byebye................"));
+            ExitAppByKey = true;
+//            CHECK_XRCMD(pfnXrOpenCameraPreview(reinterpret_cast<PFN_xrCameraUpdateCallback*>(OnCameraUpdate)));
         }
 
         // 获取camera位姿
@@ -1328,10 +1381,8 @@ struct OpenXrProgram : IOpenXrProgram {
                     if(result!=XR_SUCCESS) errorf("Failed to Get Focal Length!");
                     //Viewer::Global()->set_camera_matrix(FocalLength[0],FocalLength[1],PrincipalPoint[0],PrincipalPoint[1]);
                     double fx=FocalLength[0],fy=FocalLength[1],cx=PrincipalPoint[0],cy=PrincipalPoint[1];
-
                     //fx=290.4315,fy=290.2296,cx=317.7864,cy=242.0248;
-                    fx=281.60213015, cx=318.69481832, fy=281.37377039,cy=243.6907021;
-
+//                    fx=281.60213015, cx=318.69481832, fy=281.37377039,cy=243.6907021;
                     RokidCameraMatrix=(cv::Mat_<double>(3,3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
                 }
                 if(pfnXrGetDistortion){ //获取相机外参，对于pinhole相机是[k1, k2, k3, p1, p2]；对于fisheye相机是[alpha, k1, k2, k3, k4]
@@ -1339,14 +1390,9 @@ struct OpenXrProgram : IOpenXrProgram {
                     result=pfnXrGetDistortion(d);
                     if(result!=XR_SUCCESS) errorf("Failed to Get Distortion!");
                     //Viewer::Global()->set_dist_coeffs(d[0],d[1],d[2],d[3],d[4]);
-                    double k1=d[0],k2=d[1],k3=d[2],p1=d[3],p2=d[4];
-
-                    //k1=-0.21495,k2=0.03745,p1=-0.000124,p2=-0.000435,k3=0.001493;
-
+                    double k1=d[0],k2=d[1],k3=d[2],p1=d[3],p2=d[4]; //k1=-0.21495,k2=0.03745,p1=-0.000124,p2=-0.000435,k3=0.001493;
                     RokidDistCoeffs=(cv::Mat_<double>(1,5) <<k1, k2, p1, p2, k3);
-
-
-                    RokidDistCoeffs= (cv::Mat_<float>(1, 4) << 0.11946399, 0.06202764, -0.28880297, 0.21420146);
+                    RokidDistCoeffs=(cv::Mat_<float>(1, 4) << 0.11946399, 0.06202764, -0.28880297, 0.21420146);
                 }
             }
         }

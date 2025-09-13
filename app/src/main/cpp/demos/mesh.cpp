@@ -132,7 +132,7 @@ void Mesh::draw(Shader& shader) {
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
 }
-void Mesh::drawShadowMap(Shader& shader) {
+void Mesh::drawShadowMap(Shader& shader) const{
 
     // 绘制网格
     glBindVertexArray(mVAO);

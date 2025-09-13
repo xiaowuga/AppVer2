@@ -1,17 +1,13 @@
 #ifndef ARTEST_COLLISIONDETECTION_H
 #define ARTEST_COLLISIONDETECTION_H
 
-//#include "Basic/include/ARModule.h"
-//#include "Basic/include/BasicData.h"
-//#include "Basic/include/ConfigLoader.h"
-//#include "Basic/include/App.h"
+
 #include "ARModule.h"
 #include "BasicData.h"
 #include "ConfigLoader.h"
 #include "App.h"
 
 #include "communication/dataInterface.h"
-#include "ExampleCollisionHandler.h"
 #include "InteractionConfigLoader.h"
 
 class CollisionDetection : public ARModule {

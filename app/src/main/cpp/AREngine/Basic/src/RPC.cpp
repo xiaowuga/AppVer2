@@ -2,12 +2,10 @@
 #include "RPC.h"
 #include "opencv2/highgui.hpp"
 using namespace cv;
-//#include "Basic/include/App.h"
 #include "App.h"
 
 #include <thread>
 #include <atomic>
-//#include "Basic/asset/cvf/BFC/thread.h"
 #include "thread.h"
 
 static auto  _tbeg = std::chrono::system_clock::now();

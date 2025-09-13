@@ -2,6 +2,8 @@
 #include "ConfigLoader.h"
 #include"RPC.h"
 
+
+
 // HandPose 类成员函数定义
 HandPose::HandPose() : tag(hand_tag::Null), joints{} {}
 
@@ -133,7 +135,6 @@ void FacePose::setPose(std::array<cv::Vec3f, FacePose::jointNum> joints) {
 }
 
 
-
 bool BasicData::setData(const std::string& key, const std::any& value)
 {
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -184,14 +185,32 @@ void BasicData::clearData()
 BasicData::~BasicData()
 {}
 
+cv::Matx44f Pose::GetMatrix() const{
+    return this->matrix;
+}
+
+
+cv::Matx44f Pose::GetRotation() const
+{
+    return cv::Matx44f(
+            matrix(0, 0), matrix(0, 1), matrix(0, 2), 0,
+            matrix(1, 0), matrix(1, 1), matrix(1, 2), 0,
+            matrix(2, 0), matrix(2, 1), matrix(2, 2), 0,
+            0, 0, 0, 1);
+}
+
+cv::Matx44f Pose::GetPosition() const
+{
+    return cv::Matx44f(
+            1, 0, 0, matrix(0, 3),
+            0, 1, 0, matrix(1, 3),
+            0, 0, 1, matrix(2, 3),
+            0, 0, 0, 1);
+}
+
 void Pose::setPose(cv::Matx44f mat)
 {
     matrix=mat;
-}
-
-cv::Matx44f Pose::GetMatrix() const
-{
-    return this->matrix;
 }
 
 AppData::AppData()
@@ -216,6 +235,8 @@ bool FrameData::hasUploaded(const std::string& key) const
 {
 	return serilizedFramePtr && serilizedFramePtr->has(key);
 }
+
+
 
 // CollisionData 类成员函数定义
 CollisionData::CollisionData() {
@@ -258,7 +279,7 @@ void CollisionData::_SetSphere() {
     this->radius = _curExtentsRatio;
 }
 
-CollisionDetectionPair::CollisionDetectionPair(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, CollisionType type, std::shared_ptr<CollisionHandler> handler, AppData& appData, SceneDataPtr sceneDataPtr, Gesture lGesture,Gesture rGesture){
+CollisionDetectionPair::CollisionDetectionPair(std::shared_ptr<CollisionData> obj1, std::shared_ptr<CollisionData> obj2, CollisionType type, std::shared_ptr<CollisionHandler> handler, AppData& appData,  Gesture lGesture,Gesture rGesture){
     _obj1 = obj1;
     _obj2 = obj2;
     _type = type;
@@ -267,7 +288,7 @@ CollisionDetectionPair::CollisionDetectionPair(std::shared_ptr<CollisionData> ob
     _lGesture = lGesture;
     _rGesture = rGesture;
     _appDataPtr = &appData;
-    _sceneDataPtr = sceneDataPtr;
+//    _sceneDataPtr = sceneDataPtr;
 }
 
 void CollisionDetectionPair::SetColliding(bool isColliding, SceneData& sceneData){
@@ -292,3 +313,4 @@ std::shared_ptr<CollisionData> CollisionDetectionPair::GetObj2(){
 std::shared_ptr<CollisionHandler> CollisionDetectionPair::GetHandler() {
     return _handler;
 }
+

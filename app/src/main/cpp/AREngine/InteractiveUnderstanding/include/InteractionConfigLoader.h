@@ -1,12 +1,11 @@
 #ifndef ARTEST_INTERACTIONCONFIGLOADER_H
 #define ARTEST_INTERACTIONCONFIGLOADER_H
 
-//#include "Basic/include/json.hpp"
-//#include "Basic/include/BasicData.h"
+
 #include "json.hpp"
 #include "BasicData.h"
 #include "communication/dataInterface.h"
-#include <tiny_obj_loader.h>
+
 #include <fstream>
 #include <stdexcept>
 #include <cfloat>

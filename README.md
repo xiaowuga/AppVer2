@@ -1,5 +1,5 @@
-# Task3
-Task3 of AR/MR Engine
+# Application Verification 2
+Application Verification 2 of AR/MR Engine
 
 ## dir "data" is defined as appData.appDir:
 ```
@@ -15,5 +15,5 @@ data
   |-- Models
     |-- folders...
 ```
-### link to dir "Models": 
+### link to dir "Models":
 <link>https://drive.google.com/file/d/15k1tPP4JkmYD-3jNHl0tQDBYZP67kMk6/view?usp=drive_link</link>

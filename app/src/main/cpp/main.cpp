@@ -9,8 +9,7 @@
 #include "platformplugin.h"
 #include "graphicsplugin.h"
 #include "openxr_program.h"
-#include "
-//#include "demos/utils.h"
+#include "demos/utils.h"
 
 
 namespace {
@@ -167,30 +166,30 @@ void android_main(struct android_app* app) {
         program->InitializeSystem();
         program->InitializeSession();
         program->CreateSwapchains();
-        program->InitializeMarker(); //初始化Marker 识别。 原来这项放在了InitApp()之后,会导致Scene无法正确初始化(2025-05-27)
+//        program->InitializeMarker(); //初始化Marker 识别。 原来这项放在了InitApp()之后,会导致Scene无法正确初始化(2025-05-27)
         program->InitializeApplication();
         // modify by qi.cheng
         // Marker 识别功能代码调用
         //program->InitializeMarker(); //初始化Marker 识别
         //program-> AddMarkerImages();//添加图片
-        program->InitializePlaneTracking();
+//        program->InitializePlaneTracking();
         while (app->destroyRequested == 0) {
             // Read all pending events.
-            for (;;) {
-                int events;
-                struct android_poll_source* source;
-                // If the timeout is zero, returns immediately without blocking.
-                // If the timeout is negative, waits indefinitely until an event appears.
-                const int timeoutMilliseconds = (!appState.Resumed && !program->IsSessionRunning() && app->destroyRequested == 0) ? -1 : 0;
-                if (ALooper_pollAll(timeoutMilliseconds, nullptr, &events, (void**)&source) < 0) {
-                    break;
-                }
-
-                // Process this event.
-                if (source != nullptr) {
-                    source->process(app, source);
-                }
-            }
+//            for (;;) {
+//                int events;
+//                struct android_poll_source* source;
+//                // If the timeout is zero, returns immediately without blocking.
+//                // If the timeout is negative, waits indefinitely until an event appears.
+//                const int timeoutMilliseconds = (!appState.Resumed && !program->IsSessionRunning() && app->destroyRequested == 0) ? -1 : 0;
+//                if (ALooper_pollAll(timeoutMilliseconds, nullptr, &events, (void**)&source) < 0) {
+//                    break;
+//                }
+//
+//                // Process this event.
+//                if (source != nullptr) {
+//                    source->process(app, source);
+//                }
+//            }
 
             program->PollEvents(&exitRenderLoop, &requestRestart);
 

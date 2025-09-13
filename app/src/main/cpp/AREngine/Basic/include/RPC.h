@@ -1,17 +1,10 @@
 #pragma once
 
-//#include "Basic/include/BasicData.h"
-//#include"Basic/include/Net.h"
-//
-//#include "Basic/asset/cvf/BFC/bfstream.h"
-//#include "Basic/asset/cvf/CVX/bfsio.h"
-
 #include "BasicData.h"
 #include"Net.h"
 
-#include "BFC/bfstream.h"
-#include "CVX/bfsio.h"
-
+#include "bfstream.h"
+#include "bfsio.h"
 #undef string_t
 #include <map>
 

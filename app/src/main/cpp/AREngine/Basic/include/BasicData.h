@@ -8,8 +8,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <mutex>
 #include <memory>
-#include<shared_mutex>
+#include <shared_mutex>
 #include "PoseUtils.h"
+
 
 /**
  * HandPose
@@ -19,7 +20,7 @@ enum  class hand_tag:int{Null, Left , Right};
 class HandPose {
 public:
     static const std::size_t jointNum = 21;
-private:
+public:
     hand_tag tag;
     std::array<cv::Vec3f, jointNum> joints;
     // std::vector<std::vector<std::vector<float>>> rotation; // 16 个 3x3 旋转矩阵
@@ -78,6 +79,9 @@ public:
     // cv::Vec3f getlandmarkOrigin();
     void setPose(std::array<cv::Vec3f, jointNum>);
 };
+
+
+
 
 
 /**
@@ -159,13 +163,6 @@ class SceneObject
     :public BasicData
 {
 public:
-    SceneObject() = default;
-    SceneObject(std::string name, Pose transform) :
-        name(name), transform(transform) {}
-    SceneObject(const std::string& name, const std::string& filepath, const Pose& transform)
-        : name(name), filePath(filepath), transform(transform) {}
-
-
     std::string  name;
 
     std::string  filePath;
@@ -178,7 +175,6 @@ public:
     virtual void Init(){
         // default imply
     }
-
 };
 
 typedef std::shared_ptr<SceneObject>  SceneObjectPtr;
@@ -211,6 +207,12 @@ public:
 
 class VirtualObject
     :public SceneObject
+{
+public:
+};
+
+class ShadowRecevier
+        :public SceneObject
 {
 public:
 };
@@ -297,16 +299,7 @@ public:
         cv::cvtColor(imgColor, BGR, cv::COLOR_RGB2BGR);
     }
 
-    cv::Mat renderResult;
-    void setRenderResult(cv::Mat& render_image){
-        renderResult = render_image;
-        cv::imshow("renderResult" , renderResult);
-    }
 
-    /* Posemtimation
-        input: frameID canmeras image
-        output: handPoses
-    */
     std::vector<Camera> cameras;
     std::vector<HandPose> handPoses;
     std::vector<BodyPose> bodyPoses;
@@ -343,7 +336,6 @@ public:
     //各算法单位需根据自己的需求在此新增变量或参数，如新增变量较复杂，可新建一个头文件
     //std::vector<CameraPose> cameraPose;  // zyd
 
-    //碰撞检测对
     std::vector<std::shared_ptr<CollisionDetectionPair>> collisionPairs;
 
     std::vector<FrameData> frameBuffer;
@@ -517,7 +509,8 @@ public:
     // second run
     // bool isLoadMap = true;
     // bool isSaveMap = false;
-    bool bUseRelocPose = true; // true：使用重定位传回的位姿。false：使用：与重定位位姿的对齐变换 * SLAM位姿
+
+    bool bUseRelocPose = false; // true：使用重定位传回的位姿。false：使用：与重定位位姿的对齐变换 * SLAM位姿
 
     //todo add your variable here
     //各算法单位需根据自己的需求在此新增变量或参数，如新增变量较复杂，可新建一个头文件

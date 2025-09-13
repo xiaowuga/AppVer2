@@ -5,7 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include "shader.h"
-#include "demos/BaseRenderPass/pbrMaterial.h" // 包含pbrMaterial的定义
+#include "RenderingGlass/pbrMaterial.h" // 包含pbrMaterial的定义
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -42,7 +42,7 @@ public:
 
     void draw(Shader& shader);
     void drawPBR(Shader& shader);
-    void drawShadowMap(Shader& shader);
+    void drawShadowMap(Shader& shader) const;
 
     bool activeTexture(const std::string &textureName);
 //private:

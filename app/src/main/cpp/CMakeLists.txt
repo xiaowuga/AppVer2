@@ -4,6 +4,7 @@ project("openxr-native-project")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-DXR_USE_PLATFORM_ANDROID=1 -DXR_USE_GRAPHICS_API_OPENGL_ES=1 -fexceptions -W -Wall -DDARWIN_NO_CARBON -DFT2_BUILD_LIBRARY)
 
@@ -21,6 +22,12 @@ set(OpenCV_DIR "D:/rokid-libs/OpenCV-android-sdk/sdk/native")
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
 message(${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
 
+
+add_library(cadDataManager SHARED IMPORTED)
+set_target_properties(cadDataManager PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cadDataManager/lib/${ANDROID_ABI}/libcadDataManager.so
+)
+
 add_library(GlobalLibs INTERFACE)
 target_include_directories(GlobalLibs INTERFACE
         ${OpenCV_DIR}/jni/include
@@ -29,15 +36,13 @@ target_include_directories(GlobalLibs INTERFACE
 add_library(assimp SHARED IMPORTED)
 set_target_properties(assimp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/lib/${ANDROID_ABI}/libassimp.so)
 
-
 target_link_libraries(GlobalLibs INTERFACE lib_opencv assimp)
-#
-#add_subdirectory(ObjectTracking)
 
 #**************************************************endof add Engine
 
 set(OPENXR_LOADER_H_DIR ${CMAKE_CURRENT_SOURCE_DIR}/openxr_loader/include)
 set(THIRD_PARTY_H_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+
 
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
@@ -46,32 +51,17 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
                     ${THIRD_PARTY_H_DIR}
                     ${THIRD_PARTY_H_DIR}/assimp/include
                     ${THIRD_PARTY_H_DIR}/freetype-2.13.0/include
-                    ${THIRD_PARTY_H_DIR}/cadDataManager/include
                     ${THIRD_PARTY_H_DIR}/json390
+                    ${THIRD_PARTY_H_DIR}/cad
                     ${ANDROID_NDK}/sources/android/native_app_glue
-
-                    ${CVF_DIR}
-                    ${ARENGINE_DIR}/
+                    ${THIRD_PARTY_H_DIR}/cadDataManager/include
                     ${OpenCV_DIR}/jni/include
+
 )
 
-#add_subdirectory(${ARENGINE_DIR}/Basic ${CMAKE_BINARY_DIR}/AREngine/Basic)
-#
-##add_subdirectory(${ARENGINE_DIR}/ObjectTracking2 ${CMAKE_BINARY_DIR}/AREngine/ObjectTracking2)
-#
-#add_subdirectory(${ARENGINE_DIR}/InteractiveUnderstanding ${CMAKE_BINARY_DIR}/InteractiveUnderstanding)
-#
-#add_subdirectory(${ARENGINE_DIR}/InputMVS ${CMAKE_BINARY_DIR}/InputMVS)
-#
-#add_subdirectory(${ARENGINE_DIR}/PoseEstimationFetch ${CMAKE_BINARY_DIR}/PoseEstimationFetch)
 
-option(USE_PREBUILT_LIBS "Use Prebuild libs" OFF)
-option(ENABLE_InteractiveUnderstanding "Enable the module InteractiveUnderstanding" ON)
-option(ENABLE_PoseEstimationFetch "Enable the module PoseEstimationFetch" ON)
-
-
-
-
+option(ENABLE_AppVer2 "enable AppVer2" ON)
+option(USE_PREBUILT_LIB "use_prebuilt libraries instead of building from source" OFF)
 add_subdirectory(AREngine)
 
 # glue
@@ -135,11 +125,6 @@ add_library(freetype SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.13.0/src/type42/type42.c
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.13.0/src/winfonts/winfnt.c)
 
-#cadDataManager
-add_library(cadDataManager SHARED IMPORTED)
-set_target_properties(cadDataManager PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cadDataManager/lib/${ANDROID_ABI}/libcadDataManager.so
-)
 
 add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -150,40 +135,47 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/graphicsplugin_opengles.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/openxr_loader/include/common/gfxwrapper_opengl.c
         ${CMAKE_CURRENT_SOURCE_DIR}/openxr_program.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/shader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/utils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/mesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/model.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/cylinder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/controller.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/hand.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/cube.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/ray.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/guiBase.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/gui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/text.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/demos/player.cpp
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/application.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/scene.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/config.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/utilsmym.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/recorder.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/scenegui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/scene_AppVer2.cpp
 
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/application.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/arengine.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/scene.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/utilsmym.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/scenegui.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/scene_AppVer2.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/scene_AppVer2_init.cpp
-
-
-
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/utils.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/shader.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/mesh.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/model.cpp
-#        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/cylinder.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/controller.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/hand.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/cube.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/ray.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/guiBase.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/gui.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/text.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppVer2/player.cpp
-
-
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/templatePass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/pbrPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/equirectangularToCubemapPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderPassManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/brdfPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/irradiancePass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/prefilterPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/backgroundPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/shadowMappingDepthPass.cpp
 )
+
+
+
 
 
 target_link_libraries(openxr_demo
         openxr_loader
         android
-        cadDataManager
         EGL
         GLESv3
         app_glue
@@ -197,7 +189,10 @@ target_link_libraries(openxr_demo
         #**************************************************add Engine
         Basic
         GlobalLibs
+        cadDataManager
+        RelocationGlass
         PoseEstimationFetch
+        PoseEstimationRokid
         InteractiveUnderstanding
         #**************************************************endof add Engine
 )

@@ -42,14 +42,12 @@ bool Shader::loadShader(const char* vertexShaderCode, const char* fragmentShader
     GL_CALL(glShaderSource(vertex, 1, &vertexShaderCode, nullptr));
     GL_CALL(glCompileShader(vertex));
     if (!checkCompileErrors(vertex, "VERTEX")) {
-        exit(-1);
         return false;
     }
     GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
     GL_CALL(glShaderSource(fragment, 1, &fragmentShaderCode, nullptr));
     GL_CALL(glCompileShader(fragment));
     if (!checkCompileErrors(fragment, "FRAGMENT")) {
-        exit(-1);
         return false;
     }
     mProgram = glCreateProgram();

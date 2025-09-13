@@ -8,7 +8,6 @@ add_library(CVF SHARED
 			CVX/src.cpp
 			CVRender/src.cpp
 			BFCS/log.cpp
-
 			)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,27 +1,14 @@
+#pragma once
+#ifndef ROKIDOPENXRANDROIDDEMO_UTILSMYM_HPP
+#define ROKIDOPENXRANDROIDDEMO_UTILSMYM_HPP
+
+
 #include<string>
 #include<sstream>
 #include"glm/glm.hpp"
 #include<opencv2/opencv.hpp>
 
-
-inline std::string GlmMat4_to_String(const glm::mat4 &matrix){
-    std::ostringstream oss;
-    for(int i=0;i<4;++i){
-        for(int j=0;j<4;++j){
-            oss<<matrix[i][j]; if(j<3){oss<<" ";}
-        }
-        if(i<3){oss<<"\n";}
-    }
-    return oss.str();  // 返回构建的字符串
-}
-inline glm::mat4 CV_Matx44f_to_GLM_Mat4(const cv::Matx44f &mat) {  // 将 cv::Matx44f 转换为 glm::mat4
-    return glm::mat4(
-            mat(0, 0), mat(0, 1), mat(0, 2), mat(0, 3),  // 第一行
-            mat(1, 0), mat(1, 1), mat(1, 2), mat(1, 3),  // 第二行
-            mat(2, 0), mat(2, 1), mat(2, 2), mat(2, 3),  // 第三行
-            mat(3, 0), mat(3, 1), mat(3, 2), mat(3, 3)   // 第四行
-    );
-}
+//============================ 字符串相关 =====================================
 inline bool StringStartsWith(const std::string &str,const std::string &starts_with){
     if((str.rfind(starts_with,0)==0)) return true; //start with
     return false;
@@ -31,6 +18,91 @@ inline std::string MakeSdcardPath(const std::string &path) {
     std::string res=path;
     if(!path.empty() && !StringStartsWith(path,SdcardPrefix)) res=SdcardPrefix+res;
     return res;
+}
+
+template<typename... Args>
+inline std::string Format(const std::string &fmt,Args... args){
+    int size=std::snprintf(nullptr,0,fmt.c_str(),args...)+1;  //首次尝试，估算所需缓冲区大小. +1 for '\0'
+    if(size<=0){
+        errorf("Format: Error during formatting."); return {};
+    }
+    std::vector<char> buf(size);
+    std::snprintf(buf.data(),size,fmt.c_str(),args...);
+    return {buf.data()};
+}
+inline std::vector<std::string> StringSplit(const std::string &str,char sptor,bool skip_empty=false){
+    std::vector<std::string> res;
+    std::istringstream iss(str); std::string token;	// 接收缓冲区
+    while(getline(iss,token,sptor)) if(!(token.empty()&&skip_empty)) res.push_back(token);
+    return res;
+}
+inline std::string GlmMat4_to_String(const glm::mat4 &matrix,char sptor=' ',bool single_line=false){ //将glm::mat4 转换为 std::string
+    std::string res;
+    for(int i=0;i<4;++i){
+        for(int j=0;j<4;++j){
+            res+=std::to_string(matrix[i][j]);
+            if(j<3) res+=sptor;
+            else if(i<3) res+=(single_line?sptor:'\n');
+        }
+    }
+    return res;
+}
+//从字符串构造glm::mat4矩阵，@def表示构造失败时的返回值
+inline glm::mat4 GlmMat4_from_String(const std::string &str,char sptor,const glm::mat4 &def=glm::mat4(1.0f)){
+    auto list=StringSplit(str,sptor,true);
+    if(list.size()!=4*4) return def;
+    glm::mat4 res;
+    for(int i=0;i<4;++i)
+        for(int j=0;j<4;++j) res[i][j]=std::stof(list[i*4+j]);
+    return res;
+}
+
+//=============================== 系统相关 ========================================
+
+//以 %Y年%m月%d日%H时%M分%S秒 的形式返回当前时间
+inline std::string CurrentDateTime(const std::string &fmt="%Y-%m-%d_%H:%M:%S") {
+    auto t=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::stringstream ss;
+    ss<<std::put_time(std::localtime(&t),fmt.c_str());
+    return ss.str();
+}
+inline long long CurrentMSecsSinceEpoch() { //获取unix毫秒时间戳
+    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+    );
+    return ms.count();
+}
+//判断 @dir 是否存在并且是一个目录
+inline bool CheckDirExists(const std::string &dir,bool to_sdcard_path=true) {
+    if(dir.empty()) return false;
+    DIR *dp;
+    if((dp = opendir((to_sdcard_path?MakeSdcardPath(dir):dir).c_str())) == nullptr) return false;
+    closedir(dp);
+    return true;
+}
+//创建目录 @dir_path,可创建多级目录,返回创建完成后 @dir_path 是否存在
+inline bool MakeDir(const std::string &dir_path,bool to_sdcard_path=true) {
+    auto dir=dir_path; if(to_sdcard_path) dir = MakeSdcardPath(dir);
+    std::string command("mkdir -p \""+dir+"\"");
+    int ret = system(command.c_str());
+    if (ret){
+        std::stringstream ss;
+        ss << "MakeDir Error " << ret << ": " << strerror(errno);
+        errorf(ss.str().c_str());
+        return false;
+    }
+    infof(("MakeDir Success: "+dir).c_str());
+    return true;
+}
+
+//=============================== 矩阵转换相关 =====================================
+inline glm::mat4 CV_Matx44f_to_GLM_Mat4(const cv::Matx44f &mat) {  // 将 cv::Matx44f 转换为 glm::mat4
+    return glm::mat4(
+            mat(0, 0), mat(0, 1), mat(0, 2), mat(0, 3),  // 第一行
+            mat(1, 0), mat(1, 1), mat(1, 2), mat(1, 3),  // 第二行
+            mat(2, 0), mat(2, 1), mat(2, 2), mat(2, 3),  // 第三行
+            mat(3, 0), mat(3, 1), mat(3, 2), mat(3, 3)   // 第四行
+    );
 }
 inline cv::Mat GetDistCoeffs(double k1, double k2, double k3, double p1, double p2) { //构造cv::Mat格式的相机外参矩阵
     cv::Mat distCoeffs=(cv::Mat_<double>(1,5) <<k1, k2, p1, p2, k3);
@@ -218,3 +290,14 @@ inline cv::Matx44f Mat_to_Matx44f(const cv::Mat& mat) {
 }
 inline cv::Mat RokidCameraMatrix; //眼镜相机的内参
 inline cv::Mat RokidDistCoeffs; //眼镜相机的外参
+
+
+inline cv::Mat _RokidOriginalCameraImage; //** 调试用，需要删除！！！***
+
+/*
+ *
+*/
+inline std::multimap<int,std::function<void(const cv::Mat&,const cv::Matx44f&,uint64_t)>> CameraUpdateCallbackList;
+
+
+#endif //ROKIDOPENXRANDROIDDEMO_UTILSMYM_HPP

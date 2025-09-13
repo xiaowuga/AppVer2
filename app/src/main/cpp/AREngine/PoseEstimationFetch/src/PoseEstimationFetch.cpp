@@ -3,12 +3,12 @@
 #include <thread>
 
 int PoseEstimationFetch::Init(AppData& appData, SceneData& SceneData, FrameDataPtr frameDataPtr) {
+    handFlag = false;
     return STATE_OK;
 }
 
 int PoseEstimationFetch::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    std::cout << "fetch pose" << std::endl;
     // 使用FetchPose从远程获取姿态信息
 //    SerilizedObjs cmdSend = {
 //        {"cmd", std::string("FetchPose")}
@@ -16,29 +16,30 @@ int PoseEstimationFetch::Update(AppData& appData, SceneData& sceneData, FrameDat
 //    app->postRemoteCall(this, nullptr, cmdSend);
 
     //上传手势数据到FrameData
-    std::vector<HandPose> handPoses(2);
-    std::array<cv::Vec3f, 21> left_joint_positions;
-    std::array<cv::Vec3f, 21> right_joint_positions;
-    std::array<std::array<float, 2>, 21> joints2d;
-    std::array<std::array<std::array<float, 3>, 3>, 16> rotation_matrices;
-    std::array<float, 10> shape_params;
-    cv::Vec3f origin;
+    if(handFlag) {
+        std::vector<HandPose> handPoses(2);
+        std::array<cv::Vec3f, 21> left_joint_positions;
+        std::array<cv::Vec3f, 21> right_joint_positions;
+        std::array<std::array<float, 2>, 21> joints2d;
+        std::array<std::array<std::array<float, 3>, 3>, 16> rotation_matrices;
+        std::array<float, 10> shape_params;
+        cv::Vec3f origin;
 
-    for(int i = 0; i < 63; i += 3) {
-        cv::Vec3f item(handPosition[i], handPosition[i + 1], handPosition[i + 2]);
-        left_joint_positions[ i/3] = item;
+        for (int i = 0; i < 63; i += 3) {
+            cv::Vec3f item(handPosition[i], handPosition[i + 1], handPosition[i + 2]);
+            left_joint_positions[i / 3] = item;
+        }
+        for (int i = 63; i < 126; i += 3) {
+            cv::Vec3f item(handPosition[i], handPosition[i + 1], handPosition[i + 2]);
+            right_joint_positions[(i - 63) / 2] = item;
+        }
+        handPoses[0] = HandPose(static_cast<int>(hand_tag::Left), left_joint_positions,
+                                joints2d, rotation_matrices, shape_params, origin);
+        handPoses[1] = HandPose(static_cast<int>(hand_tag::Right), left_joint_positions,
+                                joints2d, rotation_matrices, shape_params, origin);
+
+        frameDataPtr->handPoses = handPoses;
     }
-    for(int i = 63; i < 126; i += 3) {
-        cv::Vec3f item(handPosition[i], handPosition[i + 1], handPosition[i + 2]);
-        right_joint_positions[(i - 63) / 2] = item;
-    }
-    handPoses[0] = HandPose(static_cast<int>(hand_tag::Left), left_joint_positions,
-                            joints2d, rotation_matrices, shape_params, origin);
-    handPoses[1] = HandPose(static_cast<int>(hand_tag::Right), left_joint_positions,
-                            joints2d, rotation_matrices, shape_params, origin);
-
-    frameDataPtr->handPoses = handPoses;
-
     return STATE_OK;
 }
 
@@ -81,7 +82,7 @@ int PoseEstimationFetch::ProRemoteReturn(RemoteProcPtr proc) {
 //        shapeResult = ret.getd<std::vector<float>>("handShape");
 //        // 关节点在二维图像上的投影位置
 //        joints2dResult = ret.getd<std::vector<float>>("joints_img");
-        std::cout << "handFlag: " << handFlag << std::endl;
+//        std::cout << "handFlag: " << handFlag << std::endl;
     }
 
     return STATE_OK;

@@ -1,8 +1,8 @@
 #include"model.h"
 #include"utils.h"
 #include"logger.h"
-#include "demos/BaseRenderPass/renderPassManager.h"
-#include "demos/BaseRenderPass/pbrPass.h"
+#include "RenderingGlass/renderPassManager.h"
+#include "RenderingGlass/pbrPass.h"
 #include<iostream>
 #include<fstream>
 #include<algorithm>
@@ -337,7 +337,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 bool Model::loadModel(const std::string& modelFileName) {
     std::vector<char> fileData = readFileFromAssets(modelFileName.c_str());
     Assimp::Importer importer;
-    //const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+//    const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     const aiScene* scene = importer.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr ) {
         Log::Write(Log::Level::Error, Fmt("assimp readfile error %s", importer.GetErrorString()));
@@ -371,7 +371,7 @@ bool Model::loadFbModel(const std::string& modelFileName) {
 
     initShader();
 //std::string fliepath = MakeSdcardPath("/Download/sphere.fb");
-    std::string  filePath = "/storage/emulated/0/Download/FbModel/sphere.fb";
+    std::string  filePath = modelFileName;
     cadDataManager::DataInterface::parseLocalModel(filePath);
     std::vector<cadDataManager::RenderInfo> renderInfoArray = cadDataManager::DataInterface::getRenderInfo(true);
     cadDataManager::RenderInfo renderInfo = renderInfoArray[0];

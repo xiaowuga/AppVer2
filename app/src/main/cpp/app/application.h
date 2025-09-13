@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 #include <openxr/openxr.h>
 #include"openxr_program.h"
+#include"demos/utils.h"
 
 #define CONTROLLER_EVENT_BIT_value_trigger    0x00000001
 #define CONTROLLER_EVENT_BIT_value_squeeze    0x00000002
@@ -59,9 +60,13 @@ public:
     virtual bool initialize(const XrInstance instance, const XrSession session) = 0;
     virtual void setControllerPose(int leftright, const XrPosef& pose) = 0;
     virtual void setHandJointLocation(XrHandJointLocationEXT* location) = 0;
-    virtual void inputEvent(int leftright, const ApplicationEvent& event) = 0;
+    virtual const XrHandJointLocationEXT* getHandJointLocation() = 0;
+    virtual void inputEvent(int leftright,const ApplicationEvent& event) = 0;
+    virtual void keypadEvent(const std::string &key_name)=0;
     virtual void renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye) = 0;
-    virtual void processFrame() =0;
+    virtual void processFrame()=0;
+    virtual bool needExit(){return false;}; //如果返回true,表示程序需要退出了
+    virtual void exit(){}; //退出事件
 };
 
 struct Options;

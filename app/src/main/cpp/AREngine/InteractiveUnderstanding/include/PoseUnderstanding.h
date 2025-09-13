@@ -1,8 +1,7 @@
 #ifndef ARENGING_POSEUNDER_H
 #define ARENGING_POSEUNDER_H
 
-//#include "../Basic/ARModule.h"
-//#include "../Basic/BasicData.h"
+
 #include "ARModule.h"
 #include "BasicData.h"
 /**

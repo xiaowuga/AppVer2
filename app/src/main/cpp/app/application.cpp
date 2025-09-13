@@ -14,23 +14,20 @@
 #include "demos/utils.h"
 #include "graphicsplugin.h"
 #include "demos/cube.h"
+#include "app/scene.h"
+#include "opencv2/opencv.hpp"
+#include "utilsmym.hpp"
+#include "scenegui.h"
 
-#include"app/scene.h"
 
-#define ENABLE_PBR_PIPELINE 1
-
-#if ENABLE_PBR_PIPELINE
-
-#include "demos/BaseRenderPass/pbrPass.h"
-#include "demos/BaseRenderPass/equirectangularToCubemapPass.h"
-#include "demos/BaseRenderPass/renderPassManager.h"
-#include "demos/BaseRenderPass/irradiancePass.h"
-#include "demos/BaseRenderPass/prefilterPass.h"
-#include "demos/BaseRenderPass/brdfPass.h"
-#include "demos/BaseRenderPass/backgroundPass.h"
-#include "demos/BaseRenderPass/shadowMappingDepthPass.h"
-
-#endif
+#include "RenderingGlass/pbrPass.h"
+#include "RenderingGlass/equirectangularToCubemapPass.h"
+#include "RenderingGlass/renderPassManager.h"
+#include "RenderingGlass/irradiancePass.h"
+#include "RenderingGlass/prefilterPass.h"
+#include "RenderingGlass/brdfPass.h"
+#include "RenderingGlass/backgroundPass.h"
+#include "RenderingGlass/shadowMappingDepthPass.h"
 
 class Application : public IApplication {
 public:
@@ -39,11 +36,15 @@ public:
     virtual void setControllerPose(int leftright, const XrPosef& pose) override;
     virtual bool initialize(const XrInstance instance, const XrSession session) override;
     virtual void setHandJointLocation(XrHandJointLocationEXT* location) override;
-    virtual void inputEvent(int leftright, const ApplicationEvent& event) override;
+    virtual const XrHandJointLocationEXT* getHandJointLocation() override;
+    virtual void inputEvent(int leftright,const ApplicationEvent& event) override;
+    virtual void keypadEvent(const std::string &key_name)override;
     virtual void renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye) override;
     virtual void processFrame()override{
         if(m_scene) m_scene->processFrame();
     }
+    void exit()override;
+    bool needExit()override;
 private:
     bool setCurrentScene(const std::string &name){
         if(m_scene){
@@ -53,6 +54,7 @@ private:
         auto ptr=createScene(name, this);
         if(ptr && ptr->initialize(m_instance, m_session)){
             m_scene=ptr;
+            m_scene_created_timestamp=CurrentMSecsSinceEpoch();
             return true;
         }
         return false;
@@ -62,15 +64,17 @@ private:
     void showDashboard(const glm::mat4& project, const glm::mat4& view);
     void showDashboardController();
     void showDeviceInformation(const glm::mat4& project, const glm::mat4& view);
+    void render_ui(const glm::mat4& project, const glm::mat4& view, int32_t eye);
     void renderHandTracking(const glm::mat4& project, const glm::mat4& view);
     // Calculate the angle between the vector v and the plane normal vector n
     float angleBetweenVectorAndPlane(const glm::vec3& vector, const glm::vec3& normal);
 
-private:
+public:
     std::shared_ptr<IGraphicsPlugin> mGraphicsPlugin;
     std::shared_ptr<Controller> mController;
     std::shared_ptr<Hand> mHandTracker;
     std::shared_ptr<Gui> mPanel;
+    std::shared_ptr<SceneGui> mSceneGui;
     std::shared_ptr<Text> mTextRender;
     std::shared_ptr<Player> mPlayer;
     glm::mat4 mControllerModel;
@@ -88,25 +92,29 @@ private:
     std::string mDeviceModel;
     std::string mDeviceOS;
 
-    bool mIsShowDashboard = true;
+    bool mIsShowDashboard = false;  //不显示Dashboard
 
     const ApplicationEvent *mControllerEvent[HAND_COUNT];
 
     std::shared_ptr<IScene>  m_scene;
+    std::vector<std::string> m_scene_list;
+    int m_current_scene=0;
+    long long m_scene_created_timestamp=0; //当前scene是什么时候创建的(unix毫秒时间戳)
+    long long m_exit_key_last_pressed_timestamp=0; //退出按键最后一次被按下是什么时候(连按两次退出键才会退出程序)
+    bool mExitState{false}; //true表示程序需要退出
 
 
-#if ENABLE_PBR_PIPELINE
-//    std::shared_ptr<PbrModel> YIBIAOPANModel; //仪表盘模型
 
-    std::shared_ptr<EquirectangularToCubemapPass> mEquirectangularToCubemapPass;
-    std::shared_ptr<IrradiancePass> mIrradiancePass;
-    std::shared_ptr<PrefilterPass> mPrefilterPass;
-    std::shared_ptr<BrdfPass> mBrdfPass;
-    std::shared_ptr<ShadowMappingDepthPass> mShadowMappingDepthPass;
-    std::shared_ptr<PbrPass> mPbrPass;
-    std::shared_ptr<BackgroundPass> mBackgroundPass;
-#endif
-    std::shared_ptr<Model> mModel; // for test
+
+//    std::shared_ptr<EquirectangularToCubemapPass> mEquirectangularToCubemapPass;
+//    std::shared_ptr<IrradiancePass> mIrradiancePass;
+//    std::shared_ptr<PrefilterPass> mPrefilterPass;
+//    std::shared_ptr<BrdfPass> mBrdfPass;
+//    std::shared_ptr<ShadowMappingDepthPass> mShadowMappingDepthPass;
+//    std::shared_ptr<PbrPass> mPbrPass;
+//    std::shared_ptr<BackgroundPass> mBackgroundPass;
+//    std::shared_ptr<Model> mModel;
+
 };
 
 std::shared_ptr<IApplication> createApplication(IOpenXrProgram *program, const std::shared_ptr<struct Options>& options, const std::shared_ptr<IGraphicsPlugin>& graphicsPlugin) {
@@ -120,14 +128,10 @@ Application::Application(const std::shared_ptr<struct Options>& options, const s
     mController = std::make_shared<Controller>();
     mHandTracker = std::make_shared<Hand>();
     mPanel = std::make_shared<Gui>("dashboard");
+    mSceneGui = std::make_shared<SceneGui>();
     mTextRender = std::make_shared<Text>();
     mPlayer = std::make_shared<Player>();
     mCubeRender = std::make_shared<CubeRender>();
-
-
-#if ENABLE_PBR_PIPELINE
-//    YIBIAOPANModel = std::make_shared<PbrModel>("backpack");
-#endif
 }
 
 Application::~Application() {
@@ -154,77 +158,20 @@ bool Application::initialize(const XrInstance instance, const XrSession session)
     const XrGraphicsBindingOpenGLESAndroidKHR *binding = reinterpret_cast<const XrGraphicsBindingOpenGLESAndroidKHR*>(mGraphicsPlugin->GetGraphicsBinding());
     mPlayer->initialize(binding->display);
 
+    m_scene_list={ "AppVer2"};
+    m_current_scene=0;
+
+    this->setCurrentScene(m_scene_list[m_current_scene]);
 //    this->setCurrentScene("marker_test_rpc");
 //    this->setCurrentScene("3dtracking_test");
-    this->setCurrentScene("engine_test_aruco");
-
-    mModel  = std::make_shared<Model>("test");
-#if ENABLE_SPHERE_SCENE
-
-#else
-    mModel->loadFbModel("123");
-#endif
-    mModel->loadModel("model/backpack/backpack.obj");
-#if ENABLE_PBR_PIPELINE
-    //    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/diffuse.jpg"  );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/normal.png"   );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/specular.jpg" );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/roughness.jpg");
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/ao.jpg"       );
-//    YIBIAOPANModel->loadModel("models/backpack/backpack.obj");
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/diffuse.jpg"  );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/normal.png"   );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/specular.jpg" );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/roughness.jpg");
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/ao.jpg"       );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/diffuse.jpg"  );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/normal.png"   );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/specular.jpg" );
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/roughness.jpg");
-//    YIBIAOPANModel->bindMeshTexture("backpack", "models/backpack/ao.jpg"       );
-//    YIBIAOPANModel->loadModel("models/YIBIAOPAN/ybp.obj");
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/diffuse.jpg"  );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/normal.png"   );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/specular.jpg" );
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/roughness.jpg");
-//    YIBIAOPANModel->activeMeshTexture("backpack", "models/backpack/ao.jpg"       );
-    // 获取RenderPassManager单例
-    auto& passManager = RenderPassManager::getInstance();
-    // 初始化渲染通道、注册渲染通道
-    mEquirectangularToCubemapPass = std::make_shared<EquirectangularToCubemapPass>();
-    mEquirectangularToCubemapPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("equirectangularToCubemap", mEquirectangularToCubemapPass);
-
-    mIrradiancePass = std::make_shared<IrradiancePass>();
-    mIrradiancePass->initialize(mModel->getMMeshes());
-    passManager.registerPass("irradiance", mIrradiancePass);
-
-    mPrefilterPass = std::make_shared<PrefilterPass>();
-    mPrefilterPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("prefilter", mPrefilterPass);
-
-    mBrdfPass = std::make_shared<BrdfPass>();
-    mBrdfPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("brdf", mBrdfPass);
-
-    mShadowMappingDepthPass = std::make_shared<ShadowMappingDepthPass>();
-    mShadowMappingDepthPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("shadowMappingDepth", mShadowMappingDepthPass);
-
-    mPbrPass = std::make_shared<PbrPass>();
-    mPbrPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("pbr", mPbrPass);
-
-    mBackgroundPass = std::make_shared<BackgroundPass>();
-    mBackgroundPass->initialize(mModel->getMMeshes());
-    passManager.registerPass("background", mBackgroundPass);
 
 
+    SceneGui::TextItem   text;
+    text.text="Application GUI Text";
+    text.translate_model=glm::translate(glm::mat4(1.0f), glm::vec3(-0.0f, -1.3f, -5.0f));
+    text.scale=0.9;
+//    mSceneGui->add_text(text);
 
-    // 设置渲染顺序（先环境贴图转换，后PBR渲染）
-    std::vector<std::string> passOrder = {"equirectangularToCubemap", "irradiance","prefilter","brdf","shadowMappingDepth","pbr","background"};
-    passManager.setPassOrder(passOrder);
-#endif
 
     return true;
 }
@@ -239,24 +186,59 @@ void Application::setControllerPose(int leftright, const XrPosef& pose) {
     mHandTracker->setModel(leftright, m); // zhfzhf
     mControllerPose[leftright] = pose;
 }
+
 void Application::setHandJointLocation(XrHandJointLocationEXT* location) {
     memcpy(&m_jointLocations, location, sizeof(m_jointLocations));
 }
 
-void Application::inputEvent(int leftright, const ApplicationEvent& event) {
+const XrHandJointLocationEXT* Application::getHandJointLocation() {
+    return (XrHandJointLocationEXT*)m_jointLocations;
+}
+
+void Application::inputEvent(int leftright,const ApplicationEvent& event) {
     mControllerEvent[leftright] = &event;
-    if (event.controllerEventBit & CONTROLLER_EVENT_BIT_click_menu) {
-        if (event.click_menu == true) {
-            mIsShowDashboard = !mIsShowDashboard;
-        }
-    }
-    if (leftright == HAND_LEFT) return; //这里只处理了右手的手势
+//    if (event.controllerEventBit & CONTROLLER_EVENT_BIT_click_menu) {
+//        if (event.click_menu) {
+//            mIsShowDashboard = !mIsShowDashboard;
+//        }
+//    }
+    if (leftright == HAND_LEFT) return; // *** 这里只处理了右手的手势
     if (event.controllerEventBit & CONTROLLER_EVENT_BIT_click_trigger) {
         infof("controllerEventBit:0x%02x, event.click_trigger:0x%d", event.controllerEventBit, event.click_trigger);
         mPanel->triggerEvent(event.click_trigger);
     }
 
     if(m_scene) m_scene->inputEvent(leftright,event);
+}
+void Application::keypadEvent(const std::string &key_name){
+    if(m_scene&&CurrentMSecsSinceEpoch()-m_scene_created_timestamp>900) m_scene->keypadEvent(key_name); //场景创建后900ms后才接受按键事件，否则会导致场景刚创建完成就接收到多个按键事件导致bug
+//    infof(("Pressed: "+key_name).c_str());
+    static std::map<std::string_view,long long> LastPressedMap; //某个按键最后一次被触发是什么时候,防止反复触发
+    static long long MinGap=500; //最小触发间隔为500ms
+    if(CurrentMSecsSinceEpoch()-LastPressedMap[key_name]<MinGap) return;
+    LastPressedMap[key_name]=CurrentMSecsSinceEpoch();
+    if(key_name=="o"){ //Next Step
+        if(CurrentMSecsSinceEpoch()-m_scene_created_timestamp>1000){ //切换Scene有时间限制，1s内最多切换一次
+            if(m_scene_list[m_current_scene]!="task3_step1"){
+                ++m_current_scene;
+                this->setCurrentScene(m_scene_list[m_current_scene]);
+            }
+        }
+    }
+    else if(key_name=="left"){ //Prev Step
+        if(CurrentMSecsSinceEpoch()-m_scene_created_timestamp>1000){ //切换Scene有时间限制，1s内最多切换一次
+            if(m_scene_list[m_current_scene]!="task3_step1"){
+                //
+            }
+        }
+    }
+    else if(key_name=="x"){ //Exit
+        if(CurrentMSecsSinceEpoch()-m_exit_key_last_pressed_timestamp>1000){ //退出按键第一次按下
+            m_exit_key_last_pressed_timestamp=CurrentMSecsSinceEpoch();
+//            mSceneGui->add_text()
+        }
+        else mExitState=true;
+    }
 }
 
 void Application::layout() {
@@ -370,7 +352,6 @@ float Application::angleBetweenVectorAndPlane(const glm::vec3& vector, const glm
 
 void Application::renderHandTracking(const glm::mat4& project, const glm::mat4& view) {
     std::vector<CubeRender::Cube> cubes;
-    std::vector<glm::mat4> matrix;
     for (auto hand = 0; hand < HAND_COUNT; hand++) {
         for (int i = 0; i < XR_HAND_JOINT_COUNT_EXT; i++) {
             XrHandJointLocationEXT& jointLocation = m_jointLocations[hand][i];
@@ -379,14 +360,11 @@ void Application::renderHandTracking(const glm::mat4& project, const glm::mat4& 
                 XrMatrix4x4f m{};
                 XrVector3f scale{1.0f, 1.0f, 1.0f};
                 XrMatrix4x4f_CreateTranslationRotationScale(&m, &jointLocation.pose.position, &jointLocation.pose.orientation, &scale);
-
                 glm::mat4 model = glm::make_mat4((float*)&m);
-
                 CubeRender::Cube cube;
                 cube.model = model;
                 cube.scale = 0.01f;
                 cubes.push_back(cube);
-                matrix.push_back(model);
 
                 //mHandTracker->setBoneNodeMatrices(hand, getBoneNameByIndex(hand, i), model); // zhfzhf
             }
@@ -394,43 +372,31 @@ void Application::renderHandTracking(const glm::mat4& project, const glm::mat4& 
         //mHandTracker->render(hand, project, view);
     }
 
-//    mCubeRender->render(project, view, cubes);
-    mPbrPass->render(project, view, matrix);
+    mCubeRender->render(project, view, cubes);
+
 }
-static auto end = std::chrono::high_resolution_clock::now();
+
 void Application::renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye) {
-
-
-
-#if ENABLE_SPHERE_SCENE
-    // 使用RenderPassManager执行所有通道的渲染
-    auto& passManager = RenderPassManager::getInstance();
-    passManager.executeAllPasses(project, view);
-#else
-    //    layout();
-//    showDeviceInformation(project, view);
-//    mPlayer->render(project, view, eye);
-//    if (mIsShowDashboard) {
-////        showDashboard(project, view);
-//    }
-    if(m_scene) m_scene->renderFrame(pose, project, view, eye);
-
-    mBackgroundPass->render(project,view);
+    layout();
+    showDeviceInformation(project, view);
+    mPlayer->render(project, view, eye);
+    if (mIsShowDashboard) {
+        showDashboard(project, view);
+    }
     mController->render(project, view);
-    renderHandTracking(project, view);
-#endif
-//    // 或者单独调用特定通道的渲染
-//     if (mPbrPass) {
-//         glm::mat4 model = glm::mat4(1.0f);
-//         model=glm::translate(model,glm::vec3(0.0f,0.0f,-4.0f));
-//         mPbrPass->render(project, view,model);
-//     }
-
-
-
-    auto start = end;
-    end = std::chrono::high_resolution_clock::now();
-    float ms = std::chrono::duration<float, std::milli>(end - start).count();
-    infof("renderFrame 用时: %.3f ms\n", ms);
+//    renderHandTracking(project, view);
+    render_ui(project,view,eye);
+//    mModel->render(project,view,glm::mat4(10.0));
+    if(m_scene)
+        m_scene->renderFrame(pose, project, view, eye);
+}
+void Application::render_ui(const glm::mat4 &project,const glm::mat4 &view,int32_t eye){
+    mSceneGui->render(project,view,eye);
+}
+void Application::exit(){
+    if(m_scene) m_scene->close();
+}
+bool Application::needExit(){
+    return mExitState;
 }
 
