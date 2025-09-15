@@ -18,7 +18,6 @@ public:
         cv::Mat   img;
         uint64_t  timestamp;
         cv::Matx44f cameraMat;
-        std::vector<cv::Vec3f> handPose;
     };
 
     void set(const FrameData &frameData, int  mask);
@@ -36,6 +35,7 @@ class ARInputs
     cv::Mat  _udistMap1, _udistMap2;
     cv::Matx33f  _camK;
 public:
+    virtual int Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) override;
     virtual int Update(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) override;
 };
 

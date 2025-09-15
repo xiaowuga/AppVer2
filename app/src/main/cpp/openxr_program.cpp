@@ -15,6 +15,7 @@
 #include "app/application.h"
 #include "stb_image.h"
 #include "ARInput.h"
+#include "PoseEstimationRokid.h"
 
 #include "app/utilsmym.hpp"
 #include "app/recorder.hpp"
@@ -1502,6 +1503,7 @@ struct OpenXrProgram : IOpenXrProgram {
             }
         }
         m_application->setHandJointLocation((XrHandJointLocationEXT*)jointLocations);
+        RokidHandPose::instance()->set((XrHandJointLocationEXT*)jointLocations);
         //hand tracking end
 
 

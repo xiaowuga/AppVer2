@@ -377,15 +377,15 @@ void Application::renderHandTracking(const glm::mat4& project, const glm::mat4& 
 }
 
 void Application::renderFrame(const XrPosef& pose, const glm::mat4& project, const glm::mat4& view, int32_t eye) {
-    layout();
-    showDeviceInformation(project, view);
-    mPlayer->render(project, view, eye);
-    if (mIsShowDashboard) {
-        showDashboard(project, view);
-    }
-    mController->render(project, view);
+//    layout();
+//    showDeviceInformation(project, view);
+//    mPlayer->render(project, view, eye);
+//    if (mIsShowDashboard) {
+//        showDashboard(project, view);
+//    }
+//    mController->render(project, view);
 //    renderHandTracking(project, view);
-    render_ui(project,view,eye);
+//    render_ui(project,view,eye);
 //    mModel->render(project,view,glm::mat4(10.0));
     if(m_scene)
         m_scene->renderFrame(pose, project, view, eye);

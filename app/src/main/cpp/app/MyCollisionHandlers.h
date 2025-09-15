@@ -49,7 +49,7 @@ namespace MyCollisionHandlers {
             if (animator == nullptr) {
                 // make a new animator referring to the obj2, which is stored in appData->sceneObjects
                 animator = std::make_shared<Animator::Animator>(
-                        0, obj2->obj, appDataPtr->dataDir + "/InstanceState.json");
+                        0, obj2->obj, appDataPtr->dataDir + "InstanceState.json");
                 animation_player->addAnimator(obj2->name, animator);
             }
             if (animator->isPlaying == false) {

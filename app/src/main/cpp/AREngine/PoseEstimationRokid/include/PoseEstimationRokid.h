@@ -21,9 +21,28 @@ namespace Side {
 #define HAND_COUNT 2
 
 
+class RokidHandPose{
+public:
+    static RokidHandPose* instance();
+
+
+    void set(const XrHandJointLocationEXT* location);
+
+    std::vector<HandPose>& get_hand_pose();
+
+    std::vector<glm::mat4>& get_joint_loc();
+
+private:
+    std::vector<HandPose> hand_pose;
+    std::vector<glm::mat4> joint_loc;
+    std::shared_mutex  _dataMutex;
+    int mapping[26] = {-1,0,1,2,3,4,-1, 5,6,7,8,-1, 9,10,11,12,-1, 13,14,15,16,-1, 17,18,19, 20};
+
+};
+
+
 class PoseEstimationRokid : public ARModule {
 public:
-    bool hand_OK;
     std::vector<HandPose> hand_pose;
     std::vector<glm::mat4> joint_loc;
     int mapping[26] = {-1,0,1,2,3,4,-1, 5,6,7,8,-1, 9,10,11,12,-1, 13,14,15,16,-1, 17,18,19, 20};
@@ -41,6 +60,7 @@ public:
 
     void setHandJointLocation(const XrHandJointLocationEXT* location);
 
+    std::vector<glm::mat4>& get_joint_loc();
 
 
 };

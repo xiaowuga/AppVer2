@@ -42,21 +42,25 @@ namespace {
 
         std::vector<ARModulePtr> modules;
         modules.push_back(createModule<ARInputs>("ARInputs"));
-        modules.push_back(createModule<RelocationGlass>("Relocation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
-        modules.push_back(createModule<PoseEstimationFetch>("PoseEstimation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
+//        modules.push_back(createModule<RelocationGlass>("Relocation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
+//        modules.push_back(createModule<PoseEstimationFetch>("PoseEstimation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
         modules.push_back(createModule<PoseEstimationRokid>("PoseEstimationRokid"));
-//        modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
-//        modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
-//        modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
+        modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
+        modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
+        modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
+        auto ptr = std::static_pointer_cast<AnimationPlayer>(modules.back());
         auto appData=std::make_shared<AppData>();
         auto sceneData=std::make_shared<SceneData>();
 
         appData->argc=1;
         appData->argv=nullptr;
         appData->engineDir="./AREngine/";  // for test
-        appData->dataDir="./data/";        // for test
+        appData->dataDir="/storage/emulated/0/AppVer2Data/";        // for test
+        appData->interactionConfigFile = "InteractionConfig.json";
+        appData->offlineDataDir = "";
 
-        //std::thread listenThread(listenForEvent, std::ref(*appData));
+        // we need to store this pointer in appData, we will use it when we want to set a new animator
+        appData->setData("AnimationPlayer", ptr);
 
         std::shared_ptr<ARApp> app=std::make_shared<ARApp>();
         app->init(appName,appData,sceneData,modules);
@@ -69,13 +73,16 @@ namespace {
 
     public:
         virtual bool initialize(const XrInstance instance,const XrSession session){
+
             _eng=construct_engine();
+
+            std::string dataDir = _eng->appData->dataDir;
             mProject = glm::mat4(1.0);
             mView = glm::mat4(1.0);
 
             mModel  = std::make_shared<Model>("test");
-            mModel->loadFbModel(MakeSdcardPath("RokidData/Model/YIBIAOPAN.fb"));
-            mModel->loadModel("model/backpack/backpack.obj");
+            mModel->loadFbModel(_eng->appData->dataDir + "Models/YIBIAOPAN.fb");
+            mModel->loadModel(_eng->appData->dataDir + "Models/backpack/backpack.obj");
             auto& passManager = RenderPassManager::getInstance();
             // 初始化渲染通道、注册渲染通道
             mEquirectangularToCubemapPass = std::make_shared<EquirectangularToCubemapPass>();
@@ -109,7 +116,7 @@ namespace {
             std::vector<std::string> passOrder = {"equirectangularToCubemap", "irradiance","prefilter","brdf","shadowMappingDepth","pbr","background"};
             passManager.setPassOrder(passOrder);
 
-            _eng->connectServer("192.168.31.24",1299);
+//            _eng->connectServer("192.168.31.24",1299);
             _eng->start();
 
             return true;
@@ -117,19 +124,18 @@ namespace {
         virtual void renderFrame(const XrPosef &pose,const glm::mat4 &project,const glm::mat4 &view,int32_t eye){ //由于接口更改，以前的renderFrame函数不再适用，换用以下写法(2025-06-17)
             mProject=project; mView=view;
             if (_eng) {
-                ARModulePtr modulePtr = _eng->getModule("Relocation");
-
-                std::shared_ptr<RelocationGlass> relocationPtr = std::static_pointer_cast<RelocationGlass>(modulePtr);
+                std::shared_ptr<RelocationGlass> relocationPtr = std::static_pointer_cast<RelocationGlass>(_eng->getModule("Relocation"));
                 glm::mat4 model_trans_mat = glm::mat4(1.0);
-                model_trans_mat = glm::inverse(relocationPtr->industrial_camera_world_pose) * relocationPtr->marker_industrial_camera_pose;
+                if(relocationPtr) {
+                    model_trans_mat = glm::inverse(relocationPtr->industrial_camera_world_pose) * relocationPtr->marker_industrial_camera_pose;
+                }
                 mModel->render(mProject,mView,model_trans_mat);
 
-                modulePtr = _eng->getModule("PoseEstimationRokid");
-                std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(modulePtr);
-                poseEstimationRokidPtr->setHandJointLocation(this->m_app->getHandJointLocation());
-                if(poseEstimationRokidPtr->hand_OK) {
-                    std::vector<glm::mat4>& joc = poseEstimationRokidPtr->joint_loc;
+                std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(_eng->getModule("PoseEstimationRokid"));
+                if(poseEstimationRokidPtr != nullptr) {
+                    std::vector<glm::mat4> &joc = poseEstimationRokidPtr->get_joint_loc();
                     mPbrPass->render(project, view, joc);
+
                 }
 
             }

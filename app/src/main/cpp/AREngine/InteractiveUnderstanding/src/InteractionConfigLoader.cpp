@@ -9,6 +9,7 @@ InteractionConfigLoader::InteractionConfigLoader(SceneData& sceneData, const std
         throw std::runtime_error("Cannot open file: " + filePath);
     }
     file >> _jsonData;  // 使用 nlohmann/json 直接解析文件
+
     file.close();
     
     _collisionBoxMapPtr->insert(std::make_pair("AABB", CollisionBox::AABB));

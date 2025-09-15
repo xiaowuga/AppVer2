@@ -1,4 +1,5 @@
-#include"ARInput.h"
+#include "ARInput.h"
+#include "json.hpp"
 using namespace cv;
 
 ARInputSources* ARInputSources::instance() {
@@ -19,6 +20,35 @@ void ARInputSources::get(ARInputSources::FrameData &frameData, int mask) {
     std::shared_lock<std::shared_mutex> _lock(_dataMutex);
     frameData=_frameData;
 }
+
+
+int ARInputs::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
+
+    nlohmann::json instances_info_json;
+    std::ifstream json_file(appData.dataDir + "InstanceInfo.json");
+    json_file >> instances_info_json;
+    // [ {"instanceId": string, "name": string, "matrixWorld": [float]}, {...}, ...]
+    for (int i = 0; i < instances_info_json.size(); i++) {
+        auto instance_info_json = instances_info_json[i];
+        std::string object_name = instance_info_json.at("name").get<std::string>();
+
+        std::vector<float> model_mat = instance_info_json.at(
+                "matrixWorld").get<std::vector<float>>();
+        if (model_mat.size() != 16) {
+            std::cout << "number of elements in model matrix does not equal to 16!" << std::endl;
+        }
+//        assert(model_mat.size() != 16);
+        //                glm::mat4 model_mat_glm = glm::make_mat4(model_mat.data());
+        cv::Matx44f model_mat_cv;
+        std::copy(model_mat.begin(), model_mat.begin() + 16, model_mat_cv.val);
+
+        std::string mesh_file_name = appData.dataDir + "Models/" + object_name + "/" + object_name + ".obj";
+        sceneData.setObject(object_name,std::make_shared<SceneObject>(object_name, mesh_file_name,
+                                                                 model_mat_cv));
+    }
+
+    return STATE_OK;
+};
 
 int ARInputs::Update(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr)
 {

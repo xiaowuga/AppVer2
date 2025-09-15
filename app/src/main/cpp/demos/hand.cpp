@@ -13,7 +13,7 @@ void HandBase::setModelFile(const std::string& modelFile) {
     mModelFile = modelFile;
 }
 bool HandBase::loadModelFile() {
-    return mHand->loadModel(mModelFile);
+    return mHand->loadModel("/storage/emulated/0/AppVer2Data/" + mModelFile);
 }
 void HandBase::setModel(const glm::mat4& model) {
     mModel = model;
