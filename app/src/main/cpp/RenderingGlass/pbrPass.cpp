@@ -1,13 +1,14 @@
-#include "RenderingGlass/pbrPass.h"
+#include "pbrPass.h"
 #include "demos/utils.h"
-#include "RenderingGlass/renderPassManager.h"
-#include "RenderingGlass/equirectangularToCubemapPass.h"
-#include "RenderingGlass/irradiancePass.h"
-#include "RenderingGlass/prefilterPass.h"
-#include "RenderingGlass/brdfPass.h"
-#include "RenderingGlass/shadowMappingDepthPass.h"
+#include "renderPassManager.h"
+#include "equirectangularToCubemapPass.h"
+#include "irradiancePass.h"
+#include "prefilterPass.h"
+#include "brdfPass.h"
+#include "shadowMappingDepthPass.h"
+#include "SSAOPass.h"
 
-
+#define ENABLE_SSAO 1
 PbrPass::PbrPass() : TemplatePass() {}
 
 PbrPass::~PbrPass() {}
@@ -100,7 +101,6 @@ void PbrPass::draw() {
 //    GL_CALL(glEnable(GL_DEPTH_TEST));
 //    GL_CALL(glEnable(GL_BLEND));
 //    GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
     for (auto &it : mMeshes) {
         it.second.drawPBR(mShader);
     }
@@ -190,8 +190,16 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
     glBindTexture(GL_TEXTURE_2D, wallMetallicMap);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, wallRoughnessMap);
+#if ENABLE_SSAO
+    auto ssaoPass = passManager.getPassAs<SSAOPass>("SSAO");
+    GLuint ssao = ssaoPass->getSsaoColorBufferBlur();
+    glActiveTexture(GL_TEXTURE7);
+    glBindTexture(GL_TEXTURE_2D, ssao);
+#else
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, wallAOMap);
+#endif
+
 
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(3.0, 2.0, -15.0));
@@ -245,29 +253,24 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
 }
 
 void PbrPass::render(const glm::mat4& p, const glm::mat4& v, const std::vector<glm::mat4>& m) {
-
-    mShader.use();
-    mShader.setUniformMat4("projection", p);
-    mShader.setUniformMat4("view", v);
+    Shader sphereShader;
+    std::vector<char> vertexShaderCode = readFileFromAssets("shaders/sphere.vert");
+    vertexShaderCode.push_back('\0');
+    std::vector<char> fragmentShaderCode = readFileFromAssets("shaders/sphere.frag");
+    fragmentShaderCode.push_back('\0');
+    sphereShader.loadShader(vertexShaderCode.data(), fragmentShaderCode.data());
+    sphereShader.use();
+    sphereShader.setUniformMat4("projection", p);
+    sphereShader.setUniformMat4("view", v);
 
 //TODO: gyp: 要加上缩放
     for(size_t i = 0; i < m.size(); i++){
         glm::mat4 model = glm::scale(m[0],glm::vec3 (1.0f));
         model = m[i];
         model = glm::scale(m[i],glm::vec3 (0.005f));
-        mShader.setUniformMat4("model", model);
-        mShader.setUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+        sphereShader.setUniformMat4("model", model);
         renderSphere();
     }
-}
-
-void PbrPass::renderMeasure(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m){
-    glm::mat4 model = glm::scale(m,glm::vec3 (1.0f));
-    model = m;
-    model = glm::scale(m,glm::vec3 (0.005f));
-    mShader.setUniformMat4("model", model);
-    mShader.setUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-    renderSphere();
 }
 
 void PbrPass::render(const glm::mat4 &p, const glm::mat4 &v) {
@@ -598,103 +601,6 @@ void PbrPass::renderSphere()
         }
         indexCount = static_cast<GLsizei>(indices.size());
 
-        // 数据打包与上传
-        std::vector<float> data;
-        for (unsigned int i = 0; i < positions.size(); ++i)
-        {
-            data.push_back(positions[i].x);
-            data.push_back(positions[i].y);
-            data.push_back(positions[i].z);
-            if (normals.size() > 0)
-            {
-                data.push_back(normals[i].x);
-                data.push_back(normals[i].y);
-                data.push_back(normals[i].z);
-            }
-            if (uv.size() > 0)
-            {
-                data.push_back(uv[i].x);
-                data.push_back(uv[i].y);
-            }
-        }
-        glBindVertexArray(sphereVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-        unsigned int stride = (3 + 2 + 3) * sizeof(float);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
-    }
-
-    glBindVertexArray(sphereVAO);
-    glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
-}
-
-void PbrPass::renderMeasure()
-{
-    if (sphereVAO == 0)
-    {
-        glGenVertexArrays(1, &sphereVAO);
-
-        unsigned int vbo, ebo;
-        glGenBuffers(1, &vbo);
-        glGenBuffers(1, &ebo);
-
-        std::vector<glm::vec3> positions;
-        std::vector<glm::vec2> uv;
-        std::vector<glm::vec3> normals;
-        std::vector<unsigned int> indices;
-
-        // 生成球面顶点数据
-        const unsigned int X_SEGMENTS = 64;
-        const unsigned int Y_SEGMENTS = 64;
-        const float PI = 3.14159265359f;
-        for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-        {
-            for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
-            {
-                float xSegment = (float)x / (float)X_SEGMENTS;
-                float ySegment = (float)y / (float)Y_SEGMENTS;
-                float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-                float yPos = std::cos(ySegment * PI);
-                float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-
-                positions.push_back(glm::vec3(xPos, yPos, zPos));
-                uv.push_back(glm::vec2(xSegment, ySegment));
-                normals.push_back(glm::vec3(xPos, yPos, zPos));
-            }
-        }
-
-        // 生成索引
-        bool oddRow = false;
-        for (unsigned int y = 0; y < Y_SEGMENTS; ++y)
-        {
-            if (!oddRow) // even rows: y == 0, y == 2; and so on
-            {
-                for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-                {
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                }
-            }
-            else
-            {
-                for (int x = X_SEGMENTS; x >= 0; --x)
-                {
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                }
-            }
-            oddRow = !oddRow;
-        }
-        indexCount = static_cast<GLsizei>(indices.size());
-
-        // 数据打包与上传
         std::vector<float> data;
         for (unsigned int i = 0; i < positions.size(); ++i)
         {

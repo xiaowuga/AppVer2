@@ -167,6 +167,9 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/prefilterPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/backgroundPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/shadowMappingDepthPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/RenderClient.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOGeometryPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOPass.cpp
 )
 
 

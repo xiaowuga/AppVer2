@@ -8,12 +8,12 @@ layout(location = 8) in vec4 instanceMatrix1; // 第二列
 layout(location = 9) in vec4 instanceMatrix2; // 第三列
 layout(location = 10) in vec4 instanceMatrix3; // 第四列
 
-
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
 //shadow mapping use
 out vec4 FragPosLightSpace;
+out vec2 ScreenCoords;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -30,10 +30,14 @@ void main()
     mat4 finalModel = !isNotInstanced? model * modelMatrix : model; // 合并变换
     //finalModel = lightSpaceMatrix * finalModel; // shadow mapping use
     TexCoords = aTexCoords;
-    WorldPos = vec3(model * vec4(aPos , 1.0));
-    Normal = normalMatrix * aNormal;
+    WorldPos = vec3(finalModel * vec4(aPos , 1.0));
+    //这个是对的法线，需要所有单个小模型一起做个变换
+    mat3 normalMatrix1 = transpose(inverse(mat3(finalModel)));
+    //mat3 normalMatrix1 = transpose(inverse(mat3(view * finalModel)));
+
+    Normal = normalMatrix1 * aNormal;
     //shadow mapping use
     FragPosLightSpace = lightSpaceMatrix * vec4(WorldPos, 1.0);
-
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
+    ScreenCoords = (gl_Position.xy / gl_Position.w) * 0.5 + 0.5;
 }

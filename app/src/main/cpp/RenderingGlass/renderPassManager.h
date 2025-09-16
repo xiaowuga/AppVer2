@@ -66,3 +66,4 @@ private:
     int mSavedViewport[4] = {0, 0, 0, 0}; // x, y, width, height
 
 };
+
