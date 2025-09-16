@@ -19,7 +19,7 @@ int GestureUnderstanding::Init(AppData &appData, SceneData &sceneData, FrameData
     for (int i = 0; i < 42; i++) {
         SceneObjectPtr handNode(new VirtualObject());
 		handNode->name = "HandNode_" + std::to_string(i);
-        handNode->filePath = appData.dataDir+"handNode/" + handNode->name + ".fb";
+        handNode->filePath = appData.dataDir + "handNode/" + handNode->name + ".fb";
         handNode->Init();
         _handNodes.push_back(handNode);
         sceneData.setObject(handNode->name, handNode);

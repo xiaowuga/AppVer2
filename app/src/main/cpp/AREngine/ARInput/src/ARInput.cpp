@@ -1,5 +1,8 @@
 #include "ARInput.h"
 #include "json.hpp"
+
+#include <regex>
+#include <string>
 using namespace cv;
 
 ARInputSources* ARInputSources::instance() {
@@ -21,6 +24,17 @@ void ARInputSources::get(ARInputSources::FrameData &frameData, int mask) {
     frameData=_frameData;
 }
 
+std::string prase_path(const std::string& str) {
+    std::regex pattern(R"((.*)<\d+>)");
+
+    // 提取并匹配
+    std::smatch match;
+    if (std::regex_match(str, match, pattern)) {
+        return match[1];
+    } else {
+        return str;
+    }
+}
 
 int ARInputs::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
 
@@ -41,8 +55,8 @@ int ARInputs::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDat
         //                glm::mat4 model_mat_glm = glm::make_mat4(model_mat.data());
         cv::Matx44f model_mat_cv;
         std::copy(model_mat.begin(), model_mat.begin() + 16, model_mat_cv.val);
-
-        std::string mesh_file_name = appData.dataDir + "Models/" + object_name + "/" + object_name + ".obj";
+        std::string model_name = prase_path(object_name);
+        std::string mesh_file_name = appData.dataDir + "Models/" + model_name + "/" + model_name + ".obj";
         sceneData.setObject(object_name,std::make_shared<SceneObject>(object_name, mesh_file_name,
                                                                  model_mat_cv));
     }

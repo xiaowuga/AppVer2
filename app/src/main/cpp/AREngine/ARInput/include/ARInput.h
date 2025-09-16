@@ -37,6 +37,8 @@ class ARInputs
 public:
     virtual int Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) override;
     virtual int Update(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) override;
+
+
 };
 
 //

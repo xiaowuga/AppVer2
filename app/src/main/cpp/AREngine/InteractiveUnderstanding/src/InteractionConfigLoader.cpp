@@ -79,7 +79,7 @@ CollisionDetectionPair::Ptr InteractionConfigLoader::GetCollisionPairAt(const in
 	std::string obj2FileName = obj2Ptr->filePath.substr(fileSplit2 + 1);
 	std::string obj2Path = obj2Ptr->filePath.substr(0, fileSplit2);
 
-    auto it2 = collisionDatas.find(obj1Name);
+    auto it2 = collisionDatas.find(obj2Name);
     CollisionData::Ptr obj2DataPtr;
     if (it2 == collisionDatas.end()) {
         obj2DataPtr = GetCollisionData(obj2FileName, obj2Path, obj2Ptr, obj2Box, obj2Dir);
@@ -196,3 +196,4 @@ std::vector<CollisionDetectionPair::Ptr> InteractionConfigLoader::GetCollisionPa
     }
     return collisionPairs;
 }
+
