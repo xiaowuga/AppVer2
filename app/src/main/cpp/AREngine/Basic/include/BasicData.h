@@ -10,6 +10,7 @@
 #include <memory>
 #include <shared_mutex>
 #include "PoseUtils.h"
+#include "glm/detail/type_mat.hpp"
 
 
 /**
@@ -296,6 +297,8 @@ public:
 
     //todo add your variable here
     //各算法单位需根据自己的需求在此新增变量或参数，如新增变量较复杂，可新建一个头文件
+    std::vector<double> projectVector;
+    std::vector<double> viewVector;
     cv::Mat imgColor;
     cv::Mat imgDepth;
     double timestamp;  // unit: s

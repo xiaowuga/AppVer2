@@ -6,6 +6,7 @@ in vec3 WorldPos;
 in vec3 Normal;
 //shadow mapping use
 in vec4 FragPosLightSpace;
+in vec2 ScreenCoords;
 uniform vec3 lightPos;
 
 // IBL
@@ -35,6 +36,7 @@ uniform float aoValue; // 默认ao参数
 
 
 uniform sampler2D shadowMap;
+//uniform sampler2D ssao;
 // lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
@@ -156,8 +158,15 @@ void main()
     vec3  albedo = useAlbedoMap ? pow(texture(albedoMap, TexCoords).rgb, vec3(2.2)) : albedoValue;
     float metallic = useMetallicMap ? texture(metallicMap, TexCoords).r : metallicValue;
     float roughness = useRoughnessMap ? texture(roughnessMap, TexCoords).r : roughnessValue;
-    float ao = useAoMap ? texture(aoMap, TexCoords).r : aoValue;
+    //float ao = useAoMap ? texture(aoMap, TexCoords).r : aoValue;
     //roughness = 0.0f;
+
+    //vec2 screenUV = gl_FragCoord.xy / vec2(textureSize(aoMap, 0));
+    //改用ssao，不使用传入的useAoMap和aoValue
+    float ao = texture(aoMap, ScreenCoords).r;
+
+    //ssao
+    //float ao = texture(ssao, TexCoords).r;
 
     // input lighting data
     vec3 N = getNormalFromMap();
@@ -244,4 +253,7 @@ void main()
      //FragColor = vec4(roughness,roughness,roughness, 1.0); // for debugging roughness value
      //vec3 testShadowMap = texture(shadowMap, TexCoords).xxx;
      //FragColor = vec4(testShadowMap, 1.0);
+     //FragColor = vec4(normalize(Normal), 1.0);
+     //FragColor = vec4(vec3(ao), 1.0);
+     //FragColor = vec4(ScreenCoords,1.0, 1.0);
 }
