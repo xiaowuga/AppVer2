@@ -156,6 +156,19 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/app/recorder.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/app/scenegui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/app/scene_AppVer2.cpp
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/templatePass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/pbrPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/equirectangularToCubemapPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderPassManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/brdfPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/irradiancePass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/prefilterPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/backgroundPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/shadowMappingDepthPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/RenderClient.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOGeometryPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOPass.cpp
 )
 
 
@@ -183,7 +196,6 @@ target_link_libraries(openxr_demo
         PoseEstimationFetch
         PoseEstimationRokid
         InteractiveUnderstanding
-        RenderingGlass
         #**************************************************endof add Engine
 )
 

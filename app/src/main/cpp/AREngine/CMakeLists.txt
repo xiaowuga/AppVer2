@@ -7,7 +7,6 @@ if(ENABLE_AppVer2)
     add_subdirectory(RelocationGlass)
     add_subdirectory(PoseEstimationFetch)
     add_subdirectory(PoseEstimationRokid)
-    add_subdirectory(RenderingGlass)
     add_subdirectory(InteractiveUnderstanding)
 endif ()
 

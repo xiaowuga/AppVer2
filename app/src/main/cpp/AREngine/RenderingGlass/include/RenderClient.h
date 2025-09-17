@@ -17,7 +17,7 @@
 #include "equirectangularToCubemapPass.h"
 #include "renderPassManager.h"
 #include "irradiancePass.h"
-#include "RenderingGlass/prefilterPass.h"
+#include "prefilterPass.h"
 #include "brdfPass.h"
 #include "backgroundPass.h"
 #include "shadowMappingDepthPass.h"

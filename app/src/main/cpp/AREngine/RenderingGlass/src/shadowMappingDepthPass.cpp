@@ -5,7 +5,7 @@
 #include "shadowMappingDepthPass.h"
 #include "demos/utils.h"
 #include "renderPassManager.h"
-#include "RenderingGlass/pbrPass.h"
+#include "pbrPass.h"
 
 ShadowMappingDepthPass::ShadowMappingDepthPass(): TemplatePass() {}
 

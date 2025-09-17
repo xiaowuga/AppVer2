@@ -24,8 +24,8 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
     LOGI("RenderClient init");
 
     mModel  = std::make_shared<Model>("test");
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/YIBIAOPAN.fb"));
-    mModel->loadModel("model/backpack/backpack.obj");
+    mModel->loadFbModel(appData.dataDir + "Models/YIBIAOPAN.fb");
+    mModel->loadModel(appData.dataDir + "Models/backpack/backpack.obj");
     // 获取RenderPassManager单例
     auto& passManager = RenderPassManager::getInstance();
     // 初始化渲染通道、注册渲染通道

@@ -6,13 +6,13 @@
 #include <android/log.h>
 #include <fstream>
 #include <jni.h>
-#include"opencv2/core.hpp"
+#include "opencv2/core.hpp"
 #include "app/utilsmym.hpp"
 #include <opencv2/opencv.hpp>
 
 
 #define LOG_TAG "RenderClient.cpp"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
 #define HAND_JOINT_COUNT 16
 
 RenderClient::RenderClient() = default;
@@ -22,10 +22,9 @@ RenderClient::~RenderClient() = default;
 //TODO：现在没有传进来的关节位姿，后续需要添加
 
 int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
-    LOGI("RenderClient init");
 
     mModel  = std::make_shared<Model>("test");
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/YIBIAOPAN.fb"));
+    mModel->loadFbModel(appData.dataDir + "Models/YIBIAOPAN.fb");
     mModel->loadModel("model/backpack/backpack.obj");
     // 获取RenderPassManager单例
     auto& passManager = RenderPassManager::getInstance();
@@ -76,7 +75,7 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 }
 
 int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
-    LOGI("RenderClient update");;
+
     glm::mat4 mProject = glm::mat4(1.0);
     glm::mat4 mView = glm::mat4(1.0);
 
@@ -89,7 +88,6 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 }
 
 int RenderClient::CollectRemoteProcs(SerilizedFrame& serilizedFrame, std::vector<RemoteProcPtr>& procs, FrameDataPtr frameDataPtr) {
-    LOGI("Rendering CollectRemoteProcs frameDataPtr");
     return STATE_OK;
 }
 

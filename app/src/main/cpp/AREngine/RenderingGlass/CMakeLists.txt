@@ -13,7 +13,10 @@ file(GLOB SOURCES "${SRC_PATH}/*.cpp")
 if(NOT USE_PREBUILT_LIBS)
     # 创建库
     set(LIB_TYPE PUBLIC)
-    add_library(RenderingGlass SHARED ${SOURCES})
+    add_library(RenderingGlass SHARED ${SOURCES}
+            ${CMAKE_SOURCE_DIR}/demos/model.cpp
+            ${CMAKE_SOURCE_DIR}/demos/shader.cpp
+            ${CMAKE_SOURCE_DIR}/demos/utils.cpp)
 else()
     set(LIB_TYPE INTERFACE)
     find_library(RenderingGlass_LIB NAMES RenderingGlass PATHS ${SHARED_LIB} NO_DEFAULT_PATH)

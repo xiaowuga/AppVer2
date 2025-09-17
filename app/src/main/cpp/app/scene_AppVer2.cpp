@@ -23,7 +23,7 @@
 #include "AnimationPlayer.h"
 #include "MyCollisionHandlers.h"
 
-#include "RenderClient.h"
+#include "RenderingGlass/RenderClient.h"
 
 
 namespace {
@@ -76,7 +76,7 @@ namespace {
 
 //            _eng->connectServer("192.168.31.24",1299);
             _eng->start();
-            LOGI("engine update");
+
 
             return true;
         }
