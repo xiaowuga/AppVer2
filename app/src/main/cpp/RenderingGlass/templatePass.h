@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "demos/mesh.h"
+#include "mesh.h"
 #include <map>
 
 
@@ -13,14 +13,14 @@ public:
     virtual ~TemplatePass();
 
     virtual bool render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m);
-    virtual void initialize(const std::map<std::string, Mesh>& Meshes);
+    virtual void initialize(const std::map<std::string, renderMesh>& Meshes);
     virtual void render(const glm::mat4& p, const glm::mat4& v) = 0;
 protected:
 
     virtual void initShader();
-    virtual void initMeshes(const std::map<std::string, Mesh>& Meshes);
+    virtual void initMeshes(const std::map<std::string, renderMesh>& Meshes);
     virtual void draw();
 
-    Shader mShader;
-    std::map<std::string, Mesh> mMeshes;
+    renderShader mShader;
+    std::map<std::string, renderMesh> mMeshes;
 };

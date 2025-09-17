@@ -42,9 +42,9 @@ private:
     const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
     unsigned int planeVBO,planeVAO;
     float near_plane = 0.00001f, far_plane = 100.f;
-    void renderScene(const Shader &shader);
+    void renderScene(const renderShader &shader);
 
-    Shader debugShadowMapShader;
+    renderShader debugShadowMapShader;
     unsigned int quadVAO = 0;
     unsigned int quadVBO;
     void renderQuad();

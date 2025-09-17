@@ -18,9 +18,9 @@ private:
     {
         return a + f * (b - a);
     }
-    Shader mSSAOLightingShader;
-    Shader mSSAOShader;
-    Shader mSSAOBlurShader;
+    renderShader mSSAOLightingShader;
+    renderShader mSSAOShader;
+    renderShader mSSAOBlurShader;
     unsigned int ssaoFBO, ssaoBlurFBO;
     std::vector<glm::vec3> ssaoKernel;
     std::vector<glm::vec3> ssaoNoise;
@@ -43,6 +43,6 @@ private:
     unsigned int quadVBO;
     void renderQuad();
 
-    Shader mDebugShader;
+    renderShader mDebugShader;
     void debugRender();
 };

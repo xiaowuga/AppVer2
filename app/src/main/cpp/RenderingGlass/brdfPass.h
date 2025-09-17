@@ -14,7 +14,7 @@ public:
     virtual bool render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m) override;
     virtual void render(const glm::mat4& p, const glm::mat4& v);
     unsigned int getBrdfLUTTexture() const {return mBrdfLUTTexture;}
-    Shader getShader() const {return mShader;};
+    renderShader getShader() const {return mShader;};
     void renderQuad();
 protected:
     virtual void initShader() override;

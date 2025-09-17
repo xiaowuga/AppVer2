@@ -227,7 +227,7 @@ void ShadowMappingDepthPass::draw() {
 }
 // renders the 3D scene
 // --------------------
-void ShadowMappingDepthPass::renderScene(const Shader &shader)
+void ShadowMappingDepthPass::renderScene(const renderShader &shader)
 {
 
     glm::mat4 model = glm::mat4(1.0f);
