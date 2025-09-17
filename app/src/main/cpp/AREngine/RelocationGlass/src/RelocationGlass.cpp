@@ -126,7 +126,7 @@ int RelocationGlass::Init(AppData &appData,SceneData &sceneData,FrameDataPtr fra
     marker_industrial_camera_pose = glm::mat4(1.0);
     industrial_camera_world_pose = glm::mat4(1.0);
     std::string dataDir = appData.dataDir;
-    _detector.loadTemplate(dataDir + "templ.json");
+    _detector.loadTemplate(dataDir + "templ_1.json");
 
     return STATE_OK;
 }
