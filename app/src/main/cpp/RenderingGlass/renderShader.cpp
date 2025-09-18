@@ -1,6 +1,6 @@
 #include <iostream>
 #include "renderShader.h"
-#include "demos/utils.h"
+#include "utils.h"
 
 renderShader::renderShader() : mProgram(0) {
 }

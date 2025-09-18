@@ -2,7 +2,7 @@
 // Created by gyp on 2025/7/6.
 //
 #include "RenderingGlass/templatePass.h"
-#include "demos/utils.h"
+#include "utils.h"
 
 TemplatePass::~TemplatePass() = default;
 

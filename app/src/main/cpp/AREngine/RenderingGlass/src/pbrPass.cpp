@@ -1,5 +1,5 @@
 #include "pbrPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "renderPassManager.h"
 #include "equirectangularToCubemapPass.h"
 #include "irradiancePass.h"

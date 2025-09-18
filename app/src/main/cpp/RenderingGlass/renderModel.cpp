@@ -1,5 +1,5 @@
 #include"renderModel.h"
-#include"demos/utils.h"
+#include"utils.h"
 #include"logger.h"
 #include "RenderingGlass/renderPassManager.h"
 #include "RenderingGlass/pbrPass.h"

@@ -3,7 +3,7 @@
 //
 
 #include "SSAOPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "iostream"
 #include "renderPassManager.h"
 #include "SSAOGeometryPass.h"

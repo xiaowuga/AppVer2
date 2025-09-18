@@ -1,6 +1,6 @@
 #include"scenegui.h"
 #include"demos/model.h"
-#include"demos/utils.h"
+#include"utils.h"
 #include"utilsmym.hpp"
 #include<GLES3/gl3.h>
 

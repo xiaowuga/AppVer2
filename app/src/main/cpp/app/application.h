@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 #include <openxr/openxr.h>
 #include"openxr_program.h"
-#include"demos/utils.h"
+#include"utils.h"
 
 #define CONTROLLER_EVENT_BIT_value_trigger    0x00000001
 #define CONTROLLER_EVENT_BIT_value_squeeze    0x00000002
