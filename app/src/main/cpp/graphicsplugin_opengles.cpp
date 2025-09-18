@@ -15,6 +15,8 @@
 #include "demos/controller.h"
 #include "app/application.h"
 
+#include "Location.h"
+
 namespace {
 
 struct OpenGLESGraphicsPlugin : public IGraphicsPlugin {
@@ -190,6 +192,7 @@ struct OpenGLESGraphicsPlugin : public IGraphicsPlugin {
         glm::mat4 p = glm::make_mat4((float*)&projection);
         glm::mat4 v = glm::make_mat4((float*)&view);
 
+        ProjectMatrixSource::instance()->set(p);
         application->renderFrame(eyePose, p, v, eye);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

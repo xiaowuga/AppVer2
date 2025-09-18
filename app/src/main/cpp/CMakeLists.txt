@@ -192,8 +192,7 @@ target_link_libraries(openxr_demo
         Basic
         GlobalLibs
         cadDataManager
-        RelocationGlass
-        PoseEstimationFetch
+        Location
         PoseEstimationRokid
         InteractiveUnderstanding
         #**************************************************endof add Engine

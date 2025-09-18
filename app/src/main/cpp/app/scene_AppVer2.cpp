@@ -12,10 +12,10 @@
 #include <common/xr_linear.h>
 
 #include "ARInput.h"
-#include "RelacationGlass.h"
-#include "PoseEstimationFetch.h"
+//#include "RelacationGlass.h"
+//#include "PoseEstimationFetch.h"
+#include "Location.h"
 #include "PoseEstimationRokid.h"
-#include "PoseEstimationFetch.h"
 
 
 #include "GestureUnderstanding.h"
@@ -34,8 +34,7 @@ namespace {
 
         std::vector<ARModulePtr> modules;
         modules.push_back(createModule<ARInputs>("ARInputs"));
-//        modules.push_back(createModule<RelocationGlass>("Relocation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
-//        modules.push_back(createModule<PoseEstimationFetch>("PoseEstimation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
+        modules.push_back(createModule<Location>("Location"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
         modules.push_back(createModule<PoseEstimationRokid>("PoseEstimationRokid"));
         modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
         modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
@@ -71,7 +70,7 @@ namespace {
             std::string dataDir = _eng->appData->dataDir;
             Rendering = createModule<RenderClient>("RenderClient");
 
-            auto frameData=std::make_shared<FrameData>();
+            auto frameData = _eng->frameData;
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
 
 //            _eng->connectServer("192.168.31.24",1299);
@@ -82,23 +81,25 @@ namespace {
         }
         virtual void renderFrame(const XrPosef &pose,const glm::mat4 &project,const glm::mat4 &view,int32_t eye){ //由于接口更改，以前的renderFrame函数不再适用，换用以下写法(2025-06-17)
             auto frameData=std::make_shared<FrameData>();
-            Rendering->project = project;
-            Rendering->view = view;
-            if (_eng) {
-                std::shared_ptr<RelocationGlass> relocationPtr = std::static_pointer_cast<RelocationGlass>(_eng->getModule("Relocation"));
-                glm::mat4 model_trans_mat = glm::mat4(1.0);
-                if(relocationPtr) {
-                    model_trans_mat = glm::inverse(relocationPtr->industrial_camera_world_pose) * relocationPtr->marker_industrial_camera_pose;
-                }
 
+            if (_eng) {
                 std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(_eng->getModule("PoseEstimationRokid"));
                 if(poseEstimationRokidPtr != nullptr) {
                     std::vector<glm::mat4> &joc = poseEstimationRokidPtr->get_joint_loc();
                     Rendering->joc = joc;
                 }
+                auto& frameDataPtr = _eng->frameData;
+                if(frameDataPtr) {
+                    auto &projectMatrix = frameDataPtr->projectMatrix;
+                    auto &viewMatrix = frameDataPtr->viewMatrix;
+                    Rendering->project = projectMatrix;
+                    Rendering->view = viewMatrix;
+                    infof(GlmMat4_to_String(frameDataPtr->relocMatrix).c_str());
+                    Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
+                }
 
             }
-            Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
+
         }
 
         virtual void close(){

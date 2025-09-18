@@ -57,8 +57,10 @@ int ARInputs::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDat
         std::copy(model_mat.begin(), model_mat.begin() + 16, model_mat_cv.val);
         std::string model_name = prase_path(object_name);
         std::string mesh_file_name = appData.dataDir + "Models/" + model_name + "/" + model_name + ".obj";
-        sceneData.setObject(object_name,std::make_shared<SceneObject>(object_name, mesh_file_name,
-                                                                 model_mat_cv));
+        Pose transform(model_mat_cv);
+        Pose initTransform(cv::Matx44f::eye());
+        SceneObjectPtr ptr = std::make_shared<SceneObject>(object_name, mesh_file_name,initTransform, transform);
+        sceneData.setObject(object_name, ptr);
     }
 
     return STATE_OK;

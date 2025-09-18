@@ -62,28 +62,37 @@ int PoseEstimationRokid::Init(AppData &appData,SceneData &sceneData,FrameDataPtr
 
 int PoseEstimationRokid::Update(AppData &appData,SceneData &sceneData,FrameDataPtr frameDataPtr){
 
-    frameDataPtr->handPoses = RokidHandPose::instance()->get_hand_pose();
+    std::vector<HandPose>& hand_pose = RokidHandPose::instance()->get_hand_pose();
+    glm::mat4 relocMatrix = frameDataPtr->relocMatrix;
+
+    for(int i = 0; i < hand_pose.size(); i++) {
+        auto& joint = hand_pose[i].joints;
+        for(int j = 0; j < joint.size(); j++) {
+            glm::vec4 pos(joint[j][0], joint[j][1], joint[j][2], 1.0);
+            pos = relocMatrix * pos;
+            joint[j] = cv::Vec3f(pos.x, pos.y, pos.z);
+        }
+    }
+
+    std::shared_lock<std::shared_mutex> _lock(_dataMutex);
+    frameDataPtr->handPoses = hand_pose;
+
+    joint_loc = RokidHandPose::instance()->get_joint_loc();
+
+    for(int i = 0;  i < joint_loc.size(); i++) {
+        joint_loc[i] = relocMatrix * joint_loc[i];
+    }
 
     return STATE_OK;
 }
 
 int PoseEstimationRokid::CollectRemoteProcs(SerilizedFrame &serilizedFrame,std::vector<RemoteProcPtr> &procs,FrameDataPtr frameDataPtr){
-    SerilizedObjs cmdSend = {
-            {"cmd", std::string("PoseEstimationRokid")}
-    };
-
-    procs.push_back(std::make_shared<RemoteProc>(this,frameDataPtr,cmdSend,
-                                                 RPCF_SKIP_BUFFERED_FRAMES)); //添加add命令，将输入帧的像素值加上指定的值，并返回结果图像(参考TestServer.cpp中TestPro1Server类的实现)
 
     return STATE_OK;
 }
 
 
 int PoseEstimationRokid::ProRemoteReturn(RemoteProcPtr proc) {
-    auto &send=proc->send;
-    auto &ret=proc->ret;
-    auto cmd=send.getd<std::string>("cmd");
-
 
     return STATE_OK;
 }
@@ -94,5 +103,5 @@ int PoseEstimationRokid::ShutDown(AppData &appData,SceneData &sceneData){
 
 
 std::vector<glm::mat4>& PoseEstimationRokid::get_joint_loc() {
-    return RokidHandPose::instance()->get_joint_loc();
+    return joint_loc;
 }

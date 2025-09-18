@@ -3,7 +3,7 @@
 //
 
 #ifndef ROKIDOPENXRANDROIDDEMO_LOCATION_H
-#define ROKIDOPENXRANDROIDDEMO_RELACATIONGLASS_H
+#define ROKIDOPENXRANDROIDDEMO_LOCATION_H
 
 #include "BasicData.h"
 #include "ARModule.h"
@@ -12,13 +12,28 @@
 #include "ARInput.h"
 #include "App.h"
 
+class ProjectMatrixSource {
+public:
+    static ProjectMatrixSource* instance();
 
-class RelocationGlass : public ARModule {
+
+    void set(const glm::mat4& projectMatrix);
+
+    const glm::mat4& get() const;
+private:
+    glm::mat4 _projectMatrix;
+    std::shared_mutex  _dataMutex;
+};
+
+
+class Location : public ARModule {
 public:
     ArucoPP  _detector;
-    glm::mat4 marker_world_pose;
-    glm::mat4 marker_industrial_camera_pose;
-    glm::mat4 industrial_camera_world_pose;
+    glm::mat4 markerPoseInCamera;
+    glm::mat4 sensorPose_inv;
+    glm::mat4 computedCameraPose;
+    glm::mat4 view;
+    std::shared_mutex  _dataMutex;
 
 public:
 

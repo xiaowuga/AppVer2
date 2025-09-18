@@ -11,6 +11,7 @@
 #include <shared_mutex>
 #include "PoseUtils.h"
 #include "glm/detail/type_mat.hpp"
+#include "glm/glm.hpp"
 
 
 /**
@@ -166,18 +167,23 @@ class SceneObject
 public:
     SceneObject() = default;
     SceneObject(std::string name, Pose transform) :
-            name(name), transform(transform) {}
-    SceneObject(const std::string& name, const std::string& filepath, const Pose& transform)
-            : name(name), filePath(filepath), transform(transform) {}
+            name(name), transform(transform) {
+        initTransform.setPose(cv::Matx44f::eye());
+    }
+    SceneObject(const std::string& name, const std::string& filepath, const Pose& initTransform, const Pose& transform)
+            : name(name), filePath(filepath), initTransform(initTransform), transform(transform) {
+
+    }
 
 
     std::string  name;
 
     std::string  filePath;
 
-    Pose         initTransform; //模型初始变换
+    Pose         initTransform; //模型初始变换(重定位后)
 
     Pose         transform; //从初始变换到当前状态的变换
+
 
     // virtual void Init() = 0;
     virtual void Init(){
@@ -299,6 +305,9 @@ public:
     //各算法单位需根据自己的需求在此新增变量或参数，如新增变量较复杂，可新建一个头文件
     std::vector<double> projectVector;
     std::vector<double> viewVector;
+    glm::mat4 projectMatrix;
+    glm::mat4 viewMatrix;
+    glm::mat4 relocMatrix;
     cv::Mat imgColor;
     cv::Mat imgDepth;
     double timestamp;  // unit: s

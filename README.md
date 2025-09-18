@@ -1,6 +1,11 @@
 # Application Verification 2
 Application Verification 2 of AR/MR Engine
 
+## Platform
+- Windows 11
+- Android Studio 2024.3.2 Patch 1 +  Visual Stdio 2022
+- Intel(R) Core i9-13900K
+
 ## AppVer2Data
 
 将 `appData.appDir` 赋值为文件夹 "AppVer2Data" 的路径后，请将眼镜连接到电脑，并将文件夹 "AppVer2Data" 放置到眼镜主存储的顶层路径中，与文件夹 "Download" 同级。具体路径为 `/storage/emulated/0/`。

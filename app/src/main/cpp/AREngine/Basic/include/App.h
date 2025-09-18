@@ -11,6 +11,8 @@ public:
 	std::string  name;
 	AppDataPtr  appData;
 	SceneDataPtr  sceneData;
+    FrameDataPtr  frameData;
+    std::shared_mutex  dataMutex;
 	std::vector<ARModulePtr> modules;
 	std::shared_ptr<RPCClientConnection>  rpcConnection;
 private:
@@ -35,10 +37,10 @@ public:
 		);
 	}
 
-    /*ÉèÖÃRPC·¢ËÍ¶ÓÁĞÖĞ»º´æÖ¡µÄ×î´óÊıÁ¿£¬ÒÔ±ÜÃâ·¢ËÍ¶ÓÁĞ×èÈû
-    * Èç¹û·¢ËÍ¶ÓÁĞÖĞµÄ»º´æÖ¡ÊıÁ¿´óÓÚmaxBufferedPostedFrames-1£¬Ôòµ±Ç°Ö¡µÄCollectRemoteProcs½«²»»á±»µ÷ÓÃ£¬Ïà¹ØÃüÁîÒò´ËÒ²²»»á±»Ö´ĞĞ
-    * Èç¹ûmaxBufferedPostedFrames<=0£¬ÔòÃ¿Ò»Ö¡Êı¾İ¶¼½«±»ÉÏ´«£¬µ«ÍøÂç²»¼Ñ»òÕßÖ¡Æµ½Ï¸ßÊ±»áµ¼ÖÂ×èÈû£¬Ôö¼ÓÊ±ÑÓ
-    * Ä¬ÈÏÖµmaxBufferedPostedFrames==2
+    /*ï¿½ï¿½ï¿½ï¿½RPCï¿½ï¿½ï¿½Í¶ï¿½ï¿½ï¿½ï¿½Ğ»ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½â·¢ï¿½Í¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¶ï¿½ï¿½ï¿½ï¿½ĞµÄ»ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½maxBufferedPostedFrames-1ï¿½ï¿½ï¿½ï¿½Ç°Ö¡ï¿½ï¿½CollectRemoteProcsï¿½ï¿½ï¿½ï¿½ï¿½á±»ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½á±»Ö´ï¿½ï¿½
+    * ï¿½ï¿½ï¿½maxBufferedPostedFrames<=0ï¿½ï¿½ï¿½ï¿½Ã¿Ò»Ö¡ï¿½ï¿½ï¿½İ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç²»ï¿½Ñ»ï¿½ï¿½ï¿½Ö¡Æµï¿½Ï¸ï¿½Ê±ï¿½áµ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    * Ä¬ï¿½ï¿½ÖµmaxBufferedPostedFrames==2
     */
     void setMaxBufferedPostedFrames(int maxBufferedPostedFrames)
     {

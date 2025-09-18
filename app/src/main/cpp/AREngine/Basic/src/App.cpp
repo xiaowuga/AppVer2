@@ -70,17 +70,17 @@ void ARApp::run(bool grabRequired)
     uint frameID = 0;
     while (appData->_continue)
     {
-        auto frameData=std::make_shared<FrameData>();
-        frameData->frameID = ++frameID;
+        auto _frameData=std::make_shared<FrameData>();
+        _frameData->frameID = ++frameID;
 
         size_t mi = 0;
         for (; mi < modules.size(); ++mi)
         {
             auto &mptr=modules[mi];
             _ARENGINE_LOCK_MODULE(mptr)
-            if (mptr->Update(*appData,  *sceneData, frameData) != STATE_OK)
+            if (mptr->Update(*appData,  *sceneData, _frameData) != STATE_OK)
                 goto shutDown;
-            else if (!frameData->image.empty()) //if input done
+            else if (!_frameData->image.empty()) //if input done
                 break;
         }
 
@@ -96,12 +96,12 @@ void ARApp::run(bool grabRequired)
                 for (size_t i = mi + 1; i < modules.size(); ++i)
                 {
                     _ARENGINE_LOCK_MODULE(modules[i])
-                        if (modules[i]->CollectRemoteProcs(*serilizedFrame, procs, frameData) != STATE_OK)
+                        if (modules[i]->CollectRemoteProcs(*serilizedFrame, procs, _frameData) != STATE_OK)
                             goto shutDown;
                 }
                 if (!serilizedFrame->empty() || !procs.empty())
                 {
-                    rpcConnection->post(*serilizedFrame, frameData, procs);
+                    rpcConnection->post(*serilizedFrame, _frameData, procs);
                 }
                 frameData->serilizedFramePtr = serilizedFrame;
             }
@@ -110,9 +110,11 @@ void ARApp::run(bool grabRequired)
         for (size_t i = mi+1; i < modules.size(); ++i)
         {
             _ARENGINE_LOCK_MODULE(modules[i])
-            if (modules[i]->Update(*appData, *sceneData, frameData) != STATE_OK)
+            if (modules[i]->Update(*appData, *sceneData, _frameData) != STATE_OK)
                 goto shutDown;
         }
+        std::shared_lock<std::shared_mutex> _lock(dataMutex);
+        frameData= _frameData;
 
         if(grabRequired)
         {

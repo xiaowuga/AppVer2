@@ -45,7 +45,7 @@ class PoseEstimationRokid : public ARModule {
 public:
     std::vector<HandPose> hand_pose;
     std::vector<glm::mat4> joint_loc;
-    int mapping[26] = {-1,0,1,2,3,4,-1, 5,6,7,8,-1, 9,10,11,12,-1, 13,14,15,16,-1, 17,18,19, 20};
+    std::shared_mutex  _dataMutex;
 
 public:
 
