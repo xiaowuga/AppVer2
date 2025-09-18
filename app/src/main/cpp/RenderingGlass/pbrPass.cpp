@@ -253,7 +253,7 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
 }
 
 void PbrPass::render(const glm::mat4& p, const glm::mat4& v, const std::vector<glm::mat4>& m) {
-    Shader sphereShader;
+    renderShader sphereShader;
     std::vector<char> vertexShaderCode = readFileFromAssets("shaders/sphere.vert");
     vertexShaderCode.push_back('\0');
     std::vector<char> fragmentShaderCode = readFileFromAssets("shaders/sphere.frag");

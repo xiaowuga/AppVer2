@@ -25,7 +25,7 @@ protected:
 protected:
     virtual void draw() override;
 private:
-    Shader mPositionShader;
+    renderShader mPositionShader;
     unsigned int gBufferNormal;
     unsigned int gBufferPosition;
     unsigned int gPosition;
