@@ -28,6 +28,17 @@
 
 namespace {
 
+    std::string prase_path(const std::string& str) {
+        std::regex pattern(R"((.*)<\d+>)");
+
+        // 提取并匹配
+        std::smatch match;
+        if (std::regex_match(str, match, pattern)) {
+            return match[1];
+        } else {
+            return str;
+        }
+    }
 
     std::shared_ptr<ARApp> construct_engine(){
         std::string appName="Relocation"; //APP名称，必须和服务器注册的App名称对应（由服务器上appDir中文件夹的名称确定）
@@ -52,6 +63,30 @@ namespace {
 
         // we need to store this pointer in appData, we will use it when we want to set a new animator
         appData->setData("AnimationPlayer", ptr);
+
+        nlohmann::json instances_info_json;
+        std::ifstream json_file(appData->dataDir + "InstanceInfo.json");
+        json_file >> instances_info_json;
+        // [ {"instanceId": string, "name": string, "matrixWorld": [float]}, {...}, ...]
+        for (int i = 0; i < instances_info_json.size(); i++) {
+            auto instance_info_json = instances_info_json[i];
+            std::string object_name = instance_info_json.at("name").get<std::string>();
+
+            std::vector<float> model_mat = instance_info_json.at(
+                    "matrixWorld").get<std::vector<float>>();
+            if (model_mat.size() != 16) {
+                std::cout << "number of elements in model matrix does not equal to 16!" << std::endl;
+            }
+            cv::Matx44f model_mat_cv;
+            std::copy(model_mat.begin(), model_mat.begin() + 16, model_mat_cv.val);
+            std::string model_name = prase_path(object_name);
+            std::string mesh_file_name = appData->dataDir + "Models/" + model_name + "/" + model_name + ".obj";
+            Pose transform(model_mat_cv);
+            Pose initTransform(cv::Matx44f::eye());
+            SceneObjectPtr ptr = std::make_shared<SceneObject>(object_name, mesh_file_name,initTransform, transform);
+            sceneData->setObject(object_name, ptr);
+        }
+
 
         std::shared_ptr<ARApp> app=std::make_shared<ARApp>();
         app->init(appName,appData,sceneData,modules);

@@ -1,6 +1,4 @@
 #include "ARInput.h"
-#include "json.hpp"
-
 #include <regex>
 #include <string>
 using namespace cv;
@@ -24,44 +22,11 @@ void ARInputSources::get(ARInputSources::FrameData &frameData, int mask) {
     frameData=_frameData;
 }
 
-std::string prase_path(const std::string& str) {
-    std::regex pattern(R"((.*)<\d+>)");
 
-    // 提取并匹配
-    std::smatch match;
-    if (std::regex_match(str, match, pattern)) {
-        return match[1];
-    } else {
-        return str;
-    }
-}
 
 int ARInputs::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
 
-    nlohmann::json instances_info_json;
-    std::ifstream json_file(appData.dataDir + "InstanceInfo.json");
-    json_file >> instances_info_json;
-    // [ {"instanceId": string, "name": string, "matrixWorld": [float]}, {...}, ...]
-    for (int i = 0; i < instances_info_json.size(); i++) {
-        auto instance_info_json = instances_info_json[i];
-        std::string object_name = instance_info_json.at("name").get<std::string>();
 
-        std::vector<float> model_mat = instance_info_json.at(
-                "matrixWorld").get<std::vector<float>>();
-        if (model_mat.size() != 16) {
-            std::cout << "number of elements in model matrix does not equal to 16!" << std::endl;
-        }
-//        assert(model_mat.size() != 16);
-        //                glm::mat4 model_mat_glm = glm::make_mat4(model_mat.data());
-        cv::Matx44f model_mat_cv;
-        std::copy(model_mat.begin(), model_mat.begin() + 16, model_mat_cv.val);
-        std::string model_name = prase_path(object_name);
-        std::string mesh_file_name = appData.dataDir + "Models/" + model_name + "/" + model_name + ".obj";
-        Pose transform(model_mat_cv);
-        Pose initTransform(cv::Matx44f::eye());
-        SceneObjectPtr ptr = std::make_shared<SceneObject>(object_name, mesh_file_name,initTransform, transform);
-        sceneData.setObject(object_name, ptr);
-    }
 
     return STATE_OK;
 };
