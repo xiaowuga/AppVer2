@@ -90,11 +90,8 @@ namespace {
                 }
                 auto& frameDataPtr = _eng->frameData;
                 if(frameDataPtr) {
-                    auto &projectMatrix = frameDataPtr->projectMatrix;
-                    auto &viewMatrix = frameDataPtr->viewMatrix;
-                    Rendering->project = projectMatrix;
-                    Rendering->view = viewMatrix;
-                    infof(GlmMat4_to_String(frameDataPtr->relocMatrix).c_str());
+                    Rendering->project = project;
+                    Rendering->view = view * frameDataPtr->viewRelocMatrix;
                     Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
                 }
 

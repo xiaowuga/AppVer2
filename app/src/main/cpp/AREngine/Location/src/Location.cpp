@@ -120,30 +120,10 @@ static glm::mat4 GetTransMatFromRT(const cv::Vec3d &rvec,const cv::Vec3d &tvec,c
     return trans;
 }
 
-
-ProjectMatrixSource *ProjectMatrixSource::instance() {
-    static ProjectMatrixSource *ptr=nullptr;
-    if(!ptr) {
-        ptr = new ProjectMatrixSource();
-    }
-    return ptr;
-}
-
-void ProjectMatrixSource::set(const glm::mat4 &projectMatrix) {
-    std::shared_lock<std::shared_mutex> _lock(_dataMutex);
-    _projectMatrix =  projectMatrix;
-}
-
-const glm::mat4& ProjectMatrixSource::get() const {
-    return _projectMatrix;
-}
-
 int Location::Init(AppData &appData,SceneData &sceneData,FrameDataPtr frameDataPtr){
     std::string dataDir = appData.dataDir;
     _detector.loadTemplate(dataDir + "templ.json");
-    markerPoseInCamera = glm::mat4(1.0);
-    sensorPose_inv = glm::mat4(1.0);
-    computedCameraPose = glm::mat4(1.0);
+    markerPose = glm::mat4(1.0);
     return STATE_OK;
 }
 
@@ -154,7 +134,10 @@ int Location::Update(AppData &appData,SceneData &sceneData,FrameDataPtr frameDat
     //====================== Aruco & Chessboard Detect ===============================
     auto frame_data=std::any_cast<ARInputSources::FrameData>(sceneData.getData("ARInputs"));
     cv::Matx44f vmat = frame_data.cameraMat; //计算marker位姿需要的相机pose,这个也需要发送
+
+
     glm::mat4 glm_cameraMat =  CV_Matx44f_to_GLM_Mat4(vmat);
+
     if(!frameDataPtr->image.empty()){
         cv::Mat img=frameDataPtr->image.front(); //相机图像
         const cv::Matx33f &camK = frameDataPtr->colorCameraMatrix;
@@ -165,18 +148,15 @@ int Location::Update(AppData &appData,SceneData &sceneData,FrameDataPtr frameDat
             cv::Vec3f rvec_float(rvec[0], rvec[1], rvec[2]);
             cv::Vec3f tvec_float(tvec[0], tvec[1], tvec[2]);
 
-            markerPoseInCamera = GetTransMatFromRT(rvec, tvec,CV_Matx44f_to_GLM_Mat4(vmat));
-            sensorPose_inv = glm::inverse(glm_cameraMat);
-            computedCameraPose = glm::inverse(markerPoseInCamera);
+            markerPose = GetTransMatFromRT(rvec, tvec,CV_Matx44f_to_GLM_Mat4(vmat));
         }
     }
 
     std::shared_lock<std::shared_mutex> _lock(_dataMutex);
-    view = glm_cameraMat * sensorPose_inv * computedCameraPose;
 
-    frameDataPtr->viewMatrix = view;
-    frameDataPtr->projectMatrix = ProjectMatrixSource::instance()->get();
-    frameDataPtr->relocMatrix = markerPoseInCamera;
+    frameDataPtr->viewRelocMatrix = glm::inverse(markerPose);
+    frameDataPtr->jointRelocMatrix = markerPose;
+    frameDataPtr->modelRelocMatrix = markerPose * markerPose;
     return STATE_OK;
 }
 

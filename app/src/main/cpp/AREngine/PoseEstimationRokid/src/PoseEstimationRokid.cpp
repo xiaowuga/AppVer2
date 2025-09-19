@@ -63,7 +63,7 @@ int PoseEstimationRokid::Init(AppData &appData,SceneData &sceneData,FrameDataPtr
 int PoseEstimationRokid::Update(AppData &appData,SceneData &sceneData,FrameDataPtr frameDataPtr){
 
     std::vector<HandPose>& hand_pose = RokidHandPose::instance()->get_hand_pose();
-    glm::mat4 relocMatrix = frameDataPtr->relocMatrix;
+    glm::mat4 relocMatrix = frameDataPtr->jointRelocMatrix;
 
     for(int i = 0; i < hand_pose.size(); i++) {
         auto& joint = hand_pose[i].joints;
@@ -74,7 +74,6 @@ int PoseEstimationRokid::Update(AppData &appData,SceneData &sceneData,FrameDataP
         }
     }
 
-    std::shared_lock<std::shared_mutex> _lock(_dataMutex);
     frameDataPtr->handPoses = hand_pose;
 
     joint_loc = RokidHandPose::instance()->get_joint_loc();
