@@ -6,7 +6,7 @@
 #include"AREngine/Basic/include/ARModule.h"
 #include"AREngine/Basic/include/App.h"
 #include"opencv2/core.hpp"
-#include"demos/model.h"
+#include"renderModel.h"
 #include"openxr_loader/include/common/xr_linear.h"
 #include"demos/utils.h"
 
@@ -36,7 +36,7 @@ private:
     std::shared_ptr<BackgroundPass> mBackgroundPass;
     std::shared_ptr<SSAOGeometryPass> mSSAOGeometryPass;
     std::shared_ptr<SSAOPass> mSSAOPass;
-    std::shared_ptr<Model> mModel; // for test
+    std::shared_ptr<renderModel> mModel; // for test
 
 public:
 

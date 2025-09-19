@@ -170,6 +170,9 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/RenderClient.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOGeometryPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOPass.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/shader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/mesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderModel.cpp
 )
 
 

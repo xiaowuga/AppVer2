@@ -1,5 +1,5 @@
-#include"model.h"
-#include"utils.h"
+#include"renderModel.h"
+#include"demos/utils.h"
 #include"logger.h"
 #include "RenderingGlass/renderPassManager.h"
 #include "RenderingGlass/pbrPass.h"
@@ -8,8 +8,8 @@
 #include<algorithm>
 #include<queue>
 
-Shader Model::mShader;
-void Model::initShader() {
+renderShader renderModel::mShader;
+void renderModel::initShader() {
     static bool init = false;
     if (init) {
         return;
@@ -73,19 +73,19 @@ void Model::initShader() {
     }
 }
 
-Model::Model(const std::string& name, bool hasBoneInfo) : mName(name), mHasBoneInfo(hasBoneInfo) {
+renderModel::renderModel(const std::string& name, bool hasBoneInfo) : mName(name), mHasBoneInfo(hasBoneInfo) {
     mBoneInfoMap.clear();
 }
 
-Model::~Model() {
+renderModel::~renderModel() {
     mBoneInfoMap.clear();
 }
 
-std::string& Model::name() {
+std::string& renderModel::name() {
     return mName;
 }
 
-bool Model::bindMeshTexture(const std::string& meshName, const std::string& textureName) {
+bool renderModel::bindMeshTexture(const std::string& meshName, const std::string& textureName) {
     auto it = mMeshTexturesMap.find(meshName);
     if (it == mMeshTexturesMap.end()) {
         std::vector<std::string> textureNames(1, textureName);
@@ -96,7 +96,7 @@ bool Model::bindMeshTexture(const std::string& meshName, const std::string& text
     return true;
 }
 
-bool Model::activeMeshTexture(const std::string& meshName, const std::string& textureName) {
+bool renderModel::activeMeshTexture(const std::string& meshName, const std::string& textureName) {
     auto it = mMeshes.find(meshName);
     if (it != mMeshes.end()) {
         return it->second.activeTexture(textureName);
@@ -104,8 +104,8 @@ bool Model::activeMeshTexture(const std::string& meshName, const std::string& te
     return false;
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
-    std::vector<Texture> textures;
+std::vector<renderTexture> renderModel::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
+    std::vector<renderTexture> textures;
     for (uint32_t i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
@@ -119,7 +119,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
             }
         }
         if (!skip) {
-            Texture texture;
+            renderTexture texture;
             texture.id = TextureFromFileAssets(str.C_Str(), mDirectory);
             texture.type = typeName;
             texture.path = str.C_Str();
@@ -131,8 +131,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
     return textures;
 }
 
-std::vector<Texture> Model::loadMaterialTextures_force(aiMaterial* mat, aiTextureType type, std::string typeName, std::string file) {
-    std::vector<Texture> textures;
+std::vector<renderTexture> renderModel::loadMaterialTextures_force(aiMaterial* mat, aiTextureType type, std::string typeName, std::string file) {
+    std::vector<renderTexture> textures;
     bool skip = false;
     for (uint32_t j = 0; j < mTexturesLoaded.size(); j++) {
         if (std::strcmp(mTexturesLoaded[j].path.data(), file.c_str()) == 0) {
@@ -141,7 +141,7 @@ std::vector<Texture> Model::loadMaterialTextures_force(aiMaterial* mat, aiTextur
         }
     }
     if (!skip) {
-        Texture texture;
+        renderTexture texture;
         if((file.rfind("/storage/emulated/0/",0)==0)) texture.id = TextureFromFile(file.c_str(), ""); //start with
         else texture.id = TextureFromFileAssets(file.c_str(), "");
         texture.type = typeName;
@@ -153,7 +153,7 @@ std::vector<Texture> Model::loadMaterialTextures_force(aiMaterial* mat, aiTextur
     return textures;
 }
 
-void Model::processMeshBone(aiMesh* mesh, std::vector<Vertex>& vertices) {
+void renderModel::processMeshBone(aiMesh* mesh, std::vector<renderVertex>& vertices) {
     int boneIndex = 0;
 //    infof("processMeshBone mesh name:%s, vertices:%d, total bone:%d", mesh->mName.C_Str(), vertices.size(), mesh->mNumBones);
     for (uint32_t i = 0; i < mesh->mNumBones; i++) {
@@ -171,7 +171,7 @@ void Model::processMeshBone(aiMesh* mesh, std::vector<Vertex>& vertices) {
             int vertexIndex = mesh->mBones[i]->mWeights[weightIndex].mVertexId;
             float weight =  mesh->mBones[i]->mWeights[weightIndex].mWeight;
             if (weightIndex < vertices.size()) {
-                Vertex &v = vertices[vertexIndex];
+                renderVertex &v = vertices[vertexIndex];
                 int k = 0;
                 for (k = 0; k < MAX_BONE_INFLUENCE; k++) {
                     if (v.BoneIDs[k] < 0) {
@@ -192,14 +192,14 @@ void Model::processMeshBone(aiMesh* mesh, std::vector<Vertex>& vertices) {
     }
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
-    std::vector<Vertex> vertices;
+renderMesh renderModel::processMesh(aiMesh* mesh, const aiScene* scene) {
+    std::vector<renderVertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    std::vector<renderTexture> textures;
 
 //    infof("mesh vertex count: %d, face count:%d, bone:%d", mesh->mNumVertices, mesh->mNumFaces, mesh->mNumBones);
     for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex{};
+        renderVertex vertex{};
         glm::vec3 vector{};
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
@@ -265,31 +265,31 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     auto it = mMeshTexturesMap.find(mesh->mName.C_Str());
     if (it != mMeshTexturesMap.end()) {
         for (auto& i : it->second) {
-            std::vector<Texture> texture = loadMaterialTextures_force(material, aiTextureType_DIFFUSE, "texture_diffuse", i);
+            std::vector<renderTexture> texture = loadMaterialTextures_force(material, aiTextureType_DIFFUSE, "texture_diffuse", i);
             textures.insert(textures.end(), texture.begin(), texture.end());
         }
     }
 
-    return Mesh(vertices, indices, textures);
+    return renderMesh(vertices, indices, textures);
 }
 
 
 
-Mesh Model::createMeshFromCustomData(const std::vector<glm::vec3> &positions,
-                                     const std::vector<glm::vec3> &normals,
-                                     const std::vector<glm::vec2> &uvs,
-                                     const std::vector<uint32_t> &indices,
-                                     const pbrMaterial &material,
-                                     const std::string &materialName, const bool &isActive,
-                                     int transformNum,
-                                     std::vector<float> transformVector) {
-    std::vector<Vertex> vertices;
+renderMesh renderModel::createMeshFromCustomData(const std::vector<glm::vec3> &positions,
+                                           const std::vector<glm::vec3> &normals,
+                                           const std::vector<glm::vec2> &uvs,
+                                           const std::vector<uint32_t> &indices,
+                                           const pbrMaterial &material,
+                                           const std::string &materialName, const bool &isActive,
+                                           int transformNum,
+                                           std::vector<float> transformVector) {
+    std::vector<renderVertex> vertices;
     std::vector<unsigned int> meshIndices;
-    std::vector<Texture> textures;
+    std::vector<renderTexture> textures;
 
     // 填充顶点数据
     for (size_t i = 0; i < positions.size(); ++i) {
-        Vertex vertex;
+        renderVertex vertex;
         vertex.Position = positions[i];
         vertex.Normal = normals[i];
         vertex.TexCoords = uvs[i];
@@ -300,17 +300,17 @@ Mesh Model::createMeshFromCustomData(const std::vector<glm::vec3> &positions,
     // 填充索引数据
     meshIndices.assign(indices.begin(), indices.end());
 
-    Texture texture;
+    renderTexture texture;
     texture.path = materialName;
     texture.active = isActive;
     texture.type = "texture_diffuse";
     glGenTextures(1, &texture.id);
 //TODO: LiZiRui: 后面可以用实例化绘制优化,小mesh的matrix
 //    infof("transformNum %f", transformNum);
-    return Mesh(vertices, indices, textures, material, transformNum, transformVector);
+    return renderMesh(vertices, indices, textures, material, transformNum, transformVector);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene) {
+void renderModel::processNode(aiNode* node, const aiScene* scene) {
     static std::string indent = "";
 //    infof("%snode:%s, children:%d", indent.c_str(), node->mName.C_Str(), node->mNumChildren); ** My Changes : Comment **
 //    for (uint32_t i = 0; i < node->mNumMeshes; i++) {
@@ -319,7 +319,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 //        mMeshes.insert(std::pair<std::string, Mesh>(mesh->mName.C_Str(), processMesh(mesh, scene)));
 //    }
     for (int i = 0; i < verticesVector.size(); i++){
-        mMeshes.insert(std::pair<std::string, Mesh>(
+        mMeshes.insert(std::pair<std::string, renderMesh>(
                 i+"",
                 createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                          UVVector[i], indicesVector[i], materialVector[i],
@@ -334,11 +334,11 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 //    }
 }
 
-bool Model::loadModel(const std::string& modelFileName) {
-//    std::vector<char> fileData = readFileFromAssets(modelFileName.c_str());
+bool renderModel::loadModel(const std::string& modelFileName) {
+    std::vector<char> fileData = readFileFromAssets(modelFileName.c_str());
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-//    const aiScene* scene = importer.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+//    const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr ) {
         Log::Write(Log::Level::Error, Fmt("assimp readfile error %s", importer.GetErrorString()));
         return false;
@@ -351,7 +351,7 @@ bool Model::loadModel(const std::string& modelFileName) {
 }
 
 template<typename T>
-glm::vec3 Model::toNewVec3(std::vector<T>* flat_vector, int begin)
+glm::vec3 renderModel::toNewVec3(std::vector<T>* flat_vector, int begin)
 {
     float a = flat_vector->at(begin);
     float b = flat_vector->at(begin + 1);
@@ -360,14 +360,14 @@ glm::vec3 Model::toNewVec3(std::vector<T>* flat_vector, int begin)
 }
 
 template<typename T>
-glm::vec2 Model::toNewVec2(std::vector<T>* flat_vector, int begin)
+glm::vec2 renderModel::toNewVec2(std::vector<T>* flat_vector, int begin)
 {
     float a = flat_vector->at(begin);
     float b = flat_vector->at(begin + 1);
     return glm::vec2(a, b);
 }
 
-bool Model::loadFbModel(const std::string& modelFileName) {
+bool renderModel::loadFbModel(const std::string& modelFileName) {
 
     initShader();
 //std::string fliepath = MakeSdcardPath("/Download/sphere.fb");
@@ -564,7 +564,7 @@ bool Model::loadFbModel(const std::string& modelFileName) {
     }
 
     for (int i = 0; i < verticesVector.size(); i++){
-        mMeshes.insert(std::pair<std::string, Mesh>(
+        mMeshes.insert(std::pair<std::string, renderMesh>(
                 i+"",
                 createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                          UVVector[i], indicesVector[i], materialVector[i],
@@ -575,7 +575,7 @@ bool Model::loadFbModel(const std::string& modelFileName) {
     return true;
 }
 
-void Model::draw() {
+void renderModel::draw() {
     GL_CALL(glFrontFace(GL_CCW));
     GL_CALL(glCullFace(GL_BACK));
     GL_CALL(glEnable(GL_CULL_FACE));
@@ -587,7 +587,7 @@ void Model::draw() {
     }
 }
 
-bool Model::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m) {
+bool renderModel::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m) {
 //    mShader.use();
 //    mShader.setUniformMat4("projection", p);
 //    mShader.setUniformMat4("view", v);
@@ -602,7 +602,7 @@ bool Model::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m) {
     return true;
 }
 
-void Model::initializeBoneNode() {
+void renderModel::initializeBoneNode() {
     mShader.use();
     glm::mat4 m = glm::mat4(1.0f);
     for (auto it : mBoneInfoMap) {
@@ -611,7 +611,7 @@ void Model::initializeBoneNode() {
     }
 }
 
-int Model::getBoneNodeIndexByName(const std::string& name) const {
+int renderModel::getBoneNodeIndexByName(const std::string& name) const {
     auto it = mBoneInfoMap.find(name);
     if (it != mBoneInfoMap.end()) {
         return it->second->id;
@@ -620,7 +620,7 @@ int Model::getBoneNodeIndexByName(const std::string& name) const {
     return -1;
 }
 
-void Model::setBoneNodeMatrices(const std::string& bone, const glm::mat4& m) {
+void renderModel::setBoneNodeMatrices(const std::string& bone, const glm::mat4& m) {
     int index = getBoneNodeIndexByName(bone);
     if (index < 0) {
         return;
@@ -630,7 +630,7 @@ void Model::setBoneNodeMatrices(const std::string& bone, const glm::mat4& m) {
     mShader.setUniformMat4(name, m);
 }
 
-//bool Model::loadLocalModel(const std::string &modelFileName, const std::string &importer_type) {
+//bool renderModel::loadLocalModel(const std::string &modelFileName, const std::string &importer_type) {
 //    initShader();
 ////    std::vector<char> fileData;
 ////    std::ifstream file;
@@ -660,7 +660,7 @@ void Model::setBoneNodeMatrices(const std::string& bone, const glm::mat4& m) {
 //    return true;
 //}
 
-bool Model::loadLocalModel(const std::string &modelFileName, const std::string &importer_type) {
+bool renderModel::loadLocalModel(const std::string &modelFileName, const std::string &importer_type) {
     initShader();
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);

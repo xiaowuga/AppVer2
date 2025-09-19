@@ -12,11 +12,11 @@ void TemplatePass::initShader() {
     mShader.loadShader(vertexShaderCode.data(), fragmentShaderCode.data());
 }
 
-void TemplatePass::initMeshes(const std::map<std::string, Mesh>& Meshes) {
+void TemplatePass::initMeshes(const std::map<std::string, renderMesh>& Meshes) {
     mMeshes = Meshes;
 }
 
-void TemplatePass::initialize(const std::map<std::string, Mesh>& Meshes) {
+void TemplatePass::initialize(const std::map<std::string, renderMesh>& Meshes) {
     initShader();
     initMeshes(Meshes);
 }
