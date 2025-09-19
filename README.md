@@ -1,10 +1,14 @@
 # Application Verification 2
 Application Verification 2 of AR/MR Engine
 
-## Platform
-- Windows 11
-- Android Studio 2024.3.2 Patch 1 +  Visual Stdio 2022
-- Intel(R) Core i9-13900K
+## Tested Platforms
+- Operating System: Windows 11
+- Processor: Intel(R) Core i9-13900K (24 cores, 32 threads)
+- RAM: 64GB DDR4
+- GPU: NVIDIA GeForce RTX 4090
+- IDE: Android Studio 2024.3.2 Patch 1
+- Android SDK: Version 36.1.0
+- Android NDK: Version 29.0.14033849 rc4
 
 ## AppVer2Data
 
@@ -32,8 +36,10 @@ AppVer2Data (appData.appDir)
 |-- InstanceState.json    # 存放实例状态的JSON文件
 |-- InteractionConfig.json# 存放交互配置的JSON文件
 |-- log.txt               # 日志文件，记录系统运行日志
-|-- templ.json            # 重定位模板文件(旧)
-|-- templ_1.json          # 重定位模板文件(新)
+|-- templ_1.json          # 重定位模板文件1(目前使用)
+|-- marker_1.docx         # 重定位模板文件1对应的marker打印文件
+|-- templ_2.json          # 重定位模板文件2(备用)
+|-- marker_2.docx         # 重定位模板文件2对应的marker打印文件
 ```
 
 ## 谷歌网盘下载连接:

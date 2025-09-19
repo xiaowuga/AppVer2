@@ -122,7 +122,7 @@ static glm::mat4 GetTransMatFromRT(const cv::Vec3d &rvec,const cv::Vec3d &tvec,c
 
 int Location::Init(AppData &appData,SceneData &sceneData,FrameDataPtr frameDataPtr){
     std::string dataDir = appData.dataDir;
-    _detector.loadTemplate(dataDir + "templ.json");
+    _detector.loadTemplate(dataDir + "templ_1.json");
     markerPose = glm::mat4(1.0);
     return STATE_OK;
 }
