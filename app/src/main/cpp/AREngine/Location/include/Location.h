@@ -18,6 +18,11 @@ class Location : public ARModule {
 public:
     ArucoPP  _detector;
     glm::mat4 markerPose;
+    glm::mat4 marker;
+    glm::mat4 marker_inv;
+    glm::mat4 trans;
+    glm::mat4 trans_inv;
+
     std::shared_mutex  _dataMutex;
 
 public:

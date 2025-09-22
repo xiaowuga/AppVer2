@@ -154,7 +154,7 @@ bool ShadowMappingDepthPass::render(const glm::mat4 &p, const glm::mat4 &v, cons
     glBindVertexArray(planeVAO);
 //    glDrawArrays(GL_TRIANGLES, 0, 6);
     mShader.setUniformBool("isNotInstanced",false);
-    model = glm::scale(m,glm::vec3 (0.002f));
+    model = glm::scale(m,glm::vec3 (0.001f));
     mShader.setUniformMat4("model", model);
     draw();
 #endif

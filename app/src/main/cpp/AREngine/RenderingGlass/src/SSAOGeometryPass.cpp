@@ -113,7 +113,7 @@ bool SSAOGeometryPass::render(const glm::mat4 &p, const glm::mat4 &v, const glm:
     glBindFramebuffer(GL_FRAMEBUFFER, gBufferNormal);
     glEnable(GL_DEPTH_TEST);
     mShader.use();
-    glm::mat4 model = glm::scale(m,glm::vec3 (0.002f));
+    glm::mat4 model = glm::scale(m,glm::vec3 (0.001f));
     mShader.setUniformMat4("model", model);
     mShader.setUniformMat4("view", v);
     mShader.setUniformMat4("projection", p);

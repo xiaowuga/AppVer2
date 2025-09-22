@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <Location.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 inline bool StringStartsWith(const std::string &str,const std::string &starts_with){
     if((str.rfind(starts_with,0)==0)) return true; //start with
@@ -123,6 +125,43 @@ static glm::mat4 GetTransMatFromRT(const cv::Vec3d &rvec,const cv::Vec3d &tvec,c
 int Location::Init(AppData &appData,SceneData &sceneData,FrameDataPtr frameDataPtr){
     std::string dataDir = appData.dataDir;
     _detector.loadTemplate(dataDir + "templ_1.json");
+    marker = glm::make_mat4(new float[16]{
+            1.00000000,
+            0,
+            0,
+            0.00000000,
+
+            0,
+            0.00000000,
+            1.00000000,
+            0.00000000,
+
+            0,
+            -1.00000000,
+            0,
+            0.00000000,
+
+            -0.268250488,
+            -0.897835083,
+            0.588000000,
+            1.00000000
+    });
+
+    // 旋转角度
+    float angleX = glm::radians(-90.0f);
+    float angleY = glm::radians(180.0f);
+    float angleZ = glm::radians(-90.0f);
+
+    // 分别绕各轴旋转
+    glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), angleX, glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 rotationMatrix = rotationX * rotationY * rotationZ;
+
+    marker = marker * rotationMatrix;
+    marker_inv = glm::inverse(marker);
+//    marker = F * marker * F;
     markerPose = glm::mat4(1.0);
     return STATE_OK;
 }
@@ -149,14 +188,16 @@ int Location::Update(AppData &appData,SceneData &sceneData,FrameDataPtr frameDat
             cv::Vec3f tvec_float(tvec[0], tvec[1], tvec[2]);
 
             markerPose = GetTransMatFromRT(rvec, tvec,CV_Matx44f_to_GLM_Mat4(vmat));
+            trans = marker * glm::inverse( markerPose);
+            trans_inv = markerPose * marker_inv;
         }
     }
 
-    std::shared_lock<std::shared_mutex> _lock(_dataMutex);
 
-    frameDataPtr->viewRelocMatrix = glm::inverse(markerPose);
-    frameDataPtr->jointRelocMatrix = markerPose;
-    frameDataPtr->modelRelocMatrix = markerPose * markerPose;
+    std::shared_lock<std::shared_mutex> _lock(_dataMutex);
+    frameDataPtr->viewRelocMatrix = trans_inv;
+    frameDataPtr->jointRelocMatrix = trans;
+    frameDataPtr->modelRelocMatrix =  glm::mat4(1.0);
     return STATE_OK;
 }
 

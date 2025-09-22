@@ -167,7 +167,7 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
     glBindTexture(GL_TEXTURE_2D, depthMap);
 
 
-    glm::mat4 model = glm::scale(m,glm::vec3 (0.002f));
+    glm::mat4 model = glm::scale(m,glm::vec3 (0.001f));
     mShader.setUniformMat4("model", model);
 
 //    glm::mat4 lightmodel = glm::mat4(1.0f);
@@ -219,7 +219,7 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
 //    glDrawArrays(GL_TRIANGLES, 0, 6);
 //    glBindVertexArray(0);
     mShader.setUniformBool("isNotInstanced", false);
-    model = glm::scale(m,glm::vec3 (0.002f));
+    model = glm::scale(m,glm::vec3 (0.001f));
     mShader.setUniformMat4("model", model);
     draw();
     // 渲染结束后，解绑所有使用的纹理

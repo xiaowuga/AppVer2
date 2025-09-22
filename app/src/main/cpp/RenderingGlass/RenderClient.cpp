@@ -24,7 +24,8 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
     LOGI("RenderClient init");
 
     mModel  = std::make_shared<renderModel>("test");
-    mModel->loadFbModel(appData.dataDir + "Models/YIBIAOPAN.fb");
+    mModel->loadFbModel(appData.dataDir + "Models/JIASHICANG.fb");
+//    mModel->loadFbModel(appData.dataDir + "Models/Marker.fb");
 
     // 获取RenderPassManager单例
     auto& passManager = RenderPassManager::getInstance();
@@ -80,24 +81,7 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
     glm::mat4 mView = glm::mat4(1.0);
     glm::mat4 relocMatrix = frameDataPtr->modelRelocMatrix;
     glm::mat4 model_trans_mat = glm::mat4(1.0);
-
-
-    // 旋转角度
-    float angleX = glm::radians(-90.0f);
-    float angleY = glm::radians(-90.0f);
-    float angleZ = glm::radians(0.0f);
-
-    // 分别绕各轴旋转
-    glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), angleX, glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // 合并旋转（注意顺序）
-    glm::mat4 rotationMatrix = rotationX * rotationY * rotationZ;
-
-
-    glm::mat4 translateMatrix = glm::translate(model_trans_mat, glm::vec3(0.0,0.0, -1.0));
-    model_trans_mat =  relocMatrix * translateMatrix * rotationMatrix;
+    
     mModel->render(project,view,model_trans_mat);
     mPbrPass->render(project, view, joc);
 

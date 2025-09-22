@@ -128,6 +128,7 @@ namespace {
                     Rendering->project = project;
                     Rendering->view = view * frameDataPtr->viewRelocMatrix;
                     Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
+                    infof(GlmMat4_to_String(frameDataPtr->modelRelocMatrix).c_str());
                 }
 
             }
