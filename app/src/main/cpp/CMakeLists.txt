@@ -128,6 +128,7 @@ add_library(freetype SHARED
 
 
 add_library(openxr_demo MODULE
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/platformplugin_factory.cpp
@@ -137,7 +138,6 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/openxr_loader/include/common/gfxwrapper_opengl.c
         ${CMAKE_CURRENT_SOURCE_DIR}/openxr_program.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/demos/shader.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/demos/utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/demos/mesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/demos/model.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/demos/cylinder.cpp
@@ -170,8 +170,8 @@ add_library(openxr_demo MODULE
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/RenderClient.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOGeometryPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/SSAOPass.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/shader.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/mesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderShader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingGlass/renderModel.cpp
 )
 

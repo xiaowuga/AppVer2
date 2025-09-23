@@ -3,7 +3,7 @@
 //
 
 #include "RenderingGlass/shadowMappingDepthPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "RenderingGlass/renderPassManager.h"
 #include "RenderingGlass/pbrPass.h"
 

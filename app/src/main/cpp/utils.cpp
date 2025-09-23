@@ -1,6 +1,6 @@
 #include "utils.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "third_party/stb_image.h"
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma) {
     std::string filename = std::string(path);

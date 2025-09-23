@@ -3,7 +3,7 @@
 //
 
 #include "shadowMappingDepthPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "renderPassManager.h"
 #include "pbrPass.h"
 

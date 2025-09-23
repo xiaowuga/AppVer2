@@ -8,7 +8,7 @@
 #include"opencv2/core.hpp"
 #include"renderModel.h"
 #include"openxr_loader/include/common/xr_linear.h"
-#include"demos/utils.h"
+#include"utils.h"
 
 #ifndef ROKIDOPENXRANDROIDDEMO_RENDERCLIENT_H
 #define ROKIDOPENXRANDROIDDEMO_RENDERCLIENT_H

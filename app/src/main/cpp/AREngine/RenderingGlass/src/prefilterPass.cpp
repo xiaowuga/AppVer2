@@ -3,7 +3,7 @@
 //
 
 #include "prefilterPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "equirectangularToCubemapPass.h"
 #include "renderPassManager.h"
 

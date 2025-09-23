@@ -3,7 +3,7 @@
 //
 
 #include "RenderingGlass/equirectangularToCubemapPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "stb_image.h"
 
 

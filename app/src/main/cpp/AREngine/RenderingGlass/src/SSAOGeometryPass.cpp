@@ -1,7 +1,7 @@
 //
 // Created by gyp on 2025/9/8.
 //
-#include "demos/utils.h"
+#include "utils.h"
 #include "SSAOGeometryPass.h"
 //#include "check.h"
 

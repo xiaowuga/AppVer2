@@ -11,7 +11,7 @@
 #include "demos/ray.h"
 #include "demos/text.h"
 #include "demos/player.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "graphicsplugin.h"
 #include "demos/cube.h"
 #include "app/scene.h"

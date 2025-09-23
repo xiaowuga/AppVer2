@@ -3,7 +3,7 @@
 //
 
 #include "RenderingGlass/brdfPass.h"
-#include "demos/utils.h"
+#include "utils.h"
 #include "RenderingGlass/equirectangularToCubemapPass.h"
 #include "RenderingGlass/renderPassManager.h"
 
