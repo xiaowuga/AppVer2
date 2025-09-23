@@ -60,6 +60,8 @@ namespace {
         appData->dataDir="/storage/emulated/0/AppVer2Data/";        // for test
         appData->interactionConfigFile = "InteractionConfig.json";
         appData->offlineDataDir = "";
+        appData->animationActionConfigFile = appData->dataDir + "CockpitAnimationAction.json";
+        appData->animationStateConfigFile = appData->dataDir + "CockpitAnimationState.json";
 
         // we need to store this pointer in appData, we will use it when we want to set a new animator
         appData->setData("AnimationPlayer", ptr);
@@ -94,13 +96,14 @@ namespace {
                                                 "zhongyou", "zhongzuo", "zhongzuo1"};
 
         for(int i = 0; i < model_list.size(); i++) {
-            std::string model_name = model_list[i];
+            std::string model_name = model_list[i] + ".fb";
             Pose transform(cv::Matx44f::eye());
             Pose initTransform(cv::Matx44f::eye());
-            std::string mesh_file_path = appData->dataDir + "Models/" + model_name + ".fb";
+            std::string mesh_file_path = appData->dataDir + "Models";
             auto ptr = std::make_shared<SceneModel>();
             ptr->name = model_name;
             ptr->filePath = mesh_file_path;
+
             sceneData->setObject(model_name, ptr);
         }
 

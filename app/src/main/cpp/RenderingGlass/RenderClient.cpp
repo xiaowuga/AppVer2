@@ -25,15 +25,19 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 
 
     mModel  = std::make_shared<renderModel>("test");
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/YIBIAOPAN.fb"));
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di0.fb"));
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di1.fb"));
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di2.fb"));
-    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di3.fb"));
+    mModel->shaderInit();
+//    sceneData.getObject<SceneModel>();
+//    mModel->loadFbModel("YIBIAOPAN.fb" ,appData.dataDir + "Models");
+//    mModel->loadFbModel(appData.dataDir + "Models/YIBIAOPAN.fb");
+//    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di1.fb"));
+//    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di2.fb"));
+//    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di3.fb"));
 
-    auto scene_virtualObjects = sceneData.getAllObjectsOfType<VirtualObject>();
+    auto scene_virtualObjects = sceneData.getAllObjectsOfType<SceneModel>();
     for(int i = 0; i < scene_virtualObjects.size(); i ++){
-        mModel->loadFbModel(MakeSdcardPath(scene_virtualObjects[i]->filePath));
+        std::string name = scene_virtualObjects[i]->name;
+        std::string filet_path = scene_virtualObjects[i]->filePath;
+        mModel->loadFbModel(name, filet_path);
     }
 
     mModel->pushMeshFromCustomData();

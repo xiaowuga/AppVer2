@@ -33,7 +33,7 @@ public:
     bool loadModel(const std::string& modelFileName);
     bool loadLocalModel(const std::string &modelFileName,const std::string &importer_type="");
 
-    bool loadFbModel(const std::string &modelFileName);
+    bool loadFbModel(const std::string& file_name, const std::string& file_path);
 
     bool initialize() { return false; };
 
@@ -48,6 +48,10 @@ public:
 
     const std::map<std::string, renderMesh> &getMMeshes() const {
         return mMeshes;
+    }
+
+    void shaderInit(){
+        initShader();
     }
 
     void pushMeshFromCustomData() {

@@ -367,23 +367,22 @@ glm::vec2 renderModel::toNewVec2(std::vector<T>* flat_vector, int begin)
     return glm::vec2(a, b);
 }
 
-bool renderModel::loadFbModel(const std::string& modelFileName) {
+bool renderModel::loadFbModel(const std::string& file_name, const std::string& file_path) {
 
-    initShader();
 //std::string fliepath = MakeSdcardPath("/Download/sphere.fb");
-    std::string  filePath = modelFileName;
-    cadDataManager::DataInterface::parseLocalModel(filePath);
-    std::vector<cadDataManager::RenderInfo> renderInfoArray = cadDataManager::DataInterface::getRenderInfo(true);
-    cadDataManager::RenderInfo renderInfo = renderInfoArray[0];
+//    std::string  filePath = modelFileName;
+    cadDataManager::DataInterface::parseLocalModel(file_name, file_path);
+//    std::vector<cadDataManager::RenderInfo> renderInfoArray = cadDataManager::DataInterface::getRenderInfo();
+//    cadDataManager::RenderInfo renderInfo = renderInfoArray[0];
 
-    std::string hello = renderInfo.protoId;
-    const char* protoHello = hello.c_str();
+//    std::string hello = renderInfo.protoId;
+//    const char* protoHello = hello.c_str();
 //    infof(protoHello);
     auto MapInfo = cadDataManager::DataInterface::getRenderInfoMap();
-    pmi = cadDataManager::DataInterface::getPmiInfos(false);
-    auto instances = cadDataManager::DataInterface::getInstances();
-    auto instanceInfos = cadDataManager::DataInterface::getInstanceInfos();
-    std::string fbModelData = cadDataManager::DataInterface::getModelFlatbuffersData();
+    pmi = cadDataManager::DataInterface::getPmiInfos();
+//    auto instances = cadDataManager::DataInterface::getInstances();
+//    auto instanceInfos = cadDataManager::DataInterface::getInstanceInfos();
+//    std::string fbModelData = cadDataManager::DataInterface::getModelFlatbuffersData();
 
     uint8_t* buffer_data;
     int buffer_size;
@@ -395,7 +394,7 @@ bool renderModel::loadFbModel(const std::string& modelFileName) {
             std::vector<TinyModelVertex> mVertices{};                     //保存点在数组中位置信息
             std::vector<uint32_t> mIndices{};                             //索引，找点
 
-            cadDataManager::RenderInfo modelfbs = info[o];
+            cadDataManager::RenderInfo &modelfbs = info[o];
             int num = modelfbs.matrixNum;
             auto matrix = modelfbs.matrix;
             auto type = modelfbs.type;
@@ -514,7 +513,7 @@ bool renderModel::loadFbModel(const std::string& modelFileName) {
             }
 
 
-            if (type == "face")
+            if (type == "mesh")
             {
                 for (int i = 0; i < modelIndex.size(); i += 1)
                 {

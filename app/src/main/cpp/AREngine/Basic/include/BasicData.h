@@ -503,6 +503,9 @@ public:
 
     std::string sceneObjConfig;
 
+    std::string animationActionConfigFile;
+    std::string animationStateConfigFile;
+
     bool collectMap = false;  // Reloc module, first run-> set true 
     // offline data structure
     /*
