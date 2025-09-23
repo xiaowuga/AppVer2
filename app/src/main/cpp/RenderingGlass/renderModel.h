@@ -3,8 +3,8 @@
 #include <map>
 #include <vector>
 #include <memory>
-#include "mesh.h"
-#include "shader.h"
+#include "renderMesh.h"
+#include "renderShader.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
@@ -50,6 +50,24 @@ public:
         return mMeshes;
     }
 
+    void pushMeshFromCustomData() {
+        for (int i = 0; i < verticesVector.size(); i++){
+            mMeshes.insert(std::pair<std::string, renderMesh>(
+                    i+"",
+                    createMeshFromCustomData(verticesVector[i], normalsVector[i],
+                                             UVVector[i], indicesVector[i], materialVector[i],
+                                             materialNameVector[i], isTextureVector[i],
+                                             transformNumVector[i], transformVector[i])));
+        }
+    }
+
+    renderMesh createMeshFromCustomData(const std::vector<glm::vec3> &positions,
+                                        const std::vector<glm::vec3> &normals,
+                                        const std::vector<glm::vec2> &uvs,
+                                        const std::vector<uint32_t> &indices, const pbrMaterial &material,
+                                        const std::string &materialName, const bool &isActive, int i,
+                                        std::vector<float> vector);
+
 
 private:
     void initShader();
@@ -80,13 +98,6 @@ private:
     std::map<std::string, std::vector<std::string>> mMeshTexturesMap;
 
     static renderShader mShader;
-
-    renderMesh createMeshFromCustomData(const std::vector<glm::vec3> &positions,
-                                  const std::vector<glm::vec3> &normals,
-                                  const std::vector<glm::vec2> &uvs,
-                                  const std::vector<uint32_t> &indices, const pbrMaterial &material,
-                                  const std::string &materialName, const bool &isActive, int i,
-                                  std::vector<float> vector);
 
 
 

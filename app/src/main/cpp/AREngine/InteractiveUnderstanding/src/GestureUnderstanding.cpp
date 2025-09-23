@@ -18,8 +18,8 @@ int GestureUnderstanding::Init(AppData &appData, SceneData &sceneData, FrameData
     //向sceneData中添加预制手关节点模型
     for (int i = 0; i < 42; i++) {
         SceneObjectPtr handNode(new VirtualObject());
-		handNode->name = "handNode_" + std::to_string(i);
-        handNode->filePath = appData.dataDir+"/handNode/" + handNode->name + ".fb";
+		handNode->name = "HandNode_" + std::to_string(i);
+        handNode->filePath = appData.dataDir + "handNode/" + handNode->name + ".fb";
         handNode->Init();
         _handNodes.push_back(handNode);
         sceneData.setObject(handNode->name, handNode);
@@ -87,7 +87,7 @@ int GestureUnderstanding::Update(AppData &appData, SceneData &sceneData, FrameDa
             frameData->setData("last_finger_mcp_position", cur_finger_tip_position);
         }
         std::chrono::steady_clock::time_point last_time = std::any_cast<std::chrono::steady_clock::time_point>(frameData->getData("last_time"));
-        cv::Vec3f last_finger_mcp_position = std::any_cast<cv::Vec3f>(frameData->getData("last_finger_mcp_positon"));
+        cv::Vec3f last_finger_mcp_position = std::any_cast<cv::Vec3f>(frameData->getData("last_finger_mcp_position"));
         auto delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(cur_time - last_time).count(); // ms
         auto delta_pos = cur_finger_tip_position - last_finger_mcp_position;
 

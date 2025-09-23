@@ -23,18 +23,8 @@
 #include "AnimationPlayer.h"
 #include "MyCollisionHandlers.h"
 
-#include "RenderingGlass/pbrPass.h"
-#include "RenderingGlass/equirectangularToCubemapPass.h"
-#include "RenderingGlass/renderPassManager.h"
-#include "RenderingGlass/irradiancePass.h"
-#include "RenderingGlass/prefilterPass.h"
-#include "RenderingGlass/brdfPass.h"
-#include "RenderingGlass/backgroundPass.h"
-#include "RenderingGlass/shadowMappingDepthPass.h"
 #include "RenderingGlass/RenderClient.h"
 
-#define LOG_TAG "scene_AppVer2.cpp"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 namespace {
 
@@ -47,19 +37,22 @@ namespace {
 //        modules.push_back(createModule<RelocationGlass>("Relocation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
 //        modules.push_back(createModule<PoseEstimationFetch>("PoseEstimation"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
         modules.push_back(createModule<PoseEstimationRokid>("PoseEstimationRokid"));
-//        modules.push_back(createModule<RenderClient>("RenderClient"));
-//        modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
-//        modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
-//        modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
+        modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
+        modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
+        modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
+        auto ptr = std::static_pointer_cast<AnimationPlayer>(modules.back());
         auto appData=std::make_shared<AppData>();
         auto sceneData=std::make_shared<SceneData>();
 
         appData->argc=1;
         appData->argv=nullptr;
         appData->engineDir="./AREngine/";  // for test
-        appData->dataDir="./data/";        // for test
+        appData->dataDir="/storage/emulated/0/AppVer2Data/";        // for test
+        appData->interactionConfigFile = "InteractionConfig.json";
+        appData->offlineDataDir = "";
 
-        //std::thread listenThread(listenForEvent, std::ref(*appData));
+        // we need to store this pointer in appData, we will use it when we want to set a new animator
+        appData->setData("AnimationPlayer", ptr);
 
         std::shared_ptr<ARApp> app=std::make_shared<ARApp>();
         app->init(appName,appData,sceneData,modules);
@@ -72,75 +65,36 @@ namespace {
 
     public:
         virtual bool initialize(const XrInstance instance,const XrSession session){
+
             _eng=construct_engine();
-            LOGI("engine init");
-            mProject = glm::mat4(1.0);
-            mView = glm::mat4(1.0);
+
+            std::string dataDir = _eng->appData->dataDir;
+            Rendering = createModule<RenderClient>("RenderClient");
 
             auto frameData=std::make_shared<FrameData>();
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
-//            mModel  = std::make_shared<Model>("test");
-//            mModel->loadFbModel(MakeSdcardPath("Download/FbModel/YIBIAOPAN.fb"));
-//            mModel->loadModel("model/backpack/backpack.obj");
-//            auto& passManager = RenderPassManager::getInstance();
-//            // 初始化渲染通道、注册渲染通道
-//            mEquirectangularToCubemapPass = std::make_shared<EquirectangularToCubemapPass>();
-//            mEquirectangularToCubemapPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("equirectangularToCubemap", mEquirectangularToCubemapPass);
-//
-//            mIrradiancePass = std::make_shared<IrradiancePass>();
-//            mIrradiancePass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("irradiance", mIrradiancePass);
-//
-//            mPrefilterPass = std::make_shared<PrefilterPass>();
-//            mPrefilterPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("prefilter", mPrefilterPass);
-//
-//            mBrdfPass = std::make_shared<BrdfPass>();
-//            mBrdfPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("brdf", mBrdfPass);
-//
-//            mShadowMappingDepthPass = std::make_shared<ShadowMappingDepthPass>();
-//            mShadowMappingDepthPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("shadowMappingDepth", mShadowMappingDepthPass);
-//
-//            mPbrPass = std::make_shared<PbrPass>();
-//            mPbrPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("pbr", mPbrPass);
-//
-//            mBackgroundPass = std::make_shared<BackgroundPass>();
-//            mBackgroundPass->initialize(mModel->getMMeshes());
-//            passManager.registerPass("background", mBackgroundPass);
-//
-//            std::vector<std::string> passOrder = {"equirectangularToCubemap", "irradiance","prefilter","brdf","shadowMappingDepth","pbr","background"};
-//            passManager.setPassOrder(passOrder);
 
 //            _eng->connectServer("192.168.31.24",1299);
             _eng->start();
-            LOGI("engine update");
+
 
             return true;
         }
         virtual void renderFrame(const XrPosef &pose,const glm::mat4 &project,const glm::mat4 &view,int32_t eye){ //由于接口更改，以前的renderFrame函数不再适用，换用以下写法(2025-06-17)
-            mProject=project; mView=view;
             auto frameData=std::make_shared<FrameData>();
             Rendering->project = project;
             Rendering->view = view;
             if (_eng) {
-                ARModulePtr modulePtr = _eng->getModule("Relocation");
-
-//                std::shared_ptr<RelocationGlass> relocationPtr = std::static_pointer_cast<RelocationGlass>(modulePtr);
+                std::shared_ptr<RelocationGlass> relocationPtr = std::static_pointer_cast<RelocationGlass>(_eng->getModule("Relocation"));
                 glm::mat4 model_trans_mat = glm::mat4(1.0);
-//                model_trans_mat = glm::inverse(relocationPtr->industrial_camera_world_pose) * relocationPtr->marker_industrial_camera_pose;
-//                mModel->render(mProject,mView,model_trans_mat);
+                if(relocationPtr) {
+                    model_trans_mat = glm::inverse(relocationPtr->industrial_camera_world_pose) * relocationPtr->marker_industrial_camera_pose;
+                }
 
-                modulePtr = _eng->getModule("PoseEstimationRokid");
-                std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(modulePtr);
-                poseEstimationRokidPtr->setHandJointLocation(this->m_app->getHandJointLocation());
-                if(poseEstimationRokidPtr->hand_OK) {
-                    std::vector<glm::mat4>& joc = poseEstimationRokidPtr->joint_loc;
+                std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(_eng->getModule("PoseEstimationRokid"));
+                if(poseEstimationRokidPtr != nullptr) {
+                    std::vector<glm::mat4> &joc = poseEstimationRokidPtr->get_joint_loc();
                     Rendering->joc = joc;
-//                    mPbrPass->render(project, view, joc);
                 }
 
             }
@@ -155,18 +109,7 @@ namespace {
 
     public:
         std::shared_ptr<ARApp> _eng;
-
         std::shared_ptr<RenderClient> Rendering = createModule<RenderClient>("RenderClient");
-
-        std::shared_ptr<EquirectangularToCubemapPass> mEquirectangularToCubemapPass;
-        std::shared_ptr<IrradiancePass> mIrradiancePass;
-        std::shared_ptr<PrefilterPass> mPrefilterPass;
-        std::shared_ptr<BrdfPass> mBrdfPass;
-        std::shared_ptr<ShadowMappingDepthPass> mShadowMappingDepthPass;
-        std::shared_ptr<PbrPass> mPbrPass;
-        std::shared_ptr<BackgroundPass> mBackgroundPass;
-        std::shared_ptr<Model> mModel;
-        glm::mat4 mProject{},mView{};
 
 
 

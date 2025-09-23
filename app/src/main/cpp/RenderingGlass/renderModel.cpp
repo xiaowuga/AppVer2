@@ -1,5 +1,5 @@
 #include"renderModel.h"
-#include"demos/utils.h"
+#include"utils.h"
 #include"logger.h"
 #include "RenderingGlass/renderPassManager.h"
 #include "RenderingGlass/pbrPass.h"
@@ -388,6 +388,7 @@ bool renderModel::loadFbModel(const std::string& modelFileName) {
     uint8_t* buffer_data;
     int buffer_size;
     for (auto it = MapInfo.begin(); it != MapInfo.end(); ++it){
+        auto name = it->first;
         auto info = it->second;
         for (int o = 0; o < info.size(); o++) {
             std::unordered_map<TinyModelVertex, uint32_t> uniqueVertices; //存储点信息，相同点只存一份
@@ -561,15 +562,6 @@ bool renderModel::loadFbModel(const std::string& modelFileName) {
 //                infof("verticesVector size : %i", verticesVector.size());
             }
         }
-    }
-
-    for (int i = 0; i < verticesVector.size(); i++){
-        mMeshes.insert(std::pair<std::string, renderMesh>(
-                i+"",
-                createMeshFromCustomData(verticesVector[i], normalsVector[i],
-                                         UVVector[i], indicesVector[i], materialVector[i],
-                                         materialNameVector[i], isTextureVector[i],
-                                         transformNumVector[i], transformVector[i])));
     }
 
     return true;

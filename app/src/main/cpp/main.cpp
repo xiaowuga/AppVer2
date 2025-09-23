@@ -9,7 +9,7 @@
 #include "platformplugin.h"
 #include "graphicsplugin.h"
 #include "openxr_program.h"
-#include "demos/utils.h"
+#include "utils.h"
 
 
 namespace {

@@ -13,7 +13,7 @@ void CollisionDetection::PreCompute(std::string configPath){
 }
 int CollisionDetection::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr){
     // 加载交互配置文件
-	InteractionConfigLoader::Ptr interactionConfigPtr = InteractionConfigLoader::create(sceneData, appData.dataDir + "/" + appData.interactionConfigFile);
+	InteractionConfigLoader::Ptr interactionConfigPtr = InteractionConfigLoader::create(sceneData, appData.dataDir +  appData.interactionConfigFile);
     // 添加碰撞检测对到frameData的collisionPairs中
     std::vector<CollisionDetectionPair::Ptr> collisionPairs =  interactionConfigPtr->GetCollisionPairs(appData);
     sceneData.collisionPairs = collisionPairs;

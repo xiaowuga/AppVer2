@@ -10,9 +10,9 @@ int AnimationPlayer::Init(AppData& appData, SceneData& sceneData, FrameDataPtr f
         scene_objects_map[scene_obj->name] = scene_obj;
     }
     // create animators for the interactive scene object in all collision pairs
-    std::ifstream instance_config_json_file(appData.dataDir + "InstanceConfig.json");
+    std::ifstream instance_config_json_file(appData.dataDir + "InteractionConfig.json");
     if (!instance_config_json_file.is_open()) {
-        throw std::runtime_error("InstanceConfig.json not found");
+        throw std::runtime_error("InteractionConfig.json not found");
     }
     nlohmann::json instance_config_json;
     instance_config_json_file >> instance_config_json;
@@ -43,4 +43,5 @@ int AnimationPlayer::Update(AppData &appData, SceneData &sceneData, FrameDataPtr
             animator_ptr->PlayNextFrame();
         }
     }
+    return STATE_OK;
 }

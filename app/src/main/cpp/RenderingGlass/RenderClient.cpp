@@ -23,8 +23,21 @@ RenderClient::~RenderClient() = default;
 int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
     LOGI("RenderClient init");
 
+
     mModel  = std::make_shared<renderModel>("test");
     mModel->loadFbModel(MakeSdcardPath("Download/FbModel/YIBIAOPAN.fb"));
+    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di0.fb"));
+    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di1.fb"));
+    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di2.fb"));
+    mModel->loadFbModel(MakeSdcardPath("Download/FbModel/di3.fb"));
+
+    auto scene_virtualObjects = sceneData.getAllObjectsOfType<VirtualObject>();
+    for(int i = 0; i < scene_virtualObjects.size(); i ++){
+        mModel->loadFbModel(MakeSdcardPath(scene_virtualObjects[i]->filePath));
+    }
+
+    mModel->pushMeshFromCustomData();
+
 //    mModel->loadModel("model/backpack/backpack.obj");
     // 获取RenderPassManager单例
     auto& passManager = RenderPassManager::getInstance();
@@ -76,8 +89,8 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 
 int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
     LOGI("RenderClient update");;
-    glm::mat4 mProject = glm::mat4(1.0);
-    glm::mat4 mView = glm::mat4(1.0);
+    glm::mat4 mProject = project;
+    glm::mat4 mView = view;
 
     glm::mat4 model_trans_mat = glm::mat4(1.0);
     mModel->render(project,view,model_trans_mat);

@@ -335,10 +335,10 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 }
 
 bool Model::loadModel(const std::string& modelFileName) {
-    std::vector<char> fileData = readFileFromAssets(modelFileName.c_str());
+//    std::vector<char> fileData = readFileFromAssets(modelFileName.c_str());
     Assimp::Importer importer;
-//    const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    const aiScene* scene = importer.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFile(modelFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+//    const aiScene* scene = importer.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr ) {
         Log::Write(Log::Level::Error, Fmt("assimp readfile error %s", importer.GetErrorString()));
         return false;
