@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "element.h"
 #include "model/appearance/appearanceParams.h"
 namespace cadDataManager {

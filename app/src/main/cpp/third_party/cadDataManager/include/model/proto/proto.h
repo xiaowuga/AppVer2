@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "model/element/element.h"
 #include "model/element/face.h"

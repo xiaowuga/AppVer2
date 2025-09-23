@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "element.h"
 namespace cadDataManager {
 	class Vertex : public Element

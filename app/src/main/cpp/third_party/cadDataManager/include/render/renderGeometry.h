@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../parser/serialization_generated.h"
 namespace cadDataManager {
 	class RGeo : public std::enable_shared_from_this<RGeo> {

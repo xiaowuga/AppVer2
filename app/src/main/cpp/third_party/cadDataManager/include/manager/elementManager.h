@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "global/baseDef.h"
 #include "model/element/element.h"
 namespace cadDataManager {

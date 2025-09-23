@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "serialization_generated.h"
 #include "../model/proto/proto.h"
 namespace cadDataManager {

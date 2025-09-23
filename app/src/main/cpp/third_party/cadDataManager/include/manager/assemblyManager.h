@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "model/instance/minstance.h"
 #include "global/baseDef.h"
 #include "communication/dataStructure.h"

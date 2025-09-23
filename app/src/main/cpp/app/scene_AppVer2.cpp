@@ -87,6 +87,24 @@ namespace {
             sceneData->setObject(object_name, ptr);
         }
 
+        std::vector<std::string> model_list = {"di0", "di1", "di2", "di3", "di5",
+                                                "di7", "di8", "Marker", "monitaijia",
+                                                "ranyoukongzhi", "shang1(you)", "shang1",
+                                                "TUILIGAN", "YIBIAOPAN", "zhong1", "zhong2",
+                                                "zhongyou", "zhongzuo", "zhongzuo1"};
+
+        for(int i = 0; i < model_list.size(); i++) {
+            std::string model_name = model_list[i];
+            Pose transform(cv::Matx44f::eye());
+            Pose initTransform(cv::Matx44f::eye());
+            std::string mesh_file_path = appData->dataDir + "Models/" + model_name + ".fb";
+            auto ptr = std::make_shared<SceneModel>();
+            ptr->name = model_name;
+            ptr->filePath = mesh_file_path;
+            sceneData->setObject(model_name, ptr);
+        }
+
+
 
         std::shared_ptr<ARApp> app=std::make_shared<ARApp>();
         app->init(appName,appData,sceneData,modules);

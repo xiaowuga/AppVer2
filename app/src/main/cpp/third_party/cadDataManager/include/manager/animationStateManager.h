@@ -1,7 +1,7 @@
 #pragma once
 
 #include "global/baseDef.h"
-#include <json.hpp>
+#include <json/json.hpp>
 
 namespace cadDataManager {
 	using Json = nlohmann::json;
@@ -58,6 +58,8 @@ namespace cadDataManager {
 		~AnimationStateManager() = default;
 
 		void parse(Json animationStateData);
+		AnimationStateUnit::Ptr getAnimationState(std::string instanceId);
+
 	public:
 		std::unordered_map<std::string, AnimationStateUnit::Ptr> mAnimationStateMap{};
 	};

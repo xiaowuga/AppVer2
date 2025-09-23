@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "flatbuffers/flatbuffers.h"
 #include "parser/serialization_generated.h"
 namespace cadDataManager {

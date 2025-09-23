@@ -1,5 +1,5 @@
-#pragma once
-#include <json.hpp>
+﻿#pragma once
+#include <json/json.hpp>
 namespace cadDataManager {
 	class GlobalInfo {
 	public:

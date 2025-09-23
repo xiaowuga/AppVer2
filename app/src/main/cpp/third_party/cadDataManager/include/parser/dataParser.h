@@ -1,4 +1,4 @@
-#include "flatbuffers/flatbuffers.h"
+﻿#include "flatbuffers/flatbuffers.h"
 #include "serialization_generated.h"
 #include "datasFromDCS.h"
 #include "global/typeDefine.h"
@@ -8,7 +8,7 @@ namespace cadDataManager {
 	public:
 		//Data: AppearanceDatas
 		const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::AppearanceData>>* getAppearanceDatas(const FlatBufferDocSpace::FlatBufferDoc* doc);
-		//閫氱敤 AppearanceDatas Id Param Size
+		//通用 AppearanceDatas Id Param Size
 		int32_t getAppearanceDataId(const FlatBufferDocSpace::AppearanceData* appearanceData);
 		std::string getAppearanceParamStr(const FlatBufferDocSpace::AppearanceData* appearanceData);
 		int getAppearanceDatasSize(const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::AppearanceData>>* appearanceDatas);
@@ -25,7 +25,7 @@ namespace cadDataManager {
 		const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::EntityData>>* getProtoEntities(const FlatBufferDocSpace::ProtoDataMessage* protoData);
 
 		//Data: Elements
-		//閫氱敤 Elements Size ID
+		//通用 Elements Size ID
 		int getElementsSize(const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::ElementData>>* elements);
 		int32_t getElementID(const FlatBufferDocSpace::ElementData* element);
 		int32_t getElementT(const FlatBufferDocSpace::ElementData* element);
@@ -35,7 +35,7 @@ namespace cadDataManager {
 		const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::GeometrieData>>* getElementGeometries(const FlatBufferDocSpace::ElementData* element);
 		const flatbuffers::Vector<flatbuffers::Offset<FlatBufferDocSpace::DiscreteInforData>>* getElementD(const FlatBufferDocSpace::ElementData* element);
 
-		//AI 澶栬绱㈠紩id
+		//AI 外观索引id
 		std::basic_string<char, std::char_traits<char>, std::allocator<char>> getAI(const FlatBufferDocSpace::AttributeData* attr);
 
 		//Elements D size V

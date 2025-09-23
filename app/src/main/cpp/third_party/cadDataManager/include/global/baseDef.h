@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef CAD_DATA_MANAGER_SHARED_BUILD
 #ifdef _WIN32
@@ -32,6 +32,7 @@
 #include <limits>
 #include <utility>
 #include <memory>
+#include <spdlog/spdlog.h>
 
 constexpr auto mPI = 3.1415926f;
 constexpr auto MAX1 = std::numeric_limits<int>::max();

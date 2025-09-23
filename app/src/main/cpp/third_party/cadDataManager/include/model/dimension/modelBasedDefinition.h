@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "global/typeDefine.h"
 #include "geometries.h"
@@ -53,7 +53,7 @@ namespace cadDataManager {
 		const flatbuffers::String* getVariableUnit();
 		double getVariableValue();
 		int getStatus();
-		geometriesData getGeometryDataArcType(int index); // 鎷垮摢涓?寰呰ˉ鍏?
+		geometriesData getGeometryDataArcType(int index); // 拿哪个 待补充
 		int getArcType(int index);
 		const flatbuffers::Vector<double>* getEndPnt(int index);
 		int getGeomId(int index);

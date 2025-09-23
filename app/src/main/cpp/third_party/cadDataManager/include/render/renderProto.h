@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "renderModel.h"
 #include "math/Vector3.h"

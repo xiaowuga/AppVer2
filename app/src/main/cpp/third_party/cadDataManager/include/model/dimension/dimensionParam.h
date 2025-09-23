@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "geometries.h"
 #include "math/Matrix4.h"
@@ -120,8 +120,8 @@ namespace cadDataManager {
 		std::string                             mText;
 		std::vector<double>                     mCenterPnt;
 		std::vector<double>                     mDirection;
-		std::vector<double>                     mGeomPnts;  //鍏堝彇杩欎釜鍓嶄袱涓仛startPnt1/2, 鑻ユ湁mGeometries锛屾敼鎴愯繖涓?
-		std::vector<geometriesData>             mGeometries; //鍜宮odelBasedDefinition閲岀浉鍚?娌″啓get
+		std::vector<double>                     mGeomPnts;  //先取这个前两个做startPnt1/2, 若有mGeometries，改成这个
+		std::vector<geometriesData>             mGeometries; //和modelBasedDefinition里相同 没写get
 		std::string                             mDimensionType;
 		std::vector<double>                     mPosition; //TextPosition
 		Matrix4									mRefPlane;
@@ -154,10 +154,10 @@ namespace cadDataManager {
 		std::string                             mManualVal;
 		int                                     mRadiusOrDiameter;
 		bool                                    mUseDocumentFont;
-		int                                     mFirstArcFlag; //鍦嗗姬鏉′欢1
-		int                                     mSecondArcFlag; //鍦嗗姬鏉′欢2
+		int                                     mFirstArcFlag; //圆弧条件1
+		int                                     mSecondArcFlag; //圆弧条件2
 		int                                     mIsThreadDim;
-		std::string                             mReferenceValue; //text鐨勬枃瀛楀€?
+		std::string                             mReferenceValue; //text的文字值
 		bool                                    mVariable;
 	};
 }

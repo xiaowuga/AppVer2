@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "flatbuffers/flatbuffers.h"
 #include "parser/serialization_generated.h"
 #include "math/Matrix4.h"
@@ -78,8 +78,8 @@ namespace cadDataManager {
 		bool                          mVisible{ true };
 		bool                          mOriginVisible{ true };
 		bool                          mFix{ false };
-		int                           mIsValid{ 1 }; // 鍒ゆ柇瀹炰緥鏍戜腑鏄惁澧炲姞涓㈠け鏍囪瘑锛屽瓙涓㈠け鐖剁骇涔熼渶瑕佹樉绀轰涪澶?
-		int                           mOriginIsValid{ 1 }; // 鍐呮牳杩斿洖鐨勫疄渚嬫槸鍚︿涪澶辩殑鐘舵€?
+		int                           mIsValid{ 1 }; // 判断实例树中是否增加丢失标识，子丢失父级也需要显示丢失
+		int                           mOriginIsValid{ 1 }; // 内核返回的实例是否丢失的状态
 		std::vector<double>           mMatrix;
 		std::vector<double>           mOriginMatrix;
 		std::vector<Instance::Ptr>    mChildren{};

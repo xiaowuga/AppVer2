@@ -4,7 +4,7 @@
 #include "model/proto/proto.h"
 #include "model/instance/minstance.h"
 
-/*	缁狅紕鎮妑enderUnit, 缁鎶�娴滃钉C娑撶挄enderGroupController
+/*	管理renderUnit, 类似于CC中RenderGroupController
 
 */
 namespace cadDataManager {

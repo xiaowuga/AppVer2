@@ -81,7 +81,7 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
     glm::mat4 mView = glm::mat4(1.0);
     glm::mat4 relocMatrix = frameDataPtr->modelRelocMatrix;
     glm::mat4 model_trans_mat = glm::mat4(1.0);
-    
+
     mModel->render(project,view,model_trans_mat);
     mPbrPass->render(project, view, joc);
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "serialization_generated.h"
 #include "../model/element/element.h"
 #include "../global/baseDef.h"

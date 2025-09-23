@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 namespace cadDataManager {
 	struct Matrix4 {
@@ -24,7 +24,7 @@ namespace cadDataManager {
 
 		Matrix4& multiply(const Matrix4& matrix4);
 
-		Matrix4& premultiply(const Matrix4& matrix4); //宸︿箻
+		Matrix4& premultiply(const Matrix4& matrix4); //左乘
 
 		Matrix4& multiplyMatrices(const Matrix4& matrix4a, const Matrix4& matrix4b);
 

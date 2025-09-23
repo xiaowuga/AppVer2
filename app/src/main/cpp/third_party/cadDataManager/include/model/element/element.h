@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "global/typeDefine.h"
 #include "arrayD.h"

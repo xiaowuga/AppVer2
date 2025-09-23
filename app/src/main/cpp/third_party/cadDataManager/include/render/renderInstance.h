@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser/serialization_generated.h"
 #include "math/Box3.h"
 #include "math/Matrix4.h"

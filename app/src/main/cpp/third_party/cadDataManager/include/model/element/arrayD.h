@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 #include "flatbuffers/flatbuffers.h"
 #include "parser/serialization_generated.h"
 namespace cadDataManager {
-	//TODO: D鏄唴鏍哥殑缁撴瀯锛屽簲璇ヨ繘涓€姝ヨВ鏋?
+	//TODO: D是内核的结构，应该进一步解析
 	class arrayD
 	{
 	public:

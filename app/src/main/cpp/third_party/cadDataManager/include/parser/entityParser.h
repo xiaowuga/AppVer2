@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "serialization_generated.h"
 #include "../manager/appearanceDataManager.h"
 #include "../model/entity/entity.h"

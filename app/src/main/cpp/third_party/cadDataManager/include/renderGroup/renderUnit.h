@@ -3,22 +3,15 @@
 #include "model/geometry/geometry.h"
 #include "renderGroup/renderTemplate.h"
 #include "model/instance/minstance.h"
+#include "communication/dataStructure.h"
 
-// å¨“å‰ç…‹ç»«è¯²ç€·  
+
+// äÖÈ¾ÀàĞÍ  
 namespace cadDataManager {
 	struct RenderTypes
 	{
-		bool normal; // ç€¹ç‚°ç·¥éˆî‡î¦ç’å‰§ç–†æ©å›§î˜»ç‘™?
-		bool appearnace; // ç€¹ç‚°ç·¥çšî‚¥î†•ç¼ƒî†¿ç¹ƒæ¾¶æ ¬î‡
-	};
-
-	struct BaseInfo
-	{
-		std::string          appearanceParamStr;
-		Geometry::Ptr        geometry;
-		int                  matrixNum;
-		std::vector<float>   matrix;
-		std::string          type;
+		bool normal; // ÊµÀıÎ´±»ÉèÖÃ¹ıÍâ¹Û
+		bool appearnace; // ÊµÀı±»ÉèÖÃ¹ıÍâ¹Û
 	};
 
 	class RenderUnit : public std::enable_shared_from_this<RenderUnit> {
@@ -35,19 +28,25 @@ namespace cadDataManager {
 		bool addInstance(Instance::Ptr instance);
 		void removeInstance(std::string instanceId);
 		void buildObj3d();
+		void updateRenderInfos();
 		void updateInstanceMatrix();
 		void setRenderTemplate(RenderTemplate::Ptr rm) { mRenderTemplate = rm; };
-		std::vector<BaseInfo> getRenderUnit() { return mRenderUnit; };
+		std::vector<RenderInfo> getRenderInfos() { return mRenderInfos; };
+		std::vector<RenderInfo> buildInstanceRenderInfos(std::string instanceId);
+		std::vector<RenderInfo> getInstanceRenderInfos(std::string instanceId);
 		std::vector<std::string> getInstanceIds();
 		std::string getProtoId();
 
-	private:
-		RenderTemplate::Ptr                             mRenderTemplate;
+	public:
+		RenderTemplate::Ptr									mRenderTemplate;
 		std::unordered_map<std::string, GeometryInfo::Ptr>	mAppStrLines{}; // key:appearanceParamsStr value:geometry, edge/curve
 		std::unordered_map<std::string, GeometryInfo::Ptr>	mAppStrMeshs{}; // key:appearanceParamsStr value:geometry, face/entity
-		std::unordered_map<std::string, Geometry::Ptr>  mAppStrInsMeshs{}; // key:appearanceParamsStr value:geometry, instance
-		std::unordered_map<std::string, Instance::Ptr>  mInstances{};
-		std::vector<BaseInfo>                           mRenderUnit{};
+		std::unordered_map<std::string, Geometry::Ptr>		mAppStrInsMeshs{}; // key:appearanceParamsStr value:geometry, instance
+		std::unordered_map<std::string, Instance::Ptr>		mInstances{};
+		std::vector<RenderInfo>								mRenderInfos{};
+		std::unordered_map<std::string, std::vector<RenderInfo>> mInstanceRenderInfos{};
+		Geometry::Ptr										mMergeGeometry;
+
 		RenderTypes calcRenderTypes();
 	};
 }

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef CLOUDRENDER_FILEUTIL_H
 #define CLOUDRENDER_FILEUTIL_H
 #include "global/baseDef.h"
@@ -9,7 +9,7 @@ namespace cadDataManager {
         static void writeBinary(char* data, uint32_t size, char* name);
         static char* getFileName(std::string filePath);
         static bool isStringPrintable(const std::string& str);
-        static std::string utf8ToANIS(const std::string utf8_str); //涓枃Windows绯荤粺涓婣NIS缂栫爜鍗矴BK缂栫爜
+        static std::string utf8ToANIS(const std::string utf8_str); //中文Windows系统下ANIS编码即GBK编码
         static std::string ANISToUtf8(const std::string utf8_str);
 
         static std::string concatURL(const std::string ip, int port, const std::string interfaceStr);

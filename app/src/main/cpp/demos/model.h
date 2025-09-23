@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "communication/dataInterface.h"
 
+
 class Model {
 public:
     Model() = delete;
@@ -34,7 +35,7 @@ public:
     bool loadModel(const std::string& modelFileName);
     bool loadLocalModel(const std::string &modelFileName,const std::string &importer_type="");
 
-    bool loadFbModel(const std::string &modelFileName);
+    bool loadFbModel(const std::string& file_name, const std::string& file_path);
 
     bool initialize() { return false; };
 

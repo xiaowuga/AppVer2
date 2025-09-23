@@ -29,6 +29,6 @@ namespace cadDataManager {
 
 	private:
 		std::unordered_map<std::string, GeometryInfo::Ptr> materialMergeInfoMap{};   // key: appearanceParams    value: elementInfo
-		std::vector<Element::Ptr> meshElementList{};   //閺嗗倹妞傚▽鈥冲晸 element閸╄櫣琚張顏勫entityRef
+		std::vector<Element::Ptr> meshElementList{};   //暂时没写 element基类未加entityRef
 	};
 }

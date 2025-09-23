@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "manager/elementManager.h"
 #include "parser/serialization_generated.h"
 #include "renderModel.h"

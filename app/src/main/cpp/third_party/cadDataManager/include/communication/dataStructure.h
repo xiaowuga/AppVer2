@@ -5,6 +5,7 @@
 #include "model/geometry/geometry.h"
 #include "global/typeDefine.h"
 #include "model/appearance/appearanceParams.h"
+#include <spdlog/spdlog.h>
 
 namespace cadDataManager {
 	enum ConversionPrecision {
@@ -28,8 +29,8 @@ namespace cadDataManager {
 		ElementType type;
 		std::vector<Geometry::Ptr> geometries;
 
-		Box3 mGeometryBox; //é‘çŠ±ç¶é¨å‡®OBBå¯®å¿“å¯˜é¥å¯¸æ´…
-		std::vector<float> mGeometryBoxCenter; //é‘çŠ±ç¶é¨å‹«å¯˜é¥å¯¸æ´…æ¶“î…ç¸¾
+		Box3 mGeometryBox; //¼¸ºÎµÄOOBBÊ½°üÎ§ºĞ
+		std::vector<float> mGeometryBoxCenter; //¼¸ºÎµÄ°üÎ§ºĞÖĞĞÄ
 
 		void buildBoxInfo() {
 			Box3 protoGeometryBox;
@@ -51,22 +52,22 @@ namespace cadDataManager {
 		ElementType mType;
 		GeomType mGeometryType;
 		Geometry::Ptr mGeometry;
-		Box3 mGeometryBox; //é‘çŠ±ç¶é¨å‡®OBBå¯®å¿“å¯˜é¥å¯¸æ´…
+		Box3 mGeometryBox; //¼¸ºÎµÄOOBBÊ½°üÎ§ºĞ
 
-		//TODO éæŠ½æ•­é‘çŠ±ç¶æ·‡â„ƒä¼…é”›?
+		//TODO ¹Ø¼ü¼¸ºÎĞÅÏ¢£º
 		/*
-			1.é…î‡€â‚¬æ°¬é’©é—ˆî®ç´°å¨‰æ›æ‚œéŠ†å‚šå½²ç’ï¼„ç•»
-			2.é¦å——ç€·éªæŠ½æ½°é”›æ°­ç¡¶éšæˆ™â‚¬ä½¸å´å¯°å‹©â‚¬ä½¸æ¸¾è¹‡å†¦â‚¬å‚›æ®éƒ?
-			3.éŒéæ½°é”›æ°³é…±éšæˆ™â‚¬ä½¸å´å¯°å‹©â‚¬ä½·ç¬‚æ¤¤å •æ½°é¦å——ç¸¾éŠ†ä½·ç¬…æ¤¤å •æ½°é¦å——ç¸¾éŠ†å‚›æ®éƒ?
-			4.éå†®æ½°é”›æ°±æ‚†è¹‡å†¦â‚¬ä½¸å´å¯°å‹©â‚¬å‚›æ®éƒ?
-			5.é…î‡€â‚¬æ°­æ´¸é—ˆî®ç´°éƒçŠ®â‚¬?
+			1.ÆÕÍ¨Æ½Ãæ£º·¨Ïò¡£¿É¼ÆËã
+			2.Ô²ĞÍÆ½Ãæ£º·¨Ïò¡¢°ë¾¶¡¢Ô²ĞÄ¡£ÔİÎŞ
+			3.ÖùÃæ£ºÖáÏò¡¢°ë¾¶¡¢ÉÏ¶¥ÃæÔ²ĞÄ¡¢ÏÂ¶¥ÃæÔ²ĞÄ¡£ÔİÎŞ
+			4.ÇòÃæ£ºÇòĞÄ¡¢°ë¾¶¡£ÔİÎŞ
+			5.ÆÕÍ¨ÇúÃæ£ºÎŞ¡£
 
-			1.é©å¯¸åšé”›æ°³æ£æ¿®å¬¬å£éŠ†ä½ºç²“å§ãˆ¢å£éŠ†ä¾€æš±æ´ï¸ºâ‚¬?
-			2.é¦å—•ç¬Œé¦å——å§¬ç»¾åŒ¡ç´°å¨‰æ›æ‚œé”›å å½²ç’ï¼„ç•»é”›å¤ˆâ‚¬ä½¸æ¸¾è¹‡å†¦â‚¬ä½¸å´å¯°å‹©â‚¬?
+			1.Ö±Ïß£ºÆğÊ¼µã¡¢ÖÕÖ¹µã¡¢³¤¶È¡£
+			2.Ô²ÓëÔ²»¡Ïß£º·¨Ïò£¨¿É¼ÆËã£©¡¢Ô²ĞÄ¡¢°ë¾¶¡£
 
-			é–°å¶…æ‚æ¶“î…Ÿæ®éƒèˆµç—…éˆå¤‹æ¹éå œä¿Šé­?é™î…æ¹éå® ä»ˆElementæ¶“åº¡å§é‘±æ“¨nstanceé¨å‡¦Dé”›å²€åšæ¶“åº£åšæ¶”å¬®æ£¿é¨å‹¯å¤éšå å½²æµ ãƒ©â‚¬æ°³ç¹ƒElementéˆî„ƒéŸ©é¨å‹ªä¿Šé­îˆšå½‡é’èˆ¬â‚¬?
+			ÅäºÏÖĞÔİÊ±Ã»ÓĞÓĞĞ§ĞÅÏ¢:Ö»ÓĞ¹ØÁªElementÓë¹ØÁªInstanceµÄID£¬ÏßÓëÏßÖ®¼äµÄÅäºÏ¿ÉÒÔÍ¨¹ıElement±¾ÉíµÄĞÅÏ¢È¡µ½¡£
 
-			é”ã„§æ•¾é¨å‹ªä¿Šé­îˆ›æ–é¦ã„¥å”´é?
+			¶¯»­µÄĞÅÏ¢·ÅÔÚÄÚºË
 		*/
 
 	public:
@@ -89,7 +90,7 @@ namespace cadDataManager {
 	public:
 		std::string mInstanceId;
 		std::string mProtoId;
-		std::string mType; //instanceç»«è¯²ç€·é”›?é—†æœµæ¬¢ or ç‘å‘´å¤
+		std::string mType; //instanceÀàĞÍ£º Áã¼ş or ×°Åä
 		std::string mParentId;
 		std::vector<std::string> mChildIds;
 		std::vector<GeometryInfo::Ptr> mGeometryInfos;
@@ -109,32 +110,39 @@ namespace cadDataManager {
 
 	struct RenderInfo
 	{
-		AppearanceParams::Ptr params; //æ¾¶æ ¬î‡ç»«?
-		Geometry::Ptr geo; //é‘çŠ±ç¶æ·‡â„ƒä¼…
-		int matrixNum; //é­â•…æ¨€æ¶“î…æšŸ
-		std::vector<float> matrix; //é­â•…æ¨€
-		std::string type; //é‘çŠ±ç¶ç»«è¯²ç€· face edge
+		AppearanceParams::Ptr params; //Íâ¹ÛÀà
+		Geometry::Ptr geo; //¼¸ºÎĞÅÏ¢
+		int matrixNum; //¾ØÕó¸öÊı
+		std::vector<float> matrix; //¾ØÕó
+		std::string type; //¼¸ºÎÀàĞÍ
 		std::string protoId;
 		std::vector<std::string> instanceIds;
+		
 
 		void console() const {
-			//TODO: é‘çŠ±ç¶æ¤¤å‰å£éä¼´å™ºéŠ†ä½·ç¬ç‘™æ—æ½°é—å›¨æšŸé–²å¿‹â‚¬ä¾€î–é‘¹å±‚â‚¬ä¾€â‚¬å¿”æ§‘æ´?
+			//TODO: ¼¸ºÎ¶¥µãÊıÁ¿¡¢Èı½ÇÃæÆ¬ÊıÁ¿¡¢ÑÕÉ«¡¢Í¸Ã÷¶È
 			std::vector<float> position = this->geo->getPosition();
 			std::vector<int> index = this->geo->getIndex();
+			spdlog::debug("Ä£ĞÍ¼¸ºÎÀàĞÍ£º{}", this->type);
+
 			if (this->type == "face") {
+				spdlog::debug("Ô­ĞÍÍø¸ñµÄ¶¥µãÊıÁ¿£º{}", position.size() / 3);
+				spdlog::debug("Ô­ĞÍÍø¸ñµÄÃæÆ¬ÊıÁ¿£º{}", index.size() / 3);
+				spdlog::debug("Ä£ĞÍÑÕÉ«£º{}", this->params->getColor());
 			}
-			//TODO: é„îˆšæƒéµæ’³åµƒé¨å‹¬å¸¶é’è·ºæ«’
+			spdlog::debug("¾ØÕóÊıÁ¿£º{}", this->matrixNum);
+			spdlog::debug("¾ØÕóÊı×é£º{}", fmt::join(this->matrix, ","));
+
 			int flag = 0;
 			for (auto it = this->matrix.begin(); it != this->matrix.end(); ++it) {
 				if (++flag == 16) {
-					std::cout << "\n";
 					flag = 0;
 				}
 			}
 		}
 
 		size_t getTriangleNumber() {
-			if (this->type == "face") {
+			if (this->type == "mesh" || this->type == "face") {
 				std::vector<int> index = this->geo->getIndex();
 				size_t number = index.size() / 3 * this->matrixNum;
 				return number;

@@ -1,7 +1,7 @@
 #pragma once
 #include "global/baseDef.h"
 
-//TODO: 鐎规矮绠熼崙鐘辩秿閺佺増宓侀敍瀛峫ement閵嗕笒ntity閵嗕赋roto閸氬嫯鍤滈柈鑺ョ€鍝勵嚠鎼存棑绱檓erge閿涘鐪扮痪褏娈慓eometry閿?闂団偓鐟曚椒绗屾径鏍潎閸栧綊鍘ょ€电懓绨?
+//TODO: 定义几何数据，Element、Entity、Proto各自都构建对应（merge）层级的Geometry； 需要与外观匹配对应
 namespace cadDataManager {
 	class Geometry : public std::enable_shared_from_this<Geometry> {
 	public:

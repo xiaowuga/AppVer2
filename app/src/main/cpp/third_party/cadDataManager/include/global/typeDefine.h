@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 namespace cadDataManager {
     enum class DocumentType {
         DOCUMENT_PART = 1,
@@ -83,7 +83,7 @@ namespace cadDataManager {
     enum class GeomType {
         GEOM_GEOM_UNKNOWN = 0,
         GEOM_POINT = 1, //point, //
-        // 绾垮嚑浣曠被鍨?
+        // 线几何类型
         GEOM_LINE = 10, // line, //
         GEOM_CIRCLE = 11, // circle, //
         GEOM_ARC = 12, // arc, //
@@ -95,7 +95,7 @@ namespace cadDataManager {
         GEOM_OFFSCURVE = 18, // offsetCurve, //
         GEOM_ELLIPSEARC = 19, // ellipseArc, //
 
-        //闈?
+        //面
         GEOM_PLANE = 50, // "plane"
         GEOM_CYLINDER = 51, // cylinder, //
         GEOM_RULE = 52, // rule, //
@@ -121,9 +121,9 @@ namespace cadDataManager {
         Direction_PT_VERTEXS = 19,
     };
 
-    /* 瑙嗗浘绔嬫柟浣?*/
+    /* 视图立方体 */
     enum class ViewCubeMeshName {
-        /* 闈?*/
+        /* 面 */
         FACE_FRONT = 1,
         FACE_LEFT = 2,
         FACE_BACK = 3,
@@ -131,7 +131,7 @@ namespace cadDataManager {
         FACE_TOP = 5,
         FACE_BOTTOM = 6,
 
-        /* 瀛楋紙涓庨潰鏁堟灉鐩稿悓锛?*/
+        /* 字（与面效果相同） */
         TEXT_FRONT = 7,
         TEXT_LEFT = 8,
         TEXT_BACK = 9,
@@ -139,7 +139,7 @@ namespace cadDataManager {
         TEXT_TOP = 11,
         TEXT_BOTTOM = 12,
 
-        /* 瑙掞紙绗竴涓猅OP/BOTTOM琛ㄧず涓婁笅锛岀浜屼釜TOP/BOTTOM琛ㄧず鍓嶅悗锛?*/
+        /* 角（第一个TOP/BOTTOM表示上下，第二个TOP/BOTTOM表示前后） */
         TOP_CORNER_LEFT_BOTTOM = 13,
         TOP_CORNER_RIGHT_BOTTOM = 14,
         BOTTOM_CORNER_LEFT_TOP = 15,
@@ -149,7 +149,7 @@ namespace cadDataManager {
         BOTTOM_CORNER_RIGHT_BOTTOM = 19,
         BOTTOM_CORNER_LEFT_BOTTOM = 20,
 
-        /* 杈癸紙绗竴涓猅OP/BOTTOM琛ㄧず涓婁笅锛岀浜屼釜TOP/BOTTOM琛ㄧず鍓嶅悗锛?*/
+        /* 边（第一个TOP/BOTTOM表示上下，第二个TOP/BOTTOM表示前后） */
         RIGHT_EDGE_RIGHT = 21,
         RIGHT_EDGE_LEFT = 22,
         TOP_EDGE_BOTTOM = 23,
@@ -163,14 +163,14 @@ namespace cadDataManager {
         LEFT_EDGE_LEFT = 31,
         LEFT_EDGE_RIGHT = 32,
 
-        /* 鎺у埗绠ご */
+        /* 控制箭头 */
         UPTRI = 33,
         DOWNTRI = 34,
         LEFTTRI = 35,
         RIGHTTRI = 36,
-        // 閫嗘椂閽?
+        // 逆时针
         LEFTUP = 37,
-        // 椤烘椂閽?
+        // 顺时针
         RIGHTUP = 38
 
     };
