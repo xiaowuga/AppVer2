@@ -37,6 +37,10 @@ private:
     std::shared_ptr<SSAOGeometryPass> mSSAOGeometryPass;
     std::shared_ptr<SSAOPass> mSSAOPass;
     std::shared_ptr<renderModel> mModel; // for test
+    bool actionPlaying = false;
+    int actionFrame = -1;
+    std::vector<float> positionArray;
+    std::vector<float> quaternionArray;
 
 public:
 

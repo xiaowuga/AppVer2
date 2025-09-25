@@ -42,10 +42,12 @@ namespace {
 
     std::shared_ptr<ARApp> construct_engine(){
         std::string appName="Relocation"; //APP名称，必须和服务器注册的App名称对应（由服务器上appDir中文件夹的名称确定）
+//        actionPassage actionPassage = {};
+//        actionPassage = {};
 
         std::vector<ARModulePtr> modules;
         modules.push_back(createModule<ARInputs>("ARInputs"));
-        modules.push_back(createModule<Location>("Location"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
+//        modules.push_back(createModule<Location>("Location"));  //用createModule创建模块，必须指定一个模块名，并且和server上的模块名对应！！
         modules.push_back(createModule<PoseEstimationRokid>("PoseEstimationRokid"));
         modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
         modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
@@ -147,9 +149,9 @@ namespace {
                 auto& frameDataPtr = _eng->frameData;
                 if(frameDataPtr) {
                     Rendering->project = project;
-                    Rendering->view = view * frameDataPtr->viewRelocMatrix;
+                    Rendering->view = view;
                     Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
-                    infof(GlmMat4_to_String(frameDataPtr->modelRelocMatrix).c_str());
+//                    infof(GlmMat4_to_String(frameDataPtr->modelRelocMatrix).c_str());
                 }
 
             }

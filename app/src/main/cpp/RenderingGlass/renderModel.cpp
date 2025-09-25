@@ -97,8 +97,8 @@ bool renderModel::bindMeshTexture(const std::string& meshName, const std::string
 }
 
 bool renderModel::activeMeshTexture(const std::string& meshName, const std::string& textureName) {
-    auto it = mMeshes.find(meshName);
-    if (it != mMeshes.end()) {
+    auto it = mMeshes->find(meshName);
+    if (it != mMeshes->end()) {
         return it->second.activeTexture(textureName);
     }
     return false;
@@ -319,8 +319,8 @@ void renderModel::processNode(aiNode* node, const aiScene* scene) {
 //        mMeshes.insert(std::pair<std::string, Mesh>(mesh->mName.C_Str(), processMesh(mesh, scene)));
 //    }
     for (int i = 0; i < verticesVector.size(); i++){
-        mMeshes.insert(std::pair<std::string, renderMesh>(
-                i+"",
+        mMeshes->insert(std::pair<std::string, renderMesh>(
+                nameVector[i],
                 createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                          UVVector[i], indicesVector[i], materialVector[i],
                                          materialNameVector[i], isTextureVector[i],
@@ -388,6 +388,7 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
     int buffer_size;
     for (auto it = MapInfo.begin(); it != MapInfo.end(); ++it){
         auto name = it->first;
+
         auto info = it->second;
         for (int o = 0; o < info.size(); o++) {
             std::unordered_map<TinyModelVertex, uint32_t> uniqueVertices; //存储点信息，相同点只存一份
@@ -395,7 +396,8 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
             std::vector<uint32_t> mIndices{};                             //索引，找点
 
             cadDataManager::RenderInfo &modelfbs = info[o];
-            int num = modelfbs.matrixNum;
+            auto name = modelfbs.protoId;
+            auto num = modelfbs.matrixNum;
             auto matrix = modelfbs.matrix;
             auto type = modelfbs.type;
             auto modelGeo = modelfbs.geo;
@@ -534,7 +536,7 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                 }
 
                 int Nodenumber = mVertices.size();   //顶点、法向、UV个数
-                int Indicesnumber = mIndices.size(); //索引个数
+//                int Indicesnumber = mIndices.size(); //索引个数
 
                 std::vector<glm::vec3> mVerticesPos{};                        //保存点在数组中位置信息
                 std::vector<glm::vec3> mVerticesNor{};                        //保存点在数组中位置信息
@@ -548,6 +550,7 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                     mVerticesUV.push_back(mVertices[i].uv);
                 }
 
+                nameVector.push_back(name);
                 verticesVector.push_back(mVerticesPos);
                 normalsVector.push_back(mVerticesNor);
                 UVVector.push_back(mVerticesUV);
@@ -573,7 +576,7 @@ void renderModel::draw() {
     GL_CALL(glEnable(GL_DEPTH_TEST));
     GL_CALL(glEnable(GL_BLEND));
     GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    for (auto &it : mMeshes) {
+    for (auto &it : *mMeshes) {
         it.second.draw(mShader);
     }
 }
@@ -585,8 +588,10 @@ bool renderModel::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4
 //    mShader.setUniformMat4("model", m);
 //    draw();
 //    glUseProgram(0);
+
     auto& passManager = RenderPassManager::getInstance();
     passManager.executeAllPasses(p,v,m);
+
     //获取pbrpass
 //    auto pbrPass = passManager.getPassAs<PbrPass>("pbr");
 //    pbrPass->render(p,v,m);
@@ -702,7 +707,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
     //=========================== 把模型标准化，防止过大或过小 ================================
     double sum_x=0,sum_y=0,sum_z=0; int count=0;
     float vmax=0;
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto pos=v.Position;
             sum_x+=pos.x; sum_y+=pos.y; sum_z+=pos.z;
@@ -710,7 +715,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
         }
     }
     infof(std::string("Average: "+std::to_string(sum_x/count)+", "+std::to_string(sum_y/count)+", "+std::to_string(sum_z/count)).c_str());
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto &pos=v.Position;
             pos.x-=(sum_x/count); pos.y-=(sum_y/count); pos.z-=(sum_z/count);
@@ -719,7 +724,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
             vmax=std::max(abs(pos.z),vmax);
         }
     }
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto &pos=v.Position;
             pos/=vmax;

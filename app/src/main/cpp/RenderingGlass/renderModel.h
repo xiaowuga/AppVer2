@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <utility>
 #include <vector>
 #include <memory>
 #include "renderMesh.h"
@@ -9,6 +10,9 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include "communication/dataInterface.h"
+#include <android/log.h>
+#define LOG_TAG "renderModel.cpp"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 class renderModel {
 public:
@@ -17,6 +21,7 @@ public:
     ~renderModel();
 
     std::vector<cadDataManager::pmiInfo> pmi;
+    std::vector<std::string> nameVector;
     std::vector<std::vector<glm::vec3>> verticesVector;
     std::vector<std::vector<glm::vec3>> normalsVector;
     std::vector<std::vector<glm::vec2>> UVVector;
@@ -46,8 +51,28 @@ public:
 
     void setBoneNodeMatrices(const std::string& bone, const glm::mat4& m);
 
-    const std::map<std::string, renderMesh> &getMMeshes() const {
+    const std::shared_ptr<std::map<std::string, renderMesh>> &getMMeshes() const {
         return mMeshes;
+    }
+
+    void updateMMesh(std::string& name, std::vector<float>& transform){
+        try {
+//            mMeshes[name].mTransformVector = transform;
+
+//            mMeshes.find(name)->second.mTransformVector = transform;
+
+            renderMesh mesh = mMeshes->at(name);  // 如果 key 不存在，抛出 std::out_of_range
+            LOGI("%i",mesh.mVertices.size());
+            mesh.mTransformVector = std::move(transform);
+            mesh.setupMesh();
+            mMeshes->erase(name);
+            mMeshes->insert(std::pair<std::string, renderMesh>(
+                    name,
+                    mesh));
+        } catch (const std::out_of_range& e) {
+            LOGI("键不存在:");
+            std::cerr << "键不存在: " << name << std::endl;
+        }
     }
 
     void shaderInit(){
@@ -56,8 +81,8 @@ public:
 
     void pushMeshFromCustomData() {
         for (int i = 0; i < verticesVector.size(); i++){
-            mMeshes.insert(std::pair<std::string, renderMesh>(
-                    i+"",
+            mMeshes->insert(std::pair<std::string, renderMesh>(
+                    nameVector[i],
                     createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                              UVVector[i], indicesVector[i], materialVector[i],
                                              materialNameVector[i], isTextureVector[i],
@@ -85,7 +110,7 @@ private:
 
 private:
     std::string mName;
-    std::map<std::string, renderMesh> mMeshes;
+    std::shared_ptr<std::map<std::string, renderMesh>> mMeshes = std::make_shared<std::map<std::string, renderMesh>>();
     bool mHasBoneInfo;
 
     struct boneInfo {

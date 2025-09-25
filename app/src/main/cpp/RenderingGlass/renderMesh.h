@@ -34,6 +34,7 @@ struct renderTexture {
 
 class renderMesh {
 public:
+    renderMesh(){}
     renderMesh(std::vector<renderVertex> vertices, std::vector<unsigned int> indices, std::vector<renderTexture> textures);
     renderMesh(std::vector<renderVertex> vertices, std::vector<unsigned int> indices, std::vector<renderTexture> textures,pbrMaterial pbrMaterial);
     renderMesh(std::vector<renderVertex> vertices, std::vector<unsigned int> indices,
@@ -50,9 +51,9 @@ public:
     void setupMesh();
 //private:
 public:
-    std::vector<renderVertex>       mVertices;
-    std::vector<unsigned int> mIndices;
-    std::vector<renderTexture>      mTextures;
+    std::vector<renderVertex>   mVertices;
+    std::vector<unsigned int>   mIndices;
+    std::vector<renderTexture>  mTextures;
     pbrMaterial mPbrMaterial;
     int mTransformNum;
     std::vector<float> mTransformVector;

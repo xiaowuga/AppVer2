@@ -145,7 +145,7 @@ void SSAOGeometryPass::draw() {
 //    GL_CALL(glEnable(GL_DEPTH_TEST));
 //    GL_CALL(glEnable(GL_BLEND));
 //    GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    for (auto &it : mMeshes) {
+    for (auto &it : *mMeshes) {
         it.second.drawShadowMap(mShader);
     }
 }
