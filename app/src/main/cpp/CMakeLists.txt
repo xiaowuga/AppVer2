@@ -6,6 +6,24 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(${CMAKE_SOURCE_DIR}/cmake/DownloadAndExtract.cmake)
+
+set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+
+if(NOT EXISTS "${THIRD_PARTY_DIR}")
+    message(STATUS "third_party not found, downloading...")
+
+    download_and_extract(
+            "https://github.com/xiaowuga/AppVer2/releases/download/v1.0.0/third_party.zip"
+            ${CMAKE_SOURCE_DIR}
+    )
+
+else()
+    message(STATUS "third_party already exists, skip download")
+endif()
+
+
+
 
 #set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the build type" FORCE)
 add_compile_options(-DXR_USE_PLATFORM_ANDROID=1 -DXR_USE_GRAPHICS_API_OPENGL_ES=1 -fexceptions -W -Wall -DDARWIN_NO_CARBON -DFT2_BUILD_LIBRARY)
