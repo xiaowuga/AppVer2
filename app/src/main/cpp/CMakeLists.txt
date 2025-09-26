@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
 #set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the build type" FORCE)
 add_compile_options(-DXR_USE_PLATFORM_ANDROID=1 -DXR_USE_GRAPHICS_API_OPENGL_ES=1 -fexceptions -W -Wall -DDARWIN_NO_CARBON -DFT2_BUILD_LIBRARY)
 
@@ -17,11 +18,10 @@ file(GLOB DEMO_SOURCE "*.cpp")
 
 file(GLOB GFX_WRAPPER_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}openxr_loader/include/common/gfxwrapper_opengl.c)
 
+
 #**************************************************add Engine
 add_library(lib_opencv SHARED IMPORTED)
-#set(OpenCV_DIR "D:/rokid-libs/OpenCV-android-sdk/sdk/native")
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencv-4.10/libs/${ANDROID_ABI}/libopencv_java4.so)
-#message(${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
 
 
 add_library(cadDataManager SHARED IMPORTED)

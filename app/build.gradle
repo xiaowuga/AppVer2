@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'de.undercouch.download' version '5.6.0'
 }
 
 android {
@@ -50,6 +51,31 @@ android {
     buildFeatures {
         viewBinding true
     }
+}
+
+
+tasks.register("downloadFile", de.undercouch.gradle.tasks.download.Download) {
+    src "https://github.com/xiaowuga/AppVer2/releases/download/v1.0.0/third_party.zip"
+    dest layout.buildDirectory.file("deps/third_party.zip")
+
+    // Gradle 输出声明，文件存在就跳过下载
+    outputs.file(layout.buildDirectory.file("deps/third_party.zip"))
+    overwrite false
+}
+
+// 解压任务
+tasks.register("unzipFile", Copy) {
+    dependsOn("downloadFile")
+    from(zipTree(layout.buildDirectory.file("deps/third_party.zip")))
+    into(layout.projectDirectory.dir("src/main/cpp"))
+
+    // 声明输出，Gradle 会判断是否需要解压
+    outputs.dir(layout.projectDirectory.dir("src/main/cpp/third_party"))
+}
+
+// 把解压任务挂到构建流程里，保证 build 前自动执行
+tasks.named("preBuild") {
+    dependsOn("unzipFile")
 }
 
 dependencies {
