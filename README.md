@@ -57,12 +57,9 @@ AppVer2Data (appData.appDir)
 ## 编译步骤
 
 1. 根据上述需求下载资源文件，并将其放入 Rokid 眼镜的主存中。
-2. 下载并安装 Android Studio 和 OpenCV 4.10 安卓版本。然后，在 `app/src/main/cpp/CMakeLists.txt` 文件的第 22 行设置 OpenCV\_DIR 变量的路径，例如：
-
-   ```cmake
-   set(OpenCV_DIR "D:/rokid-libs/OpenCV-android-sdk/sdk/native")
-   ```
-3. 使用 Android Studio 打开项目并进行编译。
+2. 下载并安装 Android Studio。
+3. 使用 Android Studio 打开项目，第三方库会通过cmake自动从github上面拉取，请确保VPN是稳定的。
+4. 点击编译运行。
 
 
 ## 谷歌网盘下载连接:
