@@ -19,9 +19,9 @@ file(GLOB GFX_WRAPPER_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}openxr_loader/include/co
 
 #**************************************************add Engine
 add_library(lib_opencv SHARED IMPORTED)
-set(OpenCV_DIR "D:/rokid-libs/OpenCV-android-sdk/sdk/native")
-set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
-message(${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
+#set(OpenCV_DIR "D:/rokid-libs/OpenCV-android-sdk/sdk/native")
+set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencv-4.10/libs/${ANDROID_ABI}/libopencv_java4.so)
+#message(${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
 
 
 add_library(cadDataManager SHARED IMPORTED)
@@ -56,6 +56,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
                     ${THIRD_PARTY_H_DIR}/cad
                     ${ANDROID_NDK}/sources/android/native_app_glue
                     ${THIRD_PARTY_H_DIR}/cadDataManager/include
+                    ${THIRD_PARTY_H_DIR}/opencv-4.10/jni/include
                     ${OpenCV_DIR}/jni/include
 
 )
