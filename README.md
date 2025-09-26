@@ -22,9 +22,6 @@
 - Android NDK: Version 29.0.14033849 rc4
 - AR 眼镜: Rokid Max Pro Enterprise
 
-## 库依赖
-- [OpenCV 4.10 Android](https://github.com/opencv/opencv/releases/download/4.10.0/opencv-4.10.0-android-sdk.zip)
-
 ## 资源文件
 
 将 `appData.appDir` 赋值为文件夹 "AppVer2Data" 的路径后，请将眼镜连接到电脑，并将文件夹 "AppVer2Data" 放置到眼镜主存储的顶层路径中，与文件夹 "Download" 同级。具体路径为 `/storage/emulated/0/`。
