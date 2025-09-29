@@ -133,30 +133,30 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
         } else sceneData.actionLock.unlock();
     }
 
-//    {//测试接口用代码，推力杆会动
-//        std::vector<cadDataManager::AnimationActionUnit::Ptr> animationActions = cadDataManager::DataInterface::getAnimationActions("EngineFireAlarm");
-//        auto animationAction = animationActions[0];
-//        modelName = animationAction->modelName;
-//        instanceName = animationAction->instanceName;
-//        instanceId = animationAction->instanceId;
-//        originState = animationAction->originState;
-//        targetState = "3";
-//        //加载了多个模型时，需要对ModelName模型执行动画，切换该ModelName为当前活跃状态
-//        cadDataManager::DataInterface::setActiveDocumentData(modelName);
-//        auto instance = cadDataManager::DataInterface::getInstanceByName(instanceName);
-//        instanceId = instance->getId();
-//
-//        cadDataManager::AnimationStateUnit::Ptr animationState = cadDataManager::DataInterface::getAnimationStateByName(modelName, instanceName);
-////    cadDataManager::AnimationStateUnit::Ptr animationState = cadDataManager::DataInterface::getAnimationState(modelName, instanceId);
-//        std::vector<cadDataManager::AnKeyframe> anKeyframes = animationState->keyframes;
-//        for (auto& anKeyframe : anKeyframes) {
-//            if (anKeyframe.originState == originState && anKeyframe.targetState == targetState) {
-//                //TODO 找不到position因为动画Json数据对应关系没做好
-//                positionArray = anKeyframe.positionArray;
-//                quaternionArray = anKeyframe.quaternionArray;
-//            }
-//        }
-//    }
+    {//测试接口用代码，推力杆会动
+        std::vector<cadDataManager::AnimationActionUnit::Ptr> animationActions = cadDataManager::DataInterface::getAnimationActions("EngineFireAlarm");
+        auto animationAction = animationActions[0];
+        modelName = animationAction->modelName;
+        instanceName = animationAction->instanceName;
+        instanceId = animationAction->instanceId;
+        originState = animationAction->originState;
+        targetState = "3";
+        //加载了多个模型时，需要对ModelName模型执行动画，切换该ModelName为当前活跃状态
+        cadDataManager::DataInterface::setActiveDocumentData(modelName);
+        auto instance = cadDataManager::DataInterface::getInstanceByName(instanceName);
+        instanceId = instance->getId();
+
+        cadDataManager::AnimationStateUnit::Ptr animationState = cadDataManager::DataInterface::getAnimationStateByName(modelName, instanceName);
+//    cadDataManager::AnimationStateUnit::Ptr animationState = cadDataManager::DataInterface::getAnimationState(modelName, instanceId);
+        std::vector<cadDataManager::AnKeyframe> anKeyframes = animationState->keyframes;
+        for (auto& anKeyframe : anKeyframes) {
+            if (anKeyframe.originState == originState && anKeyframe.targetState == targetState) {
+                //TODO 找不到position因为动画Json数据对应关系没做好
+                positionArray = anKeyframe.positionArray;
+                quaternionArray = anKeyframe.quaternionArray;
+            }
+        }
+    }
 
     //调用位姿变换接口，实时更新模型位置
     if (positionArray.size() == 0) {
@@ -174,7 +174,15 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 //        mModel->getMMeshes().at(modifyModel.begin()->first).mTransformVector = modifyModel.begin()->second.begin()->matrix;
 
         std::string meshName = modifyModel.begin()->first;
-        auto &meshTransform = modifyModel.begin()->second.begin()->matrix;
+        std::vector<std::vector<float>> meshTransform;
+        for(auto& mModify : modifyModel){
+            for(auto& mModifyInstance : mModify.second){
+                if(mModifyInstance.type == "mesh"){
+                    meshTransform.push_back(mModifyInstance.matrix);
+                }
+            }
+        }
+//        auto &meshTransform = modifyModel.begin()->second.begin()->matrix;
         mModel->updateMMesh(meshName, meshTransform);
 
         if((actionFrame * 3 + 3) == positionArray.size()){

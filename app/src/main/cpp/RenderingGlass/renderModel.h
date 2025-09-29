@@ -20,6 +20,7 @@ public:
     ~renderModel();
 
     std::vector<cadDataManager::pmiInfo> pmi;
+    std::map<std::string, std::vector<int>> protoId;
     std::vector<std::string> nameVector;
     std::vector<std::vector<glm::vec3>> verticesVector;
     std::vector<std::vector<glm::vec3>> normalsVector;
@@ -54,16 +55,22 @@ public:
         return mMeshes;
     }
 
-    void updateMMesh(std::string& name, std::vector<float>& transform){
+    void updateMMesh(std::string& name, std::vector<std::vector<float>>& transform){
         try {
-            renderMesh mesh = mMeshes->at(name);  // 如果 key 不存在，抛出 std::out_of_range
-            LOGI("%i",mesh.mVertices.size());
-            mesh.mTransformVector = std::move(transform);
-            mesh.setupMesh();
-            mMeshes->erase(name);
-            mMeshes->insert(std::pair<std::string, renderMesh>(
-                    name,
-                    mesh));
+            auto meshID = protoId.at(name);  // 如果 key 不存在，抛出 std::out_of_range
+            int k = 0;
+            for( int i : meshID ){
+                auto mesh = mMeshes->at(std::to_string(i));
+//                mMeshes->at(std::to_string(i)).mTransformVector = std::move(transform[k]);
+                LOGI("%i",mesh.mVertices.size());
+                mesh.mTransformVector = std::move(transform[k]);
+                mesh.setupMesh();
+                mMeshes->erase(std::to_string(i));
+                mMeshes->insert(std::pair<std::string, renderMesh>(
+                        std::to_string(i),
+                        mesh));
+                k++;
+            }
         } catch (const std::out_of_range& e) {
             LOGI("键不存在:");
             std::cerr << "键不存在: " << name << std::endl;
@@ -76,8 +83,9 @@ public:
 
     void pushMeshFromCustomData() {
         for (int i = 0; i < verticesVector.size(); i++){
+            std::pair<std::string, std::vector<renderMesh>>;
             mMeshes->insert(std::pair<std::string, renderMesh>(
-                    nameVector[i],
+                    std::to_string(i),
                     createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                              UVVector[i], indicesVector[i], materialVector[i],
                                              materialNameVector[i], isTextureVector[i],

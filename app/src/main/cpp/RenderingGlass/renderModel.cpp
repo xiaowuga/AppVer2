@@ -386,8 +386,23 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
 
     uint8_t* buffer_data;
     int buffer_size;
+    int lastProtoSize = verticesVector.size();
+    std::string name = "";
     for (auto it = MapInfo.begin(); it != MapInfo.end(); ++it){
-        auto name = it->first;
+        if(verticesVector.size() > lastProtoSize)
+        {
+            std::vector<int> tempInt;
+            for(int k = lastProtoSize; k < verticesVector.size(); k++)
+            {
+                tempInt.push_back(k);
+            }
+            protoId.insert(std::pair<std::string, std::vector<int>>(
+                    name,
+                    tempInt
+                    ));
+            lastProtoSize = verticesVector.size();
+        }
+        name = it->first;
         auto info = it->second;
         for (int o = 0; o < info.size(); o++) {
             std::unordered_map<TinyModelVertex, uint32_t> uniqueVertices; //存储点信息，相同点只存一份
