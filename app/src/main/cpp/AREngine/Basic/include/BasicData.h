@@ -244,6 +244,28 @@ class Plane
 public:
 };
 
+class actionPassage{
+public:
+    std::string modelName;
+    std::string instanceName;
+    std::string originState;
+    std::string targetState;
+
+    bool isEmpty(){
+        if( this->modelName.empty() && this->instanceName.empty() && this->originState.empty() && this->targetState.empty()){
+            return true;
+        } else return false;
+    }
+
+    void clear(){
+        this->modelName.clear();
+        this->instanceName.clear();
+        this->originState.clear();
+        this->targetState.clear();
+    }
+
+};
+
 class SerilizedFrame;
 
 class CollisionDetectionPair;
@@ -361,6 +383,9 @@ public:
     std::vector<std::vector<double>> imuBuffer;
     std::vector<std::vector<double>> imuTemp;
     std::mutex imu_mutex;
+
+    std::mutex actionLock;
+    actionPassage actionPassage{};
 
 
     std::vector<SceneObjectPtr> sceneObjects;  // store all objects

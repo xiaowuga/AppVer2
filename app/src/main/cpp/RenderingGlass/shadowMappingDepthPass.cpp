@@ -221,7 +221,7 @@ void ShadowMappingDepthPass::render(const glm::mat4 &p, const glm::mat4 &v) {
 #endif
 }
 void ShadowMappingDepthPass::draw() {
-    for (const auto &it : mMeshes) {
+    for (const auto &it : *mMeshes) {
         it.second.drawShadowMap(mShader);
     }
 }

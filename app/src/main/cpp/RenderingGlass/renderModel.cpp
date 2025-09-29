@@ -97,8 +97,8 @@ bool renderModel::bindMeshTexture(const std::string& meshName, const std::string
 }
 
 bool renderModel::activeMeshTexture(const std::string& meshName, const std::string& textureName) {
-    auto it = mMeshes.find(meshName);
-    if (it != mMeshes.end()) {
+    auto it = mMeshes->find(meshName);
+    if (it != mMeshes->end()) {
         return it->second.activeTexture(textureName);
     }
     return false;
@@ -319,7 +319,7 @@ void renderModel::processNode(aiNode* node, const aiScene* scene) {
 //        mMeshes.insert(std::pair<std::string, Mesh>(mesh->mName.C_Str(), processMesh(mesh, scene)));
 //    }
     for (int i = 0; i < verticesVector.size(); i++){
-        mMeshes.insert(std::pair<std::string, renderMesh>(
+        mMeshes->insert(std::pair<std::string, renderMesh>(
                 i+"",
                 createMeshFromCustomData(verticesVector[i], normalsVector[i],
                                          UVVector[i], indicesVector[i], materialVector[i],
@@ -395,6 +395,7 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
             std::vector<uint32_t> mIndices{};                             //索引，找点
 
             cadDataManager::RenderInfo &modelfbs = info[o];
+            auto protoId = modelfbs.protoId;
             int num = modelfbs.matrixNum;
             auto matrix = modelfbs.matrix;
             auto type = modelfbs.type;
@@ -418,7 +419,8 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
 
             std::string testcolor = color.substr(1);
             pbrMaterial pbrMaterial;
-            if(testcolor == "000000"){
+            if(testcolor == "000000")
+            {
                 // black specular button
                 pbrMaterial.albedoValue = {0.0f, 0.0f, 0.0f};
                 pbrMaterial.useAlbedoMap = false;
@@ -441,7 +443,8 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                 pbrMaterial.aoMapId = 0;
 
 
-            }else if(testcolor == "BBBBBB" || testcolor == "333333"){
+            }else if(testcolor == "BBBBBB" || testcolor == "333333")
+            {
                 // diffuse gray board
                 pbrMaterial.albedoValue = {0.2f, 0.2f, 0.2f};
                 pbrMaterial.useAlbedoMap = false;
@@ -464,7 +467,8 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                 pbrMaterial.aoMapId = 0;
 
 
-            }else if(testcolor == "FF0000"){
+            }else if(testcolor == "FF0000")
+            {
                 //plastic red board
                 pbrMaterial.albedoValue = {1.0f, 0.0f, 0.0f};
                 pbrMaterial.useAlbedoMap = false;
@@ -487,7 +491,8 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                 pbrMaterial.aoMapId = 0;
 
 
-            }else{
+            }else
+            {
                 // yellow words and lines
                 pbrMaterial.albedoValue = {1.0f, 1.0f, 1.0f};
                 pbrMaterial.useAlbedoMap = false;
@@ -548,6 +553,7 @@ bool renderModel::loadFbModel(const std::string& file_name, const std::string& f
                     mVerticesUV.push_back(mVertices[i].uv);
                 }
 
+                nameVector.push_back(protoId);
                 verticesVector.push_back(mVerticesPos);
                 normalsVector.push_back(mVerticesNor);
                 UVVector.push_back(mVerticesUV);
@@ -573,7 +579,7 @@ void renderModel::draw() {
     GL_CALL(glEnable(GL_DEPTH_TEST));
     GL_CALL(glEnable(GL_BLEND));
     GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    for (auto &it : mMeshes) {
+    for (auto &it : *mMeshes) {
         it.second.draw(mShader);
     }
 }
@@ -702,7 +708,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
     //=========================== 把模型标准化，防止过大或过小 ================================
     double sum_x=0,sum_y=0,sum_z=0; int count=0;
     float vmax=0;
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto pos=v.Position;
             sum_x+=pos.x; sum_y+=pos.y; sum_z+=pos.z;
@@ -710,7 +716,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
         }
     }
     infof(std::string("Average: "+std::to_string(sum_x/count)+", "+std::to_string(sum_y/count)+", "+std::to_string(sum_z/count)).c_str());
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto &pos=v.Position;
             pos.x-=(sum_x/count); pos.y-=(sum_y/count); pos.z-=(sum_z/count);
@@ -719,7 +725,7 @@ bool renderModel::loadLocalModel(const std::string &modelFileName, const std::st
             vmax=std::max(abs(pos.z),vmax);
         }
     }
-    for(auto &mesh:mMeshes){
+    for(auto &mesh:*mMeshes){
         for(auto &v:mesh.second.mVertices){
             auto &pos=v.Position;
             pos/=vmax;
