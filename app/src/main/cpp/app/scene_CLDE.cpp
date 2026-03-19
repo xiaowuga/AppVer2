@@ -81,6 +81,8 @@ namespace {
             ptr->name = model_name;
             ptr->fileName = model_name + ".fb";
             ptr->filePath = mesh_file_path;
+            ptr->transform.setPose(cv::Matx44f::eye());
+            ptr->initTransform.setPose(cv::Matx44f::eye());
             cadDataManager::DataInterface::parseLocalModel( model_name + ".fb", mesh_file_path);
             sceneData->setObject(model_name, ptr);
         }

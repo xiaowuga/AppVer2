@@ -207,6 +207,14 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 //            sceneData.actionLock.unlock();
 //        }
 //    }
+    SerilizedObjs cmdSend = {
+        {"cmd", std::string("drawARCommand")},
+        {"project", mProject},
+        {"view", mView}
+    };
+
+    app->postRemoteCall(this, frameDataPtr, cmdSend); //发送set命令，将图像的像素值设置为指定的值，并返回结果图像(参考TestServer.cpp中TestPro1Server类的实现)
+
 
     mModel->render(project,view,model_trans_mat);
     mGizmoPass->updateBoundingBOX(boundingBoxArray);
