@@ -46,7 +46,8 @@ private:
     std::vector<float> quaternionArray;
     int frameCount = 0;
     std::chrono::time_point<std::chrono::steady_clock, std::chrono::duration<float>> startTime;
-    float fps;
+    int stepTime = 0;
+    float fps = 0;
     int width = 1920;
     int height = 1200;
     int environmentalState = 0;
@@ -56,9 +57,15 @@ private:
     std::string instanceId   = "";
     std::string originState  = "";
     std::string targetState  = "";
+    bool state = false;
     std::unordered_map<std::string, bool> isHighLight;
 
 public:
+    std::vector<std::vector<double>> model_transforms_vector;
+    std::vector<std::string> instance_names;
+    std::vector<std::string> model_paths;
+    bool render_init_done = false;
+
     std::vector<float> boundingBoxArray;
     std::unordered_map<std::string, std::vector<float>> boundingBoxMap;
     std::vector<glm::mat4> joc;

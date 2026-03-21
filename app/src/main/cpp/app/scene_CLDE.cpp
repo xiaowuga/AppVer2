@@ -114,8 +114,8 @@ namespace {
 
             auto frameData = _eng->frameData;
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
-            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
-                _eng->connectServer("192.168.1.100", 1203);
+//            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
+                _eng->connectServer("192.168.1.102", 1203);
             _eng->start();
 
 

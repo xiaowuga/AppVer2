@@ -31,9 +31,31 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
     mTextRender->initialize();
 
     auto scene_virtualObjects = sceneData.getAllObjectsOfType<SceneModel>();
+
+    model_transforms_vector.reserve(scene_virtualObjects.size());
     for(int i = 0; i < scene_virtualObjects.size(); i ++){
         mModel->loadFbModel(scene_virtualObjects[i]->name, scene_virtualObjects[i]->filePath);
+        model_transforms_vector.push_back({
+           1,0,0,0,
+           0,1,0,0,
+           0,0,1,0,
+           0,0,0,1
+        });
+        model_paths.push_back(scene_virtualObjects[i]->filePath);
+        instance_names.push_back(scene_virtualObjects[i]->name);
     }
+
+    SerilizedObjs cmdSend = {
+            {"cmd", std::string("initARCloudRenderer")},
+            {"width", 640},
+            {"height", 480},
+            {"upsample_scale", 2},
+            {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
+            {"model_transforms", model_transforms_vector},
+            {"instance_names", instance_names},
+            {"model_paths", model_paths}
+    };
+    app->postRemoteCall(this, nullptr, cmdSend);
 
     //加载模型的动画数据：Action + State
     cadDataManager::DataInterface::loadAnimationActionData(appData.animationActionConfigFile);
@@ -102,48 +124,53 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 }
 
 int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
-//    LOGI("RenderClient update");;
-    glm::mat4 mProject = project;
-    glm::mat4 mView = view;
+    LOGI("RenderClient update");
+    if(render_init_done) {
 
-    glm::mat4 model_trans_mat = glm::mat4(1.0);
+        glm::mat4 mProject = project;
+        glm::mat4 mView = view;
 
-    //交互需要的接口
-    if(!sceneData.actionPassage.isEmpty()){
-        modelName    = sceneData.actionPassage.modelName;
-        instanceName = sceneData.actionPassage.instanceName;
-        originState  = sceneData.actionPassage.originState;
-        targetState  = sceneData.actionPassage.targetState;
-        instanceId = sceneData.actionPassage.instanceId;
-        //设置活跃模型
-        cadDataManager::DataInterface::setActiveDocumentData(modelName);
-        auto animationState = cadDataManager::DataInterface::getAnimationStateByName(modelName, instanceName);
-        std::vector<cadDataManager::AnKeyframe> &anKeyframes = animationState->keyframes;
-        for (auto& anKeyframe : anKeyframes) {
-            if (anKeyframe.originState == originState && anKeyframe.targetState == targetState) {
-                positionArray   = anKeyframe.positionArray;
-                quaternionArray = anKeyframe.quaternionArray;
+        glm::mat4 model_trans_mat = glm::mat4(1.0);
+
+        //交互需要的接口
+        if (!sceneData.actionPassage.isEmpty()) {
+            state = true;
+            modelName = sceneData.actionPassage.modelName;
+            instanceName = sceneData.actionPassage.instanceName;
+            originState = sceneData.actionPassage.originState;
+            targetState = sceneData.actionPassage.targetState;
+            instanceId = sceneData.actionPassage.instanceId;
+            //设置活跃模型
+            cadDataManager::DataInterface::setActiveDocumentData(modelName);
+            auto animationState = cadDataManager::DataInterface::getAnimationStateByName(modelName,
+                                                                                         instanceName);
+            std::vector<cadDataManager::AnKeyframe> &anKeyframes = animationState->keyframes;
+            for (auto &anKeyframe: anKeyframes) {
+                if (anKeyframe.originState == originState &&
+                    anKeyframe.targetState == targetState) {
+                    positionArray = anKeyframe.positionArray;
+                    quaternionArray = anKeyframe.quaternionArray;
+                }
             }
-        }
-        // 检查key是否存在，不存在则添加，默认值为false
-        // find 方法返回迭代器，end() 表示未找到
-        if (isHighLight.find(instanceName) == isHighLight.end()) {
-            isHighLight[instanceName] = false; // 新增键值对，默认false
-            //高亮模型
-            highlightInstance(modelName, instanceId);
-            // 将该key对应的值改为true
-            // 此时key必定存在（不存在已在上一步添加），直接赋值即可
-            isHighLight[instanceName] = true;
-        }
-        else if(isHighLight[instanceName] == false){
-            //高亮模型
-            highlightInstance(modelName, instanceId);
-            // 将该key对应的值改为true
-            // 此时key必定存在（不存在已在上一步添加），直接赋值即可
-            isHighLight[instanceName] = true;
-        }
+            // 检查key是否存在，不存在则添加，默认值为false
+            // find 方法返回迭代器，end() 表示未找到
+            if (isHighLight.find(instanceName) == isHighLight.end()) {
+                isHighLight[instanceName] = false; // 新增键值对，默认false
+                //高亮模型
+                highlightInstance(modelName, instanceId);
+                // 将该key对应的值改为true
+                // 此时key必定存在（不存在已在上一步添加），直接赋值即可
+                isHighLight[instanceName] = true;
+            } else if (isHighLight[instanceName] == false) {
+                //高亮模型
+                highlightInstance(modelName, instanceId);
+                // 将该key对应的值改为true
+                // 此时key必定存在（不存在已在上一步添加），直接赋值即可
+                isHighLight[instanceName] = true;
+            }
 
-    }
+
+        }
 
 //    {//测试接口用代码，推力杆会动
 //        std::vector<cadDataManager::AnimationActionUnit::Ptr> animationActions = cadDataManager::DataInterface::getAnimationActions("EngineFireAlarm");
@@ -168,35 +195,91 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 //        }
 //    }
 
-    //调用位姿变换接口，实时更新模型位置
-    if (positionArray.size() != 0) {
-        LOGI("找到positionArray， %s", modelName.c_str());
-        actionFrame ++;
-//        LOGI("%i", actionFrame);
-        std::vector<float> position   = { positionArray[actionFrame * 3], positionArray[actionFrame * 3 + 1], positionArray[actionFrame * 3 + 2] };
-        std::vector<float> quaternion = { quaternionArray[actionFrame * 4] , quaternionArray[actionFrame * 4 + 1], quaternionArray[actionFrame * 4 + 2],quaternionArray[actionFrame * 4 + 3] };
-        std::vector<float> matrix     = cadDataManager::DataInterface::composeMatrix(position, quaternion);
+        // 计算经过的时间
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> elapsedTime = currentTime - startTime;
+        stepTime += elapsedTime.count();
 
-        std::unordered_map<std::string, std::vector<cadDataManager::RenderInfo>> modifyModel;
+        //调用位姿变换接口，实时更新模型位置
+        if (positionArray.size() != 0) {
+            LOGI("找到positionArray， %s", modelName.c_str());
+            actionFrame++;
+//        LOGI("%i", actionFrame);
+            std::vector<float> position = {positionArray[actionFrame * 3],
+                                           positionArray[actionFrame * 3 + 1],
+                                           positionArray[actionFrame * 3 + 2]};
+            std::vector<float> quaternion = {quaternionArray[actionFrame * 4],
+                                             quaternionArray[actionFrame * 4 + 1],
+                                             quaternionArray[actionFrame * 4 + 2],
+                                             quaternionArray[actionFrame * 4 + 3]};
+            std::vector<float> matrix = cadDataManager::DataInterface::composeMatrix(position,
+                                                                                     quaternion);
+
+            std::unordered_map<std::string, std::vector<cadDataManager::RenderInfo>> modifyModel;
 
 //        //测试高亮的接口，需要把restoreInstanceColor给注释掉
 //        highlightInstance(modelName, instanceId);
-        cadDataManager::DataInterface::restoreInstanceColor(instanceId);//零件实例高亮的恢复
-        isHighLight[instanceName] = false;
+            cadDataManager::DataInterface::restoreInstanceColor(instanceId);//零件实例高亮的恢复
+            isHighLight[instanceName] = false;
 //        cadDataManager::DataInterface::modifyInstanceColor(instanceId, "#FF0000");//零件实例高亮的修改
-        modifyModel = cadDataManager::DataInterface::modifyInstanceMatrix(instanceId, matrix);//零件实例位置的修改
+            modifyModel = cadDataManager::DataInterface::modifyInstanceMatrix(instanceId,
+                                                                              matrix);//零件实例位置的修改
 
-        mModel->processMeshData(modifyModel);
+            mModel->processMeshData(modifyModel);
 
-        if((actionFrame * 3 + 3) == positionArray.size()){
-            actionFrame = -1;
-            sceneData.actionLock.lock();
-            sceneData.actionPassage.clear();
-            positionArray.clear();
-            quaternionArray.clear();
-            sceneData.actionLock.unlock();
+            if(stepTime >= 0.033f){
+                stepTime -= 0.033f;
+                model_transforms_vector.push_back({
+                                                          matrix[0], matrix[1], matrix[2], matrix[3],
+                                                          matrix[4], matrix[5], matrix[6], matrix[7],
+                                                          matrix[8], matrix[9], matrix[10], matrix[11],
+                                                          matrix[12], matrix[13], matrix[14], matrix[15]
+                                                  });
+                instance_names.push_back(modelName + instanceName + instanceId);
+
+
+                SerilizedObjs cmdSend = {
+                        {"cmd",              std::string("drawARCommand")},
+                        {"project",          mProject},
+                        {"view",             mView},
+                        {"model_transforms", model_transforms_vector},
+                        {"instance_names",   instance_names}
+                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
+                };
+
+                app->postRemoteCall(this, frameDataPtr,
+                                    cmdSend); //发送set命令
+
+                model_transforms_vector.pop_back();
+                instance_names.pop_back();
+            }
+
+            if ((actionFrame * 3 + 3) == positionArray.size()) {
+                actionFrame = -1;
+                sceneData.actionLock.lock();
+                sceneData.actionPassage.clear();
+                positionArray.clear();
+                quaternionArray.clear();
+                sceneData.actionLock.unlock();
+            }
+        } else {
+            if(stepTime >= 0.033f){
+                stepTime -= 0.033f;
+                SerilizedObjs cmdSend = {
+                        {"cmd",              std::string("drawARCommand")},
+                        {"project",          mProject},
+                        {"view",             mView},
+//        {"state", false}, // 是否有位姿改变
+                        {"model_transforms", model_transforms_vector},
+                        {"instance_names",   instance_names}
+                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
+                };
+
+                app->postRemoteCall(this, frameDataPtr,
+                                    cmdSend); //发送set命令
+            }
+
         }
-    }
 //    else if(isHighLight[instanceName])
 //    {
 //        if(sceneData.actionLock.try_lock()){
@@ -207,46 +290,57 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 //            sceneData.actionLock.unlock();
 //        }
 //    }
-    SerilizedObjs cmdSend = {
-        {"cmd", std::string("drawARCommand")},
-        {"project", mProject},
-        {"view", mView}
-    };
 
-    app->postRemoteCall(this, frameDataPtr, cmdSend); //发送set命令，将图像的像素值设置为指定的值，并返回结果图像(参考TestServer.cpp中TestPro1Server类的实现)
-
-
-    mModel->render(project,view,model_trans_mat);
-    mGizmoPass->updateBoundingBOX(boundingBoxArray);
+        mModel->render(project, view, model_trans_mat);
+        mGizmoPass->updateBoundingBOX(boundingBoxArray);
 //    mGizmoPass->render(project, view);
-    mPbrPass->render(project, view, joc);
+        mPbrPass->render(project, view, joc);
 
-    wchar_t text[1024] = {0};
-    std::string fps_str = std::to_string(int(getFps()));
-    swprintf(text, 1024, L"fps:%s",  fps_str.c_str());
-    mTextRender->render(0.5,0.5, 1.0, text, wcslen(text), glm::vec3(0.0, 1.0, 0.0));
+        wchar_t text[1024] = {0};
+        std::string fps_str = std::to_string(int(getFps()));
+        swprintf(text, 1024, L"fps:%s", fps_str.c_str());
+        mTextRender->render(0.5, 0.5, 1.0, text, wcslen(text), glm::vec3(0.0, 1.0, 0.0));
 
-    updateFrameCount();
+//        updateFrameCount();
 //    auto testNum = getFps();
 //    testNum = getIndiceSum();
 //    testNum = getFps();
-    if(appData.environmentalState != environmentalState){
-        environmentalState = appData.environmentalState;
+        if (appData.environmentalState != environmentalState) {
+            environmentalState = appData.environmentalState;
 //        auto& passManager = RenderPassManager::getInstance();
 //        auto pbrPass = passManager.getPassAs<PbrPass>("pbr");
 //        pbrPass->setLightChange(true);
 
-        auto& passManager = RenderPassManager::getInstance();
-        auto equiPass = passManager.getPassAs<EquirectangularToCubemapPass>("equirectangularToCubemap");
-        equiPass->setEnvCubeMap(environmentalState);
+            auto &passManager = RenderPassManager::getInstance();
+            auto equiPass = passManager.getPassAs<EquirectangularToCubemapPass>(
+                    "equirectangularToCubemap");
+            equiPass->setEnvCubeMap(environmentalState);
 
-        auto irradiancePass = passManager.getPassAs<IrradiancePass>("irradiance");
-        irradiancePass->setIrradianceMap(environmentalState);
+            auto irradiancePass = passManager.getPassAs<IrradiancePass>("irradiance");
+            irradiancePass->setIrradianceMap(environmentalState);
 
-        auto prefilterPass = passManager.getPassAs<PrefilterPass>("prefilter");
-        prefilterPass->setPrefilterMap(environmentalState);
+            auto prefilterPass = passManager.getPassAs<PrefilterPass>("prefilter");
+            prefilterPass->setPrefilterMap(environmentalState);
+        }
     }
+    else{
+        fps++;
+        if(fps == 500){
 
+            SerilizedObjs cmdSend = {
+                    {"cmd", std::string("initARCloudRenderer")},
+                    {"width", 640},
+                    {"height", 480},
+                    {"upsample_scale", 2},
+                    {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
+                    {"model_transforms", model_transforms_vector},
+                    {"instance_names", instance_names},
+                    {"model_paths", model_paths}
+            };
+            app->postRemoteCall(this, frameDataPtr, cmdSend);
+        }
+    }
+    startTime = std::chrono::high_resolution_clock::now();
     return STATE_OK;
 }
 
@@ -256,6 +350,20 @@ int RenderClient::CollectRemoteProcs(SerilizedFrame& serilizedFrame, std::vector
 }
 
 int RenderClient::ProRemoteReturn(RemoteProcPtr proc) {
+    LOGI("init  done !!!");
+    auto& send = proc->send;
+    auto& ret = proc->ret;
+    auto cmd = send.getd<std::string>("cmd");
+
+    if (cmd == "initCloudRenderer") {
+        auto init_done = ret.getd<bool>("init_done");
+
+        if (init_done) {
+            LOGI("init  done !!!");
+
+            render_init_done = true;
+        }
+    }
     return STATE_OK;
 }
 
