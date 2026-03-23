@@ -8,6 +8,7 @@
 #include "App.h"
 
 #include <memory>
+#include <chrono>
 
 class RenderUpload: public ARModule {
 public:
@@ -26,6 +27,7 @@ public:
 
 private:
     int environmentalState;
+    std::chrono::steady_clock::time_point _lastUploadTime;
 };
 
-#endif 
+#endif

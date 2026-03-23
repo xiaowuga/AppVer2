@@ -42,7 +42,7 @@ namespace {
         modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
         modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
         modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
-        modules.push_back(createModule<RenderUpload>("RenderUpload"));
+        modules.push_back(createModule<RenderUpload>("Rendering"));
 //        modules.push_back(createModule<InteractionLogUpload>("InteractionLogUpload"));
         auto appData=std::make_shared<AppData>();
         auto sceneData=std::make_shared<SceneData>();

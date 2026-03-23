@@ -5,6 +5,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <thread>
+#include <chrono>
 
 #include <cstring>
 
@@ -14,6 +15,8 @@
 
 using namespace cv;
 using namespace std;
+
+static const double UPLOAD_INTERVAL = 1.0 / 30.0; // ~30fps
 
 
 int RenderUpload::Init(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) {
@@ -35,13 +38,44 @@ int RenderUpload::Init(AppData &appData, SceneData &sceneData, FrameDataPtr fram
 }
 
 int RenderUpload::Update(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) {
+    // 30fps throttle
+    auto now = std::chrono::steady_clock::now();
+    double elapsed = std::chrono::duration<double>(now - _lastUploadTime).count();
+    if (elapsed < UPLOAD_INTERVAL) {
+        return STATE_OK;
+    }
+    _lastUploadTime = now;
+
+    // build upload data: base models + animation data (if any)
+    std::vector<std::vector<double>> transforms;
+    std::vector<std::string> names;
+
+    {
+        std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
+        // copy base models
+        int baseCount = sceneData.baseModelCount;
+        transforms.assign(sceneData.model_transforms_vector.begin(),
+                          sceneData.model_transforms_vector.begin() + std::min(baseCount, (int)sceneData.model_transforms_vector.size()));
+        names.assign(sceneData.instance_names.begin(),
+                     sceneData.instance_names.begin() + std::min(baseCount, (int)sceneData.instance_names.size()));
+
+        // append animation data if available
+        if (sceneData.hasAnimationData && !sceneData.animation_transforms_buffer.empty()) {
+            transforms.insert(transforms.end(),
+                              sceneData.animation_transforms_buffer.begin(),
+                              sceneData.animation_transforms_buffer.end());
+            names.insert(names.end(),
+                         sceneData.animation_names_buffer.begin(),
+                         sceneData.animation_names_buffer.end());
+        }
+    }
+
     SerilizedObjs cmdSend = {
             {"cmd",              std::string("drawARCommand")},
             {"project",          sceneData.project},
             {"view",             sceneData.view},
-            {"model_transforms", sceneData.model_transforms_vector},
-            {"instance_names",   sceneData.instance_names}
-            //TODO: 动画的具体instance有特殊格式，需要代码加一下
+            {"model_transforms", transforms},
+            {"instance_names",   names}
     };
 
     app->postRemoteCall(this, frameDataPtr,
@@ -64,8 +98,7 @@ int RenderUpload::ProRemoteReturn(RemoteProcPtr proc) {
     auto& send = proc->send;
     auto& ret = proc->ret;
     auto cmd = send.getd<std::string>("cmd");
-    if (cmd == "RenderUploadGlass") {
-        environmentalState = ret.getd<int>("environmentalState", 0);
+    if (cmd == "initARCloudRenderer") {
 //        LOGI()
     }
     return STATE_OK;

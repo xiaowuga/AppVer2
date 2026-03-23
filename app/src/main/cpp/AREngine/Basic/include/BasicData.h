@@ -511,6 +511,14 @@ public:
     std::vector<double> view;
     // end
 
+    // lock for cross-thread access to model_transforms_vector / instance_names
+    std::mutex renderUploadLock;
+    int baseModelCount = 0; // number of base models (set at init, animation data appends after these)
+    bool hasAnimationData = false; // flag: new animation data available for RenderUpload
+    std::vector<std::vector<double>> animation_transforms_buffer;
+    std::vector<std::string> animation_names_buffer;
+    // end animation
+
     std::vector<std::shared_ptr<CollisionDetectionPair>> collisionPairs;
 
     std::vector<FrameData> frameBuffer;

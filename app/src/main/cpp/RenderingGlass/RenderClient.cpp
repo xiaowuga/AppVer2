@@ -45,6 +45,8 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
         instance_names.push_back(scene_virtualObjects[i]->name);
     }
 
+    sceneData.baseModelCount = (int)scene_virtualObjects.size();
+
 //    SerilizedObjs cmdSend = {
 //            {"cmd", std::string("initARCloudRenderer")},
 //            {"width", 640},
@@ -125,7 +127,7 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 
 int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
     LOGI("RenderClient update");
-    if(render_init_done) {
+    if(sceneData.render_init_done) {
 
         glm::mat4 mProject = project;
         glm::mat4 mView = view;
@@ -229,29 +231,22 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 
             if(stepTime >= 0.033f){
                 stepTime -= 0.033f;
-                model_transforms_vector.push_back({
-                                                          matrix[0], matrix[1], matrix[2], matrix[3],
-                                                          matrix[4], matrix[5], matrix[6], matrix[7],
-                                                          matrix[8], matrix[9], matrix[10], matrix[11],
-                                                          matrix[12], matrix[13], matrix[14], matrix[15]
-                                                  });
-                instance_names.push_back(modelName + instanceName + instanceId);
 
+                // push animation data to sceneData for RenderUpload (cross-thread safe)
+                std::vector<double> animTransform = {
+                        matrix[0], matrix[1], matrix[2], matrix[3],
+                        matrix[4], matrix[5], matrix[6], matrix[7],
+                        matrix[8], matrix[9], matrix[10], matrix[11],
+                        matrix[12], matrix[13], matrix[14], matrix[15]
+                };
+                std::string animName = modelName + instanceName + instanceId;
 
-//                SerilizedObjs cmdSend = {
-//                        {"cmd",              std::string("drawARCommand")},
-//                        {"project",          mProject},
-//                        {"view",             mView},
-//                        {"model_transforms", model_transforms_vector},
-//                        {"instance_names",   instance_names}
-//                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
-//                };
-//
-//                app->postRemoteCall(this, frameDataPtr,
-//                                    cmdSend); //发送set命令
-
-                model_transforms_vector.pop_back();
-                instance_names.pop_back();
+                {
+                    std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
+                    sceneData.animation_transforms_buffer.push_back(animTransform);
+                    sceneData.animation_names_buffer.push_back(animName);
+                    sceneData.hasAnimationData = true;
+                }
             }
 
             if ((actionFrame * 3 + 3) == positionArray.size()) {
@@ -261,6 +256,14 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
                 positionArray.clear();
                 quaternionArray.clear();
                 sceneData.actionLock.unlock();
+
+                // animation ended, clear animation buffer in sceneData
+                {
+                    std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
+                    sceneData.animation_transforms_buffer.clear();
+                    sceneData.animation_names_buffer.clear();
+                    sceneData.hasAnimationData = false;
+                }
             }
         } else {
             if(stepTime >= 0.033f){
