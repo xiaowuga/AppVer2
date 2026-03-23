@@ -225,6 +225,7 @@ target_link_libraries(openxr_demo
         CameraTracking
         InteractionLogUpload
         HDRSwitch
+        RenderUpload
         #**************************************************endof add Engine
 )
 

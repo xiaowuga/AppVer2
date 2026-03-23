@@ -45,17 +45,17 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
         instance_names.push_back(scene_virtualObjects[i]->name);
     }
 
-    SerilizedObjs cmdSend = {
-            {"cmd", std::string("initARCloudRenderer")},
-            {"width", 640},
-            {"height", 480},
-            {"upsample_scale", 2},
-            {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
-            {"model_transforms", model_transforms_vector},
-            {"instance_names", instance_names},
-            {"model_paths", model_paths}
-    };
-    app->postRemoteCall(this, nullptr, cmdSend);
+//    SerilizedObjs cmdSend = {
+//            {"cmd", std::string("initARCloudRenderer")},
+//            {"width", 640},
+//            {"height", 480},
+//            {"upsample_scale", 2},
+//            {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
+//            {"model_transforms", model_transforms_vector},
+//            {"instance_names", instance_names},
+//            {"model_paths", model_paths}
+//    };
+//    app->postRemoteCall(this, nullptr, cmdSend);
 
     //加载模型的动画数据：Action + State
     cadDataManager::DataInterface::loadAnimationActionData(appData.animationActionConfigFile);
@@ -238,17 +238,17 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
                 instance_names.push_back(modelName + instanceName + instanceId);
 
 
-                SerilizedObjs cmdSend = {
-                        {"cmd",              std::string("drawARCommand")},
-                        {"project",          mProject},
-                        {"view",             mView},
-                        {"model_transforms", model_transforms_vector},
-                        {"instance_names",   instance_names}
-                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
-                };
-
-                app->postRemoteCall(this, frameDataPtr,
-                                    cmdSend); //发送set命令
+//                SerilizedObjs cmdSend = {
+//                        {"cmd",              std::string("drawARCommand")},
+//                        {"project",          mProject},
+//                        {"view",             mView},
+//                        {"model_transforms", model_transforms_vector},
+//                        {"instance_names",   instance_names}
+//                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
+//                };
+//
+//                app->postRemoteCall(this, frameDataPtr,
+//                                    cmdSend); //发送set命令
 
                 model_transforms_vector.pop_back();
                 instance_names.pop_back();
@@ -265,18 +265,18 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
         } else {
             if(stepTime >= 0.033f){
                 stepTime -= 0.033f;
-                SerilizedObjs cmdSend = {
-                        {"cmd",              std::string("drawARCommand")},
-                        {"project",          mProject},
-                        {"view",             mView},
-//        {"state", false}, // 是否有位姿改变
-                        {"model_transforms", model_transforms_vector},
-                        {"instance_names",   instance_names}
-                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
-                };
-
-                app->postRemoteCall(this, frameDataPtr,
-                                    cmdSend); //发送set命令
+//                SerilizedObjs cmdSend = {
+//                        {"cmd",              std::string("drawARCommand")},
+//                        {"project",          mProject},
+//                        {"view",             mView},
+////        {"state", false}, // 是否有位姿改变
+//                        {"model_transforms", model_transforms_vector},
+//                        {"instance_names",   instance_names}
+//                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
+//                };
+//
+//                app->postRemoteCall(this, frameDataPtr,
+//                                    cmdSend); //发送set命令
             }
 
         }
@@ -327,17 +327,17 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
         fps++;
         if(fps == 500){
 
-            SerilizedObjs cmdSend = {
-                    {"cmd", std::string("initARCloudRenderer")},
-                    {"width", 640},
-                    {"height", 480},
-                    {"upsample_scale", 2},
-                    {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
-                    {"model_transforms", model_transforms_vector},
-                    {"instance_names", instance_names},
-                    {"model_paths", model_paths}
-            };
-            app->postRemoteCall(this, frameDataPtr, cmdSend);
+//            SerilizedObjs cmdSend = {
+//                    {"cmd", std::string("initARCloudRenderer")},
+//                    {"width", 640},
+//                    {"height", 480},
+//                    {"upsample_scale", 2},
+//                    {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
+//                    {"model_transforms", model_transforms_vector},
+//                    {"instance_names", instance_names},
+//                    {"model_paths", model_paths}
+//            };
+//            app->postRemoteCall(this, frameDataPtr, cmdSend);
         }
     }
     startTime = std::chrono::high_resolution_clock::now();

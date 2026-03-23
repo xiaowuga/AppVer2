@@ -501,6 +501,16 @@ public:
     bool is_start = true;
     // end
 
+    // add renderupload data
+    std::vector<std::vector<double>> model_transforms_vector;
+    std::vector<std::string> instance_names;
+    std::vector<std::string> model_paths;
+    bool render_init_done = false;
+
+    std::vector<double> project;
+    std::vector<double> view;
+    // end
+
     std::vector<std::shared_ptr<CollisionDetectionPair>> collisionPairs;
 
     std::vector<FrameData> frameBuffer;

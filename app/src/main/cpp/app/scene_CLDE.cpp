@@ -21,6 +21,7 @@
 #include "MyCollisionHandlers.h"
 #include "InteractionLogUpload.h"
 #include "HDRSwitch.h"
+#include "RenderUpload.h"
 
 #include "RenderingGlass/RenderClient.h"
 
@@ -41,6 +42,7 @@ namespace {
         modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
         modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
         modules.push_back(createModule<AnimationPlayer>("AnimationPlayer"));
+        modules.push_back(createModule<RenderUpload>("RenderUpload"));
 //        modules.push_back(createModule<InteractionLogUpload>("InteractionLogUpload"));
         auto appData=std::make_shared<AppData>();
         auto sceneData=std::make_shared<SceneData>();
@@ -85,6 +87,15 @@ namespace {
             ptr->initTransform.setPose(cv::Matx44f::eye());
             cadDataManager::DataInterface::parseLocalModel( model_name + ".fb", mesh_file_path);
             sceneData->setObject(model_name, ptr);
+
+            sceneData->model_transforms_vector.push_back({
+                                                      1,0,0,0,
+                                                      0,1,0,0,
+                                                      0,0,1,0,
+                                                      0,0,0,1
+                                              });
+            sceneData->model_paths.push_back(mesh_file_path);
+            sceneData->instance_names.push_back(model_name);
         }
 
         std::vector<float> matrixModify = { -0.049222, 0.998740, 0.009768, 0.000000,
@@ -114,7 +125,7 @@ namespace {
 
             auto frameData = _eng->frameData;
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
-//            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
+            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
                 _eng->connectServer("192.168.1.102", 1203);
             _eng->start();
 
@@ -143,6 +154,16 @@ namespace {
                     Rendering->project = project;
                     Rendering->view =  view * glm::inverse(alignTrans); //位姿对齐矩阵的逆是视图对齐矩阵
                     Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
+
+                    _eng->sceneData->project.clear();
+                    _eng->sceneData->view.clear();
+
+                    for(int i = 0; i < 4; i++){
+                        for(int j = 0; j < 4; j++){
+                            _eng->sceneData->project.push_back(Rendering->project[i][j]);
+                            _eng->sceneData->view.push_back(Rendering->view[i][j]);
+                        }
+                    }
                 }
 
             }

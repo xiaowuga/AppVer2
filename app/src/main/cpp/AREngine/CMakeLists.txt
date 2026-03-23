@@ -9,4 +9,5 @@ add_subdirectory(HDRSwitch)
 add_subdirectory(PoseEstimationRokid)
 add_subdirectory(InteractiveUnderstanding)
 add_subdirectory(InteractionLogUpload)
+add_subdirectory(RenderUpload)
 
