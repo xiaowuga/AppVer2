@@ -16,16 +16,16 @@
 using namespace cv;
 using namespace std;
 
-static const double UPLOAD_INTERVAL = 1.0 / 30.0; // ~30fps
+static const double UPLOAD_INTERVAL = 1.0 / 5.0; // ~5fps
 
 
 int RenderUpload::Init(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) {
     LOGI("RenderUpload init");
     SerilizedObjs cmdSend = {
             {"cmd", std::string("initARCloudRenderer")},
-            {"width", 640},
-            {"height", 480},
-            {"upsample_scale", 2},
+            {"width", (int)640},
+            {"height", (int)480},
+            {"upsample_scale", (double)2},
             {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
             {"model_transforms", sceneData.model_transforms_vector},
             {"instance_names", sceneData.instance_names},
@@ -55,19 +55,58 @@ int RenderUpload::Update(AppData &appData, SceneData &sceneData, FrameDataPtr fr
         // copy base models
         int baseCount = sceneData.baseModelCount;
         transforms.assign(sceneData.model_transforms_vector.begin(),
+//                          sceneData.model_transforms_vector.end());
                           sceneData.model_transforms_vector.begin() + std::min(baseCount, (int)sceneData.model_transforms_vector.size()));
         names.assign(sceneData.instance_names.begin(),
-                     sceneData.instance_names.begin() + std::min(baseCount, (int)sceneData.instance_names.size()));
+//                          sceneData.instance_names.end());
+                        sceneData.instance_names.begin() + std::min(baseCount, (int)sceneData.instance_names.size()));
 
         // append animation data if available
         if (sceneData.hasAnimationData && !sceneData.animation_transforms_buffer.empty()) {
+            LOGI("Before Update Animation %zu", names.size());
             transforms.insert(transforms.end(),
                               sceneData.animation_transforms_buffer.begin(),
                               sceneData.animation_transforms_buffer.end());
             names.insert(names.end(),
                          sceneData.animation_names_buffer.begin(),
                          sceneData.animation_names_buffer.end());
+            LOGI("Update Animation %zu", names.size());
         }
+
+        // append joc data
+        {
+            LOGI("Before Update Joc %zu", names.size());
+            transforms.insert(transforms.end(),
+                              sceneData.joc_array.begin(),
+                              sceneData.joc_array.end());
+            names.insert(names.end(),
+                         sceneData.joc_names.begin(),
+                         sceneData.joc_names.end());
+            LOGI("Update Joc %zu", names.size());
+        }
+
+        // 仪表盘
+        if(notYBP && !sceneData.ybp_array.empty())
+        {
+            notYBP = false;
+//            transforms.push_back({-0.049222, 0.998740, 0.009768, 0.000000,
+//                                                          0.956004, 0.044280, 0.289991, 0.000000,
+//                                                          0.289193, 0.023612, -0.956979, 0.000000,
+//                                                          0.0, 0.0, 1510.213, 1.000000
+//                                                         });
+//            names.push_back("YIBIAOPAN52");
+
+            LOGI("Before Update YBP %zu", names.size());
+            transforms.insert(transforms.end(),
+                              sceneData.ybp_array.begin(),
+                              sceneData.ybp_array.end());
+            names.insert(names.end(),
+                         sceneData.ybp_names.begin(),
+                         sceneData.ybp_names.end());
+            LOGI("Update YBP %zu", names.size());
+
+        }
+
     }
 
     SerilizedObjs cmdSend = {

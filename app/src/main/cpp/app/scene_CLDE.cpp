@@ -24,6 +24,9 @@
 #include "RenderUpload.h"
 
 #include "RenderingGlass/RenderClient.h"
+#include <android/log.h>
+#define LOG_TAG "scene_CLDE.cpp"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
 namespace {
@@ -89,13 +92,24 @@ namespace {
             sceneData->setObject(model_name, ptr);
 
             sceneData->model_transforms_vector.push_back({
-                                                      1,0,0,0,
-                                                      0,1,0,0,
-                                                      0,0,1,0,
-                                                      0,0,0,1
+                                                      0.001,0,0,0,
+                                                      0,0.001,0,0,
+                                                      0,0,0.001,0,
+                                                      0,0,0,    1
                                               });
-            sceneData->model_paths.push_back(mesh_file_path);
+            sceneData->model_paths.push_back("../data/GlassesModels/" + model_name + ".fb");
             sceneData->instance_names.push_back(model_name);
+        }
+
+        for(int i = 0; i < 42; i++){
+            sceneData->model_transforms_vector.push_back({
+                                                                 0.001,0,0,0,
+                                                                 0,0.001,0,0,
+                                                                 0,0,0.001,0,
+                                                                 0,0,0,    1
+                                                         });
+            sceneData->model_paths.push_back("../data/GlassesModels/sphere.obj");
+            sceneData->instance_names.push_back("joc"+std::to_string(i));
         }
 
         std::vector<float> matrixModify = { -0.049222, 0.998740, 0.009768, 0.000000,
@@ -125,7 +139,7 @@ namespace {
 
             auto frameData = _eng->frameData;
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
-            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
+//            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
                 _eng->connectServer("192.168.1.102", 1203);
             _eng->start();
 
@@ -142,6 +156,36 @@ namespace {
                 if(poseEstimationRokidPtr != nullptr) {
                     std::vector<glm::mat4> &joc = poseEstimationRokidPtr->get_joint_loc();
                     Rendering->joc = joc;
+
+                    _eng->sceneData->joc_array.clear();
+                    _eng->sceneData->joc_names.clear();
+
+                    int i = 0;
+                    // 遍历每个 glm::mat4
+                    for (const auto& mat : joc) {
+//                        glm::mat4 scaled_mat = glm::scale(mat,glm::vec3(0.001f));
+//                        glm::mat4 scaled_mat = mat * glm::mat4 {
+//                                                             0.001,0,0,0,
+//                                                             0,0.001,0,0,
+//                                                             0,0,0.001,0,
+//                                                             0,0,0,    1
+//                                                     };
+                        // 每个 mat4 转成 16 个 double 的数组
+                        std::vector<double> mat_array;
+                        mat_array.reserve(16); // 预分配空间
+
+                        // 行优先
+                        for (int row = 0; row < 4; ++row) {
+                            for (int col = 0; col < 4; ++col) {
+                                mat_array.push_back(static_cast<double>(mat[row][col]));
+                            }
+                        }
+
+                        // 加入到 joc_array
+                        _eng->sceneData->joc_array.push_back(std::move(mat_array));
+                        _eng->sceneData->joc_names.push_back("joc"+std::to_string(i));
+                        i++;
+                    }
                 }
                 std::shared_ptr<CollisionDetection> collisionDetectionPtr = std::static_pointer_cast<CollisionDetection>(_eng->getModule("CollisionDetection"));
                 if(collisionDetectionPtr != nullptr) {
@@ -153,17 +197,20 @@ namespace {
                     glm::mat4 alignTrans = frameDataPtr->alignTrans;
                     Rendering->project = project;
                     Rendering->view =  view * glm::inverse(alignTrans); //位姿对齐矩阵的逆是视图对齐矩阵
-                    Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
 
                     _eng->sceneData->project.clear();
                     _eng->sceneData->view.clear();
-
                     for(int i = 0; i < 4; i++){
                         for(int j = 0; j < 4; j++){
                             _eng->sceneData->project.push_back(Rendering->project[i][j]);
                             _eng->sceneData->view.push_back(Rendering->view[i][j]);
                         }
+//                        LOGI("%f, %f, %f, %f", Rendering->view[i][0], Rendering->view[i][1],Rendering->view[i][2], Rendering->view[i][3]);
                     }
+
+                    Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);
+
+
                 }
 
             }

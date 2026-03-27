@@ -170,7 +170,6 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
 
     mShader.setUniformVec3("lightPos", lightPos);
     mShader.setUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-//TODO: gyp: 要加上缩放
     // wall
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, wallAlbedoMap);
@@ -256,7 +255,6 @@ void PbrPass::render(const glm::mat4& p, const glm::mat4& v, const std::vector<g
     sphereShader.setUniformMat4("projection", p);
     sphereShader.setUniformMat4("view", v);
 
-//TODO: gyp: 要加上缩放
     for(size_t i = 0; i < m.size(); i++){
         glm::mat4 model = glm::scale(m[0],glm::vec3 (1.0f));
         model = m[i];

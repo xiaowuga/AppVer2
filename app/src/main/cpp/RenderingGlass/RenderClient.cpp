@@ -126,8 +126,40 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 }
 
 int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr frameDataPtr) {
-    LOGI("RenderClient update");
+//    LOGI("RenderClient update");
     if(sceneData.render_init_done) {
+
+
+        // ===== 仪表盘 instance 筛选（仅执行一次）=====
+        static bool dashboard_instances_collected = false;
+        if (!dashboard_instances_collected) {
+            dashboard_instances_collected = true;
+
+
+            cadDataManager::DataInterface::setActiveDocumentData("YIBIAOPAN");
+            auto MapInfo = cadDataManager::DataInterface::getRenderInfoMap();
+
+            for (auto it = MapInfo.begin(); it != MapInfo.end(); ++it) {
+                auto& renderInfos = it->second;
+                for (auto& renderInfo : renderInfos) {
+                    auto& instance_ids = renderInfo.instanceIds;
+                    auto& mat = renderInfo.matrix;
+
+                    for (size_t m_i = 0; m_i < mat.size() / 16; m_i++) {
+                        std::string instance_id = instance_ids[m_i];
+
+                        // 筛选 ID 以 "52" 开头的 instance
+                        if (instance_id.rfind("52", 0) == 0) {
+                            std::vector<double> matrix_16(mat.begin() + m_i * 16, mat.begin() + m_i * 16 + 16);
+
+                            sceneData.ybp_names.push_back("YIBIAOPAN"+instance_id);
+                            sceneData.ybp_array.push_back(matrix_16);
+                        }
+                    }
+                }
+            }
+
+        }
 
         glm::mat4 mProject = project;
         glm::mat4 mView = view;
@@ -229,25 +261,50 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 
             mModel->processMeshData(modifyModel);
 
-            if(stepTime >= 0.033f){
-                stepTime -= 0.033f;
 
-                // push animation data to sceneData for RenderUpload (cross-thread safe)
-                std::vector<double> animTransform = {
-                        matrix[0], matrix[1], matrix[2], matrix[3],
-                        matrix[4], matrix[5], matrix[6], matrix[7],
-                        matrix[8], matrix[9], matrix[10], matrix[11],
-                        matrix[12], matrix[13], matrix[14], matrix[15]
-                };
-                std::string animName = modelName + instanceName + instanceId;
+            cadDataManager::DataInterface::setActiveDocumentData(modelName);
+            auto MapInfo = cadDataManager::DataInterface::getRenderInfoMap();
 
-                {
-                    std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
-                    sceneData.animation_transforms_buffer.push_back(animTransform);
-                    sceneData.animation_names_buffer.push_back(animName);
-                    sceneData.hasAnimationData = true;
+            for (auto it = MapInfo.begin(); it != MapInfo.end(); ++it) {
+                std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
+                auto& renderInfos = it->second;
+                for (auto& renderInfo : renderInfos) {
+                    auto& instance_ids = renderInfo.instanceIds;
+                    auto& mat = renderInfo.matrix;
+
+                    for (size_t m_i = 0; m_i < mat.size() / 16; m_i++) {
+                        std::string temp_instance_id = instance_ids[m_i];
+
+                        // 筛选 instanceId
+                        if (temp_instance_id == instanceId) {
+                            std::vector<double> matrix_16(mat.begin() + m_i * 16, mat.begin() + m_i * 16 + 16);
+
+                            sceneData.animation_names_buffer.push_back(modelName+instanceId);
+                            sceneData.animation_transforms_buffer.push_back(matrix_16);
+                        }
+                    }
                 }
+                sceneData.hasAnimationData = true;
             }
+
+
+
+
+            // push animation data to sceneData for RenderUpload (cross-thread safe)
+//            std::vector<double> animTransform = {
+//                    matrix[0], matrix[1], matrix[2], matrix[3],
+//                    matrix[4], matrix[5], matrix[6], matrix[7],
+//                    matrix[8], matrix[9], matrix[10], matrix[11],
+//                    matrix[12], matrix[13], matrix[14], matrix[15]
+//            };
+//            std::string animName = modelName + instanceId;
+//
+//            {
+//                std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
+//                sceneData.animation_transforms_buffer.push_back(animTransform);
+//                sceneData.animation_names_buffer.push_back(animName);
+//                sceneData.hasAnimationData = true;
+//            }
 
             if ((actionFrame * 3 + 3) == positionArray.size()) {
                 actionFrame = -1;
@@ -265,34 +322,7 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
                     sceneData.hasAnimationData = false;
                 }
             }
-        } else {
-            if(stepTime >= 0.033f){
-                stepTime -= 0.033f;
-//                SerilizedObjs cmdSend = {
-//                        {"cmd",              std::string("drawARCommand")},
-//                        {"project",          mProject},
-//                        {"view",             mView},
-////        {"state", false}, // 是否有位姿改变
-//                        {"model_transforms", model_transforms_vector},
-//                        {"instance_names",   instance_names}
-//                        //TODO: 动画的具体instance有特殊格式，需要代码加一下
-//                };
-//
-//                app->postRemoteCall(this, frameDataPtr,
-//                                    cmdSend); //发送set命令
-            }
-
         }
-//    else if(isHighLight[instanceName])
-//    {
-//        if(sceneData.actionLock.try_lock()){
-//            actionFrame = -1;
-//            sceneData.actionPassage.clear();
-//            positionArray.clear();
-//            quaternionArray.clear();
-//            sceneData.actionLock.unlock();
-//        }
-//    }
 
         mModel->render(project, view, model_trans_mat);
         mGizmoPass->updateBoundingBOX(boundingBoxArray);
@@ -324,23 +354,6 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 
             auto prefilterPass = passManager.getPassAs<PrefilterPass>("prefilter");
             prefilterPass->setPrefilterMap(environmentalState);
-        }
-    }
-    else{
-        fps++;
-        if(fps == 500){
-
-//            SerilizedObjs cmdSend = {
-//                    {"cmd", std::string("initARCloudRenderer")},
-//                    {"width", 640},
-//                    {"height", 480},
-//                    {"upsample_scale", 2},
-//                    {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
-//                    {"model_transforms", model_transforms_vector},
-//                    {"instance_names", instance_names},
-//                    {"model_paths", model_paths}
-//            };
-//            app->postRemoteCall(this, frameDataPtr, cmdSend);
         }
     }
     startTime = std::chrono::high_resolution_clock::now();

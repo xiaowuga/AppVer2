@@ -507,8 +507,18 @@ public:
     std::vector<std::string> model_paths;
     bool render_init_done = false;
 
-    std::vector<double> project;
-    std::vector<double> view;
+    std::vector<double> project = {
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1
+    };
+    std::vector<double> view = {
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1
+    };
     // end
 
     // lock for cross-thread access to model_transforms_vector / instance_names
@@ -517,6 +527,10 @@ public:
     bool hasAnimationData = false; // flag: new animation data available for RenderUpload
     std::vector<std::vector<double>> animation_transforms_buffer;
     std::vector<std::string> animation_names_buffer;
+    std::vector<std::vector<double>> joc_array;
+    std::vector<std::string> joc_names;
+    std::vector<std::vector<double>> ybp_array;
+    std::vector<std::string> ybp_names;
     // end animation
 
     std::vector<std::shared_ptr<CollisionDetectionPair>> collisionPairs;

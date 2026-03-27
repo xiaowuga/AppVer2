@@ -26,7 +26,7 @@ public:
 
 
 private:
-    int environmentalState;
+    bool notYBP = true;
     std::chrono::steady_clock::time_point _lastUploadTime;
 };
 
