@@ -409,127 +409,491 @@ void renderModel::processMeshData(std::unordered_map<std::string, std::vector<ca
 
             std::string testcolor = color.substr(1);
             pbrMaterial pbrMaterial;
-            if(testcolor == "000000")
             {
-                // black specular button
-                pbrMaterial.albedoValue = {0.0f, 0.0f, 0.0f};
-                pbrMaterial.useAlbedoMap = false;
-                pbrMaterial.albedoMapId = 0;
+                if(testcolor == "FABE47")
+                {
+                    pbrMaterial.albedoValue = {1.000f, 0.736f, 0.033f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
-                pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
-                pbrMaterial.useNormalMap = false;
-                pbrMaterial.normalMapId = 0;
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-                pbrMaterial.metallicValue = 0.392f;
-                pbrMaterial.useMetallicMap = false;
-                pbrMaterial.metallicMapId = 0;
+                    pbrMaterial.metallicValue = 0.995f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-                pbrMaterial.roughnessValue = 0.651f;
-                pbrMaterial.useRoughnessMap = false;
-                pbrMaterial.roughnessMapId = 0;
+                    pbrMaterial.roughnessValue = 0.366f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-                pbrMaterial.aoValue = 1.0f;
-                pbrMaterial.useAoMap = false;
-                pbrMaterial.aoMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "D3B27D")
+                {
+                    pbrMaterial.albedoValue = {0.422f, 0.491f, 0.033f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-            }
-            else if(testcolor == "333333")
-            {
-                // diffuse gray board
-                pbrMaterial.albedoValue = {0.176f, 0.2f, 0.151f};
-                pbrMaterial.useAlbedoMap = false;
-                pbrMaterial.albedoMapId = 0;
+                    pbrMaterial.metallicValue = 0.972f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-                pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
-                pbrMaterial.useNormalMap = false;
-                pbrMaterial.normalMapId = 0;
+                    pbrMaterial.roughnessValue = 0.522f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-                pbrMaterial.metallicValue = 0.909f;
-                pbrMaterial.useMetallicMap = false;
-                pbrMaterial.metallicMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "000000")
+                {
+                    pbrMaterial.albedoValue = {0.000f, 0.000f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
-                pbrMaterial.roughnessValue = 0.899f;
-                pbrMaterial.useRoughnessMap = false;
-                pbrMaterial.roughnessMapId = 0;
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-                pbrMaterial.aoValue = 1.0f;
-                pbrMaterial.useAoMap = false;
-                pbrMaterial.aoMapId = 0;
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-            }
-            else if(testcolor == "BBBBBB")
-            {
-                // diffuse gray board
-                pbrMaterial.albedoValue = {0.176f, 0.2f, 0.151f};
-                pbrMaterial.useAlbedoMap = false;
-                pbrMaterial.albedoMapId = 0;
+                    pbrMaterial.roughnessValue = 0.176f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-                pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
-                pbrMaterial.useNormalMap = false;
-                pbrMaterial.normalMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "FF0000")
+                {
+                    pbrMaterial.albedoValue = {0.649f, 0.000f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
-                pbrMaterial.metallicValue = 0.909f;
-                pbrMaterial.useMetallicMap = false;
-                pbrMaterial.metallicMapId = 0;
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-                pbrMaterial.roughnessValue = 0.899f;
-                pbrMaterial.useRoughnessMap = false;
-                pbrMaterial.roughnessMapId = 0;
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-                pbrMaterial.aoValue = 1.0f;
-                pbrMaterial.useAoMap = false;
-                pbrMaterial.aoMapId = 0;
+                    pbrMaterial.roughnessValue = 0.735f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-            }
-            else if(testcolor == "FF0000")
-            {
-                //plastic red board
-                pbrMaterial.albedoValue = {0.780f, 0.013f, 0.013f};
-                pbrMaterial.useAlbedoMap = false;
-                pbrMaterial.albedoMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "333333")
+                {
+                    pbrMaterial.albedoValue = {0.035f, 0.035f, 0.035f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
-                pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
-                pbrMaterial.useNormalMap = false;
-                pbrMaterial.normalMapId = 0;
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-                pbrMaterial.metallicValue = 0.384f;
-                pbrMaterial.useMetallicMap = false;
-                pbrMaterial.metallicMapId = 0;
+                    pbrMaterial.metallicValue = 0.687f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-                pbrMaterial.roughnessValue = 0.273f;
-                pbrMaterial.useRoughnessMap = false;
-                pbrMaterial.roughnessMapId = 0;
+                    pbrMaterial.roughnessValue = 0.983f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-                pbrMaterial.aoValue = 1.0f;
-                pbrMaterial.useAoMap = false;
-                pbrMaterial.aoMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "BBBBBB")
+                {
+                    pbrMaterial.albedoValue = {0.035f, 0.035f, 0.035f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-            }
-            else
-            {
-                // yellow words and lines
-                pbrMaterial.albedoValue = {0.160f, 0.072f, 0.003f};
-                pbrMaterial.useAlbedoMap = false;
-                pbrMaterial.albedoMapId = 0;
+                    pbrMaterial.metallicValue = 0.687f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
-                pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
-                pbrMaterial.useNormalMap = false;
-                pbrMaterial.normalMapId = 0;
+                    pbrMaterial.roughnessValue = 0.983f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
 
-                pbrMaterial.metallicValue = 0.124f;
-                pbrMaterial.useMetallicMap = false;
-                pbrMaterial.metallicMapId = 0;
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "333300")
+                {
+                    pbrMaterial.albedoValue = {0.200f, 0.200f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
 
-                pbrMaterial.roughnessValue = 0.963f;
-                pbrMaterial.useRoughnessMap = false;
-                pbrMaterial.roughnessMapId = 0;
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
 
-                pbrMaterial.aoValue = 1.0f;
-                pbrMaterial.useAoMap = false;
-                pbrMaterial.aoMapId = 0;
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
 
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "8F8C80")
+                {
+                    pbrMaterial.albedoValue = {0.140f, 0.146f, 0.151f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.995f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.437f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "F6B983")
+                {
+                    pbrMaterial.albedoValue = {0.158f, 0.147f, 0.163f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.972f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.579f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "595959")
+                {
+                    pbrMaterial.albedoValue = {0.349f, 0.349f, 0.349f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.972f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "B40000")
+                {
+                    pbrMaterial.albedoValue = {0.706f, 0.000f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "D2D2FF")
+                {
+                    pbrMaterial.albedoValue = {0.824f, 0.824f, 1.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.900f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.911f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "332D13")
+                {
+                    pbrMaterial.albedoValue = {0.428f, 0.317f, 0.145f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.995f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.721f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "9993BF")
+                {
+                    pbrMaterial.albedoValue = {0.600f, 0.576f, 0.749f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "C4B3D1")
+                {
+                    pbrMaterial.albedoValue = {0.769f, 0.702f, 0.820f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "FFFF00")
+                {
+                    pbrMaterial.albedoValue = {1.000f, 1.000f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "DCC81B")
+                {
+                    pbrMaterial.albedoValue = {0.863f, 0.784f, 0.106f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "0000CC")
+                {
+                    pbrMaterial.albedoValue = {0.000f, 0.000f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.000f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "FFCC66")
+                {
+                    pbrMaterial.albedoValue = {0.140f, 0.133f, 0.137f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 1.020f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.450f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "FFFFFF")
+                {
+                    pbrMaterial.albedoValue = {0.140f, 0.123f, 0.158f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.995f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.626f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else if(testcolor == "FF8000")
+                {
+                    pbrMaterial.albedoValue = {1.000f, 0.502f, 0.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 0.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 0.200f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
+                else
+                {
+                    pbrMaterial.albedoValue = {1.000f, 1.000f, 1.000f};
+                    pbrMaterial.useAlbedoMap = false;
+                    pbrMaterial.albedoMapId = 0;
+
+                    pbrMaterial.normalValue = {0.0f, 0.0f, 1.0f};
+                    pbrMaterial.useNormalMap = false;
+                    pbrMaterial.normalMapId = 0;
+
+                    pbrMaterial.metallicValue = 1.000f;
+                    pbrMaterial.useMetallicMap = false;
+                    pbrMaterial.metallicMapId = 0;
+
+                    pbrMaterial.roughnessValue = 1.024f;
+                    pbrMaterial.useRoughnessMap = false;
+                    pbrMaterial.roughnessMapId = 0;
+
+                    pbrMaterial.aoValue = 1.0f;
+                    pbrMaterial.useAoMap = false;
+                    pbrMaterial.aoMapId = 0;
+                }
 
             }
 

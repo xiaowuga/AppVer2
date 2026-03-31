@@ -35,7 +35,8 @@ void main()
     mat3 normalMatrix1 = transpose(inverse(mat3(finalModel)));
     //mat3 normalMatrix1 = transpose(inverse(mat3(view * finalModel)));
 
-    Normal = normalMatrix1 * aNormal;
+    Normal = normalize(normalMatrix1 * aNormal);
+    //Normal = aNormal;
     //shadow mapping use
     FragPosLightSpace = lightSpaceMatrix * vec4(WorldPos, 1.0);
     gl_Position =  projection * view * vec4(WorldPos, 1.0);

@@ -16,7 +16,7 @@
 using namespace cv;
 using namespace std;
 
-static const double UPLOAD_INTERVAL = 1.0 / 5.0; // ~5fps
+static const double UPLOAD_INTERVAL = 1.0 / 100.0; // ~5fps
 
 
 int RenderUpload::Init(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) {
@@ -45,6 +45,10 @@ int RenderUpload::Update(AppData &appData, SceneData &sceneData, FrameDataPtr fr
         return STATE_OK;
     }
     _lastUploadTime = now;
+
+    if(sceneData.project.empty() || sceneData.view.empty()){
+        return STATE_OK;
+    }
 
     // build upload data: base models + animation data (if any)
     std::vector<std::vector<double>> transforms;

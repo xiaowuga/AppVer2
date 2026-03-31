@@ -40,7 +40,7 @@ namespace {
         modules.push_back(createModule<CameraTracking>("CameraTracking"));
         modules.push_back(createModule<Location>("Location"));
 
-        modules.push_back(createModule<HDRSwitch>("HDRSwitch"));
+//        modules.push_back(createModule<HDRSwitch>("HDRSwitch"));
         modules.push_back(createModule<PoseEstimationRokid>("PoseEstimationRokid"));
         modules.push_back(createModule<GestureUnderstanding>("GestureUnderstanding"));
         modules.push_back(createModule<CollisionDetection>("CollisionDetection"));
@@ -75,7 +75,7 @@ namespace {
                                                "TUILIGAN",
                                                "YIBIAOPAN",
                                                "zhong1", "zhong2",
-                                               "zhongyou", "zhongzuo", "zhongzuo1"};
+                                               "zhongyou", "zhongzuo1"};
 
         for(int i = 0; i < model_list.size(); i++) {
             std::string model_name = model_list[i];
@@ -139,7 +139,7 @@ namespace {
 
             auto frameData = _eng->frameData;
             Rendering->Init(*_eng->appData.get(), *_eng->sceneData.get(), frameData);
-//            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
+            if(_eng->appData->isLoadMap || _eng->appData->isBuildMap)
                 _eng->connectServer("192.168.1.102", 1203);
             _eng->start();
 
@@ -154,6 +154,7 @@ namespace {
             if (_eng) {
                 std::shared_ptr<PoseEstimationRokid> poseEstimationRokidPtr = std::static_pointer_cast<PoseEstimationRokid>(_eng->getModule("PoseEstimationRokid"));
                 if(poseEstimationRokidPtr != nullptr) {
+                    std::lock_guard<std::mutex> lock(_eng->sceneData->renderUploadLock);
                     std::vector<glm::mat4> &joc = poseEstimationRokidPtr->get_joint_loc();
                     Rendering->joc = joc;
 
@@ -200,12 +201,19 @@ namespace {
 
                     _eng->sceneData->project.clear();
                     _eng->sceneData->view.clear();
-                    for(int i = 0; i < 4; i++){
-                        for(int j = 0; j < 4; j++){
-                            _eng->sceneData->project.push_back(Rendering->project[i][j]);
-                            _eng->sceneData->view.push_back(Rendering->view[i][j]);
-                        }
+                    if(_eng->sceneData->isLeft){
+                        std::lock_guard<std::mutex> lock(_eng->sceneData->renderUploadLock);
+                        for(int i = 0; i < 4; i++){
+                            for(int j = 0; j < 4; j++){
+                                _eng->sceneData->project.push_back(Rendering->project[i][j]);
+                                _eng->sceneData->view.push_back(Rendering->view[i][j]);
+                            }
 //                        LOGI("%f, %f, %f, %f", Rendering->view[i][0], Rendering->view[i][1],Rendering->view[i][2], Rendering->view[i][3]);
+                        }
+                        _eng->sceneData->isLeft = false;
+                    }
+                    else{
+                        _eng->sceneData->isLeft = true;
                     }
 
                     Rendering->Update(*_eng->appData.get(), *_eng->sceneData.get(), frameDataPtr);

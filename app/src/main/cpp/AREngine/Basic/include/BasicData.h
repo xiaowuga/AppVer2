@@ -505,7 +505,9 @@ public:
     std::vector<std::vector<double>> model_transforms_vector;
     std::vector<std::string> instance_names;
     std::vector<std::string> model_paths;
-    bool render_init_done = false;
+    // false代表需要等待远程，true代表不需要等待
+    bool render_init_done = true;
+    bool isLeft = true;
 
     std::vector<double> project = {
             1,0,0,0,

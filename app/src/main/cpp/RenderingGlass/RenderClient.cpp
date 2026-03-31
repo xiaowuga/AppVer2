@@ -134,7 +134,7 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
         static bool dashboard_instances_collected = false;
         if (!dashboard_instances_collected) {
             dashboard_instances_collected = true;
-
+            std::lock_guard<std::mutex> lock(sceneData.renderUploadLock);
 
             cadDataManager::DataInterface::setActiveDocumentData("YIBIAOPAN");
             auto MapInfo = cadDataManager::DataInterface::getRenderInfoMap();

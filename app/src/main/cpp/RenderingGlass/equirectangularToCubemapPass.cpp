@@ -45,7 +45,7 @@ void EquirectangularToCubemapPass::initShader() {
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrComponents;
 
-    std::vector<char> buffer = readFileFromAssets("textures/hdr/studio.hdr");
+    std::vector<char> buffer = readFileFromAssets("textures/hdr/4.hdr");
     float* data = stbi_loadf_from_memory(reinterpret_cast<const stbi_uc*>(buffer.data()), buffer.size(), &width, &height, &nrComponents, 0);
 
     if (data)

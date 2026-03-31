@@ -171,7 +171,8 @@ void main()
     //float ao = texture(ssao, TexCoords).r;
 
     // input lighting data
-    vec3 N = getNormalFromMap();
+    //vec3 N = getNormalFromMap();
+    vec3 N = Normal;
     vec3 V = normalize(camPos - WorldPos);
     vec3 R = reflect(-V, N);
 
@@ -215,7 +216,7 @@ void main()
         float NdotL = max(dot(N, L), 0.0);
 
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        //Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
 
     // ambient lighting (we now use IBL as the ambient term)
@@ -253,14 +254,23 @@ void main()
 
     FragColor = vec4(color , 1.0);
 
+    //vec3 debugDiffuse = diffuse;
+    //debugDiffuse = debugDiffuse / (debugDiffuse + vec3(1.0)); // ToneMapping
+    //debugDiffuse = pow(debugDiffuse, vec3(1.0/2.2));          // Gamma矫正
+    //FragColor = vec4(debugDiffuse, 1.0);
+
+    //float NdotV = dot(N, V);
+    //vec3 nV = normalize(V);
     //vec3 testnormalMap = texture(normalMap, TexCoords).xyz;
     //FragColor = vec4(testnormalMap, 1.0); // for debugging normal map
     //FragColor = vec4(albedo, 1.0); // for debugging albedo map
     //FragColor = vec4(metallic,metallic,metallic, 1.0); // for debugging metallic value
+    //FragColor = vec4(normalize(camPos), 1.0); // for debugging kD value
      //FragColor = vec4(roughness,roughness,roughness, 1.0); // for debugging roughness value
      //vec3 testShadowMap = texture(shadowMap, TexCoords).xxx;
      //FragColor = vec4(testShadowMap, 1.0);
      //FragColor = vec4(normalize(Normal), 1.0);
      //FragColor = vec4(vec3(ao), 1.0);
+     //FragColor = vec4(specular, 1.0);
      //FragColor = vec4(ScreenCoords,1.0, 1.0);
 }

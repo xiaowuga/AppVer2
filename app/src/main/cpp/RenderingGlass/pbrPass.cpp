@@ -97,7 +97,7 @@ void PbrPass::initShader() {
 void PbrPass::draw() {
     GL_CALL(glFrontFace(GL_CCW));
     GL_CALL(glCullFace(GL_BACK));
-    GL_CALL(glEnable(GL_CULL_FACE));
+//    GL_CALL(glEnable(GL_CULL_FACE));
 //    GL_CALL(glEnable(GL_DEPTH_TEST));
 //    GL_CALL(glEnable(GL_BLEND));
 //    GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -130,8 +130,12 @@ bool PbrPass::render(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
 //    glm::mat4 view = camera.GetViewMatrix();
     mShader.setUniformMat4("view", v);
 
-//TODO: gyp:相机位置参数没传
-//    mShader.setVec3("camPos", camera.Position);
+    glm::vec3 cameraPos = glm::vec3(
+            -v[0][0] * v[3][0] - v[0][1] * v[3][1] - v[0][2] * v[3][2],
+            -v[1][0] * v[3][0] - v[1][1] * v[3][1] - v[0][1] * v[3][2],
+            -v[2][0] * v[3][0] - v[2][1] * v[3][1] - v[2][2] * v[3][2]
+    );
+    mShader.setUniformVec3("camPos", cameraPos);
 
     auto irradiancePass = passManager.getPassAs<IrradiancePass>("irradiance");
     GLuint irradianceMap = irradiancePass->getIrradianceMap();
@@ -289,8 +293,13 @@ void PbrPass::render(const glm::mat4 &p, const glm::mat4 &v) {
     glm::mat4 model = glm::mat4(1.0f);
 //    glm::mat4 view = camera.GetViewMatrix();
     mShader.setUniformMat4("view", v);
-//TODO: gyp:相机位置参数没传
-//    mShader.setVec3("camPos", camera.Position);
+
+    glm::vec3 cameraPos = glm::vec3(
+            -v[0][0] * v[3][0] - v[0][1] * v[3][1] - v[0][2] * v[3][2],
+            -v[1][0] * v[3][0] - v[1][1] * v[3][1] - v[0][1] * v[3][2],
+            -v[2][0] * v[3][0] - v[2][1] * v[3][1] - v[2][2] * v[3][2]
+    );
+    mShader.setUniformVec3("camPos", cameraPos);
 
     auto shadowPass = passManager.getPassAs<ShadowMappingDepthPass>("shadowMappingDepth");
     glm::mat4 lightSpaceMatrix = shadowPass->getLightSpaceMatrix();
