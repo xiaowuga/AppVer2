@@ -202,7 +202,6 @@ void renderMesh::drawShadowMap(renderShader& shader) const{
 
     // 绘制网格
     glBindVertexArray(mVAO);
-    //TODO: LiZiRui: 后面可以用实例化绘制优化
 //    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mIndices.size()), GL_UNSIGNED_INT, 0);
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mIndices.size()), GL_UNSIGNED_INT, 0, mTransformNum);
     glBindVertexArray(0);
@@ -267,7 +266,6 @@ void renderMesh::drawPBR(renderShader& shader) {
 
     // 绘制网格
     glBindVertexArray(mVAO);
-    //TODO: LiZiRui: 后面可以用实例化绘制优化
 //    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mIndices.size()), GL_UNSIGNED_INT, 0);
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mIndices.size()), GL_UNSIGNED_INT, 0, mTransformNum);
     glBindVertexArray(0);

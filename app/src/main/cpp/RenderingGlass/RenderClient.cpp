@@ -47,23 +47,10 @@ int RenderClient::Init(AppData& appData, SceneData& sceneData, FrameDataPtr fram
 
     sceneData.baseModelCount = (int)scene_virtualObjects.size();
 
-//    SerilizedObjs cmdSend = {
-//            {"cmd", std::string("initARCloudRenderer")},
-//            {"width", 640},
-//            {"height", 480},
-//            {"upsample_scale", 2},
-//            {"KParameters", std::vector<double>{281.60213015, 281.37377039, 318.69481832, 243.6907021}},
-//            {"model_transforms", model_transforms_vector},
-//            {"instance_names", instance_names},
-//            {"model_paths", model_paths}
-//    };
-//    app->postRemoteCall(this, nullptr, cmdSend);
-
     //加载模型的动画数据：Action + State
     cadDataManager::DataInterface::loadAnimationActionData(appData.animationActionConfigFile);
     cadDataManager::DataInterface::loadAnimationStateData(appData.animationStateConfigFile);
 
-//    mModel->loadModel("model/backpack/backpack.obj");
     // 获取RenderPassManager单例
     auto& passManager = RenderPassManager::getInstance();
     // 初始化渲染通道、注册渲染通道
@@ -166,14 +153,21 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 
         glm::mat4 model_trans_mat = glm::mat4(1.0);
 
-        //交互需要的接口
-        if (!sceneData.actionPassage.isEmpty()) {
+        //交互需要的接口：仅在当前无动画播放时才读取新的actionPassage
+        if (actionFrame < 0 && !sceneData.actionPassage.isEmpty()) {
             state = true;
             modelName = sceneData.actionPassage.modelName;
             instanceName = sceneData.actionPassage.instanceName;
             originState = sceneData.actionPassage.originState;
             targetState = sceneData.actionPassage.targetState;
             instanceId = sceneData.actionPassage.instanceId;
+
+            // 读取后立即清空，防止重复触发
+            {
+                std::lock_guard<std::mutex> lock(sceneData.actionLock);
+                sceneData.actionPassage.clear();
+            }
+
             //设置活跃模型
             cadDataManager::DataInterface::setActiveDocumentData(modelName);
             auto animationState = cadDataManager::DataInterface::getAnimationStateByName(modelName,
@@ -308,11 +302,8 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
 
             if ((actionFrame * 3 + 3) == positionArray.size()) {
                 actionFrame = -1;
-                sceneData.actionLock.lock();
-                sceneData.actionPassage.clear();
                 positionArray.clear();
                 quaternionArray.clear();
-                sceneData.actionLock.unlock();
 
                 // animation ended, clear animation buffer in sceneData
                 {

@@ -92,8 +92,6 @@ const float PI = 3.14159265359;
 // technique somewhere later in the normal mapping tutorial.
 vec3 getNormalFromMap()
 {
-//TODO: gyp:等待模型加载模块集成以后，取消"!"
-    vec3 tangentNormal = useNormalMap? (texture(normalMap, TexCoords).xyz * 2.0 - 1.0) : vec3(0.0,0.0,1.0);
 
     vec3 Q1  = dFdx(WorldPos);
     vec3 Q2  = dFdy(WorldPos);

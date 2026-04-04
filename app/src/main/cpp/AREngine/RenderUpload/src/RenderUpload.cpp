@@ -37,6 +37,7 @@ int RenderUpload::Init(AppData &appData, SceneData &sceneData, FrameDataPtr fram
     return STATE_OK;
 }
 
+//todo: 现在定位到传输的数据有缺失，导致渲染崩溃
 int RenderUpload::Update(AppData &appData, SceneData &sceneData, FrameDataPtr frameDataPtr) {
     // 30fps throttle
     auto now = std::chrono::steady_clock::now();

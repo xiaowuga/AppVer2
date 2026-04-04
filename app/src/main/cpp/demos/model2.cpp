@@ -308,8 +308,6 @@ Mesh Model::createMeshFromCustomData(const std::vector<glm::vec3> &positions,
     texture.active = isActive;
     texture.type = "texture_diffuse";
     glGenTextures(1, &texture.id);
-//TODO: LiZiRui: 后面可以用实例化绘制优化,小mesh的matrix
-//    infof("transformNum %f", transformNum);
     return Mesh(vertices, indices, textures, material, transformNum, transformVector);
 }
 
