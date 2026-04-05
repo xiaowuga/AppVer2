@@ -20,7 +20,7 @@ public:
     ~renderModel();
 
     std::vector<cadDataManager::pmiInfo> pmi;
-    std::map<std::string, int> protoId;
+    std::unordered_map<std::string, int> protoId;
     std::vector<std::string> nameVector;
     std::vector<std::vector<glm::vec3>> verticesVector;
     std::vector<std::vector<glm::vec3>> normalsVector;

@@ -180,21 +180,12 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
                     quaternionArray = anKeyframe.quaternionArray;
                 }
             }
-            // 检查key是否存在，不存在则添加，默认值为false
-            // find 方法返回迭代器，end() 表示未找到
-            if (isHighLight.find(instanceName) == isHighLight.end()) {
-                isHighLight[instanceName] = false; // 新增键值对，默认false
-                //高亮模型
-                highlightInstance(modelName, instanceId);
-                // 将该key对应的值改为true
-                // 此时key必定存在（不存在已在上一步添加），直接赋值即可
-                isHighLight[instanceName] = true;
-            } else if (isHighLight[instanceName] == false) {
-                //高亮模型
-                highlightInstance(modelName, instanceId);
-                // 将该key对应的值改为true
-                // 此时key必定存在（不存在已在上一步添加），直接赋值即可
-                isHighLight[instanceName] = true;
+            // 仅在没有找到动画脚本时才高亮零件（姿态正确但无对应动画，用于指引操作者）
+            if (positionArray.empty()) {
+                if (!isHighLight[instanceName]) {
+                    highlightInstance(modelName, instanceId);
+                    isHighLight[instanceName] = true;
+                }
             }
 
 
@@ -243,16 +234,32 @@ int RenderClient::Update(AppData& appData, SceneData& sceneData, FrameDataPtr fr
             std::vector<float> matrix = cadDataManager::DataInterface::composeMatrix(position,
                                                                                      quaternion);
 
-            std::unordered_map<std::string, std::vector<cadDataManager::RenderInfo>> modifyModel;
+            // 先恢复高亮颜色（删除多余的高亮零件），再执行动画
+            if (isHighLight[instanceName]) {
+                // 记录恢复前每个proto的mesh数量，用于后续删除高亮多余的mesh
+                std::unordered_map<std::string, int> oldMeshCounts = mModel->protoId;
 
-//        //测试高亮的接口，需要把restoreInstanceColor给注释掉
-//        highlightInstance(modelName, instanceId);
-            cadDataManager::DataInterface::restoreInstanceColor(instanceId);//零件实例高亮的恢复
-            isHighLight[instanceName] = false;
-//        cadDataManager::DataInterface::modifyInstanceColor(instanceId, "#FF0000");//零件实例高亮的修改
+                auto restoreModel = cadDataManager::DataInterface::restoreInstanceColor(instanceId);
+                mModel->processMeshData(restoreModel);
+
+                // 删除高亮时多出来的mesh（恢复后的数量 < 恢复前的数量）
+                for (auto& kv : restoreModel) {
+                    auto& protoName = kv.first;
+                    int newCount = (int)kv.second.size();
+                    auto oldIt = oldMeshCounts.find(protoName);
+                    if (oldIt != oldMeshCounts.end() && newCount < oldIt->second) {
+                        for (int i = newCount; i < oldIt->second; i++) {
+                            mModel->getMMeshes()->erase(protoName + std::to_string(i));
+                        }
+                    }
+                }
+
+                isHighLight[instanceName] = false;
+            }
+
+            std::unordered_map<std::string, std::vector<cadDataManager::RenderInfo>> modifyModel;
             modifyModel = cadDataManager::DataInterface::modifyInstanceMatrix(instanceId,
                                                                               matrix);//零件实例位置的修改
-
             mModel->processMeshData(modifyModel);
 
 

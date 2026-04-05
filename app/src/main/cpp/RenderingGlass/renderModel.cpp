@@ -940,14 +940,10 @@ void renderModel::processMeshData(std::unordered_map<std::string, std::vector<ca
                 temp++;
             }
         }
-        mMeshes->erase(name+std::to_string(temp));//高亮时可能会多一个mesh，删去
 
         if(temp != 0)
         {
-            protoId.insert(std::pair<std::string, int>(
-                    name,
-                    temp
-            ));
+            protoId[name] = temp;
         }
 
 //        auto currentTime = std::chrono::high_resolution_clock::now();
